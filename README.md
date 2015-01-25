@@ -114,7 +114,7 @@ or the attribute and the value to be removed
     my_collection.get('name', 'second');
 
 
-### where selector
+### Where
 
 You may pass a JSON select object to `Collection.where()` in order to
 make a selection within the collection.
@@ -134,6 +134,44 @@ make a selection within the collection.
     // returns new Collection([{id: 1, name: 'Joe'}])
 
 The value returned by `Collection.where()` is always a Collection instance.
+
+### Select
+
+Select will return the attributes you pick, not unlike pluck but with a twist.
+If you provide a string, `Collection.select()` will return you an array of value
+
+    var my_collection = new Collection([
+      {id: 1, first_name: 'Joe', last_name: 'Doe'},
+      {id: 2, first_name: 'Joe', last_name: 'Regan'},
+      {id: 3, first_name: 'Tedd', last_name: 'Ford'}
+    ]);
+
+    my_collection.select('id');
+    // returns [1,2,3]
+
+But if you pass it an array of keys, you'll receive a array of JSON object
+composed only of those keys
+
+    my_collection.select(['id','first_name'])
+    // returns  [{id: 1, first_name: 'Joe'},{id: 2, first_name: 'Joe'}...]
+
+
+*Note*: Now you can get fancy and do stuff like an intersection of collection
+
+
+    var engineers = new Collection([
+      {id: 1, first_name: 'Joe', last_name: 'Doe'},
+      {id: 2, first_name: 'Joe', last_name: 'Regan'},
+    ]);
+
+    var professors = new Collection([
+      {id: 1, first_name: 'Joe', last_name: 'Doe'},
+      {id: 3, first_name: 'Tedd', last_name: 'Ford'}
+    ]);
+
+    professor_engineers = new professors.where({'id': engineers.select('id')});
+    // returns new Collection([{id: 1, first_name: 'Joe', last_name: 'Doe'}])
+
 
 
 ### filter

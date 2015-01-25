@@ -159,6 +159,35 @@ function Collection(_models, primary_key) {
     }
 
     /*
+     * Return only the selected attribute
+     *
+     * // select the id only
+     * collection.select('id');
+     * returns an array of the contained ids [1, 2, 3...]
+     *
+     * // select the names and id
+     * collection.select(['id', 'name'])
+     * // returns [{id: 1, name: 'Joe'}, {id: 2, name: 'Fred'}...]
+     */
+    function select(names) {
+      var result = [];
+      if (typeof names === 'string'){
+        each(function(model){
+          result.push(model[names]);
+        });
+      }else{
+        each(function(model){
+          var values = {};
+          for(var i = 0; i < names.length; i++){
+            values[names[i]] = model[names[i]];
+          }
+          result.push(values);
+        });
+      }
+      return result;
+    }
+
+    /*
      * Reverse the order of the current collection
      *
      * > collection.models
