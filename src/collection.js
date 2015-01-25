@@ -297,6 +297,7 @@ function Collection(_models, primary_key) {
       'filter': filter,
       'each': each,
       'where': where,
+      'select': select,
       'sort': sort,
       'get': get,
       'remove': remove,
