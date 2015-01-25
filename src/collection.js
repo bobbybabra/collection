@@ -27,9 +27,10 @@
 
 function Collection(_models, primary_key) {
     // by default primary key is set to be 'id'
-    var primary_key = primary_key || 'id';
     var models = [];
     var index = {};
+
+    primary_key = primary_key || 'id';
 
     if(_models) {
       add(_models);
@@ -81,8 +82,8 @@ function Collection(_models, primary_key) {
      * var first_three = collection.each(callback);
      */
     function each(callback) {
-        var result = [];
-        for (var r = i = 0; r !== false && i < models.length; i++) {
+        var r, i, result = [];
+        for (r = i = 0; r !== false && i < models.length; i++) {
             r = callback(models[i], i);
             if(r) result.push(r);
         }
