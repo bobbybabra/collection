@@ -59,7 +59,7 @@ Every model needs to have an ID. A convenience `Collection.uuid()` method
 is provided for you to generate random unique IDs.
 
 
-### Add to a collection
+### Collection.add
 
 `Collection.add()` accepts an array or a single element to add to the
 collection.
@@ -77,7 +77,7 @@ collection.
     my_collection.get(1).name;
 
 
-### Remove from a collection
+### Collection.remove
 
 `Collection.remove()` takes either the primary key to be removed
 
@@ -93,7 +93,7 @@ or the attribute and the value to be removed
     my_collection.remove('name', 'second');
 
 
-### get from a collection
+### Collection.get
 
 Same as remove, `Collection.get()` accepts a primary key or an
 attribute and value to match.
@@ -114,7 +114,7 @@ or the attribute and the value to be removed
     my_collection.get('name', 'second');
 
 
-### Where
+### Collection.where
 
 You may pass a JSON select object to `Collection.where()` in order to
 make a selection within the collection.
@@ -135,7 +135,7 @@ make a selection within the collection.
 
 The value returned by `Collection.where()` is always a Collection instance.
 
-### Select
+### Collection.select
 
 Select will return the attributes you pick, not unlike pluck but with a twist.
 If you provide a string, `Collection.select()` will return you an array of value
@@ -174,15 +174,15 @@ composed only of those keys
 
 
 
-### filter
+### Collection.filter
 
 An alternative to `Collection.where` is to use a filter. `Collection.filter`
 simply accepts a callback. The callback will be called with every object
 contained in the collection. If the callback returns false, the object will
 be filtered out from the returned Collection, else it will be kept.
 
-    function is_odd(value) {
-      return value % 2
+    function has_odd_id(object) {
+      return object.id % 2
     }
 
     var my_collection = new Collection([
@@ -191,12 +191,12 @@ be filtered out from the returned Collection, else it will be kept.
       {id: 3, name: 'Tedd'}
     ]);
 
-    my_collection.filter(is_odd);
+    my_collection.filter(has_odd_id);
     // returns new Collection([{id: 1, name: 'Joe'}, {id: 3, name: 'Tedd'}])
 
 The value returned by `Collection.filter()` is always a Collection instance.
 
-### sort
+### Collection.sort
 
 All to sort the collection according to a given attribute. You may also pass
 one of your sorting method as second arguments
