@@ -55,8 +55,8 @@ every object contained by the collection.
 By default the `Collection` will be emtpy and the primary key will be
 set to `id`.
 
-Every model need to have an ID. A convenience `Collection.uuid()` method
-is provided for you to generate randome unique IDs.
+Every model needs to have an ID. A convenience `Collection.uuid()` method
+is provided for you to generate random unique IDs.
 
 
 ### Add to a collection
@@ -148,10 +148,12 @@ The value returned by `Collection.filter()` is always a Collection instance.
 
 ### Other quickies
 
-* `isEmpty()`: Return true if the collection doesn't contain any object
-* `empty()`: Flushes the collection, removes all the object it contains
-* `size()`: Returns the size of the collection
-* `each(callback)`: Calls callback(obj) for every object in the collection
+* `isEmpty()`: Return true if the collection doesn't contain any object.
+* `empty()`: Flushes the collection, removes all the object it contains.
+* `size()`: Returns the size of the collection.
+* `each(callback)`: Calls callback(obj) for every object in the collection.
+* `uuid()`: returns a uniq valid UUID4 format.
+* `reverse()`: returns the collection in a reversed order.
 
 
 ## License
