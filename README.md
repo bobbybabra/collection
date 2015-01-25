@@ -130,7 +130,7 @@ make a selection within the collection.
     ]);
 
     // filters id with a callable and name with a value
-    my_collection.where({id: is_odd, name: 'Joe'})
+    my_collection.where({id: is_odd, name: 'Joe'});
     // returns new Collection([{id: 1, name: 'Joe'}])
 
 The value returned by `Collection.where()` is always a Collection instance.
@@ -143,8 +143,34 @@ simply accepts a callback. The callback will be called with every object
 contained in the collection. If the callback returns false, the object will
 be filtered out from the returned Collection, else it will be kept.
 
+    function is_odd(value) {
+      return value % 2
+    }
+
+    var my_collection = new Collection([
+      {id: 1, name: 'Joe'},
+      {id: 2, name: 'Joe'},
+      {id: 3, name: 'Tedd'}
+    ]);
+
+    my_collection.filter(is_odd);
+    // returns new Collection([{id: 1, name: 'Joe'}, {id: 3, name: 'Tedd'}])
+
 The value returned by `Collection.filter()` is always a Collection instance.
 
+### sort
+
+All to sort the collection according to a given attribute. You may also pass
+one of your sorting method as second arguments
+
+    var my_collection = new Collection([
+      {id: 1, name: 'Joe'},
+      {id: 2, name: 'Alan'},
+      {id: 3, name: 'Fred'}
+    ]);
+
+    my_collection.sort('name');
+    // returns new Collection([{id: 2, name: 'Alan'}, {id: 3, name: 'Fred'}, {id: 1, name: 'Joe'}])
 
 ### Other quickies
 
@@ -154,7 +180,7 @@ The value returned by `Collection.filter()` is always a Collection instance.
 * `each(callback)`: Calls callback(obj) for every object in the collection.
 * `uuid()`: returns a uniq valid UUID4 format.
 * `reverse()`: returns the collection in a reversed order.
-
+* `models`: returns the collection's content (an array)
 
 ## License
 
