@@ -1,7 +1,7 @@
 # collection
 Handles collection for store (a la backbone)
 
-## Usage
+## Quick Usage
 
     var test_1 = {
         id: 1,
@@ -43,6 +43,116 @@ Handles collection for store (a la backbone)
     console.log('--get--');
     var model = tests.get('title', 'test 2')
     console.log(model);
+
+## How to
+
+### Create a collection
+
+Collection constructor takes 2 optional arguments. The first argument is
+expected to be an array of object, the second defines the primary key for
+every object contained by the collection.
+
+By default the `Collection` will be emtpy and the primary key will be
+set to `id`.
+
+Every model need to have an ID. A convenience `Collection.uuid()` method
+is provided for you to generate randome unique IDs.
+
+
+### Add to a collection
+
+`Collection.add()` accepts an array or a single element to add to the
+collection.
+
+    var my_collection = new Collection();
+    my_collection.add({id: 1, name: 'first'});
+
+    // returns 'first'
+    my_collection.get(1).name;
+
+    // add with same id will replace existing element
+    my_collection.add([{id: 1, name: 'new first'}]);
+
+    // returns 'new first'
+    my_collection.get(1).name;
+
+
+### Remove from a collection
+
+`Collection.remove()` takes either the primary key to be removed
+
+    var my_collection = new Collection();
+    my_collection.add({id: 1, name: 'first'}, {id: 2, name: 'second'}]);
+
+    // remove object with id (primary key) equal to 1
+    my_collection.remove(1);
+
+or the attribute and the value to be removed
+
+    // remove object with name equal to 'second'
+    my_collection.remove('name', 'second');
+
+
+### get from a collection
+
+Same as remove, `Collection.get()` accepts a primary key or an
+attribute and value to match.
+
+If a primary key is passed a single element will be returned,
+in the the case of an attribute name and value you'll receive
+an array (possibly empty)
+
+    var my_collection = new Collection();
+    my_collection.add({id: 1, name: 'first'}, {id: 2, name: 'second'}]);
+
+    // returns {id: 1, name: 'first'}
+    my_collection.get(1);
+
+or the attribute and the value to be removed
+
+    // returns [{id: 2, name: 'second'}]
+    my_collection.get('name', 'second');
+
+
+### where selector
+
+You may pass a JSON select object to `Collection.where()` in order to
+make a selection within the collection.
+
+    function is_odd(value) {
+      return value % 2
+    }
+
+    var my_collection = new Collection([
+      {id: 1, name: 'Joe'},
+      {id: 2, name: 'Joe'},
+      {id: 3, name: 'Tedd'}
+    ]);
+
+    // filters id with a callable and name with a value
+    my_collection.where({id: is_odd, name: 'Joe'})
+    // returns new Collection([{id: 1, name: 'Joe'}])
+
+The value returned by `Collection.where()` is always a Collection instance.
+
+
+### filter
+
+An alternative to `Collection.where` is to use a filter. `Collection.filter`
+simply accepts a callback. The callback will be called with every object
+contained in the collection. If the callback returns false, the object will
+be filtered out from the returned Collection, else it will be kept.
+
+The value returned by `Collection.filter()` is always a Collection instance.
+
+
+### Other quickies
+
+* `isEmpty()`: Return true if the collection doesn't contain any object
+* `empty()`: Flushes the collection, removes all the object it contains
+* `size()`: Returns the size of the collection
+* `each(callback)`: Calls callback(obj) for every object in the collection
+
 
 ## License
 
