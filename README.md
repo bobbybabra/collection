@@ -11,12 +11,11 @@ By running ```$ bower install simple-collection``` from your console.
 
 Include collection.js (or collection.min.js) in your index.html.
 
-
 ```html
 <!doctype html>
 <html>
   <head>
-    <script src="bower_components/simple-collection/src/collection.min.js">
+    <script src="/bower_components/simple-collection/src/collection.min.js">
     ...
   <head>
 ```
@@ -132,16 +131,16 @@ an array (possibly empty)
 var my_collection = new Collection();
 my_collection.add({id: 1, name: 'first'}, {id: 2, name: 'second'}]);
 
-// returns {id: 1, name: 'first'}
 my_collection.get(1);
+// returns {id: 1, name: 'first'}
 ```
 
 or the attribute and the value to match across the collection. Beware that
 this method will return an array and not a single model as previously.
 
 ```javascript
-// returns [{id: 2, name: 'second'}]
 my_collection.get('name', 'second');
+// returns [{id: 2, name: 'second'}]
 ```
 
 
@@ -260,8 +259,8 @@ my_collection.sort('name');
 * `size()`: Returns the size of the collection.
 * `each(callback)`: Calls callback(obj) for every object in the collection.
 * `uuid()`: returns a uniq valid UUID4 format.
-* `reverse()`: returns the collection in a reversed order.
-* `models`: returns the collection's content (an array)
+* `reverse()`: reverse and returns the collection (not a new collection).
+* `models`: returns the collection's content (an array).
 
 ## License
 
