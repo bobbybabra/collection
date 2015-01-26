@@ -136,7 +136,8 @@ my_collection.add({id: 1, name: 'first'}, {id: 2, name: 'second'}]);
 my_collection.get(1);
 ```
 
-or the attribute and the value to be removed
+or the attribute and the value to match across the collection. Beware that
+this method will return an array and not a single model as previously.
 
 ```javascript
 // returns [{id: 2, name: 'second'}]
