@@ -15,7 +15,7 @@ Include collection.js (or collection.min.js) in your index.html.
 <!doctype html>
 <html>
   <head>
-    <script src="/bower_components/simple-collection/src/collection.min.js">
+    <script src="/bower_components/simple-collection/src/collection.min.js"></script>
     ...
   </head>
   <body>
