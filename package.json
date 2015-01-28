@@ -1,0 +1,30 @@
+{
+  "name": "simple-collection",
+  "version": "0.0.3",
+  "description": "Manage collection of JSON objects.",
+  "main": "Gruntfile.js",
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-qunit": "^0.5.2"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/debrice/collection.git"
+  },
+  "keywords": [
+    "collection",
+    "json",
+    "object",
+    "javascript"
+  ],
+  "author": "Brice Leroy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/debrice/collection/issues"
+  },
+  "homepage": "https://github.com/debrice/collection"
+}
