@@ -1,5 +1,24 @@
 # collection
-Handles collection for store (a la backbone)
+Handles collection (à la backbone) for your store and other things. It's not opiniated, not doing AJAX, not doing views, not doing routing etc... Just does one thing, manage collections of your objects and is good at it.
+
+2.7kb, no dependencies, to do things cool things like:
+
+```javascript
+function is_odd(value) {
+  return value % 2
+}
+
+var my_collection = new Collection([
+  {id: 1, first_name: 'John', last_name: 'Doe'},
+  {id: 2, first_name: 'John', last_name: 'Regan'},
+  {id: 3, first_name: 'Tedd', last_name: 'Ford'}
+]);
+
+// filters id with a callable and first_name with a value, only select first_name and last_name
+my_collection.where({id: is_odd, first_name: 'John'}).select(['first_name', 'last_name']);
+// returns [{last_name: 'Doe', first_name: 'John'}]
+```
+
 
 ## Install
 
@@ -42,7 +61,7 @@ var test_3 = {
     title: "test 3"
 };
 
-var tests = Collection([test_1, test_2, test_3]);
+var tests = new Collection([test_1, test_2, test_3]);
 
 console.log('--each--');
 tests.each(function (model) {
