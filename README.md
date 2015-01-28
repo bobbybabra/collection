@@ -1,9 +1,9 @@
 # collection
-Handles collection (à la backbone) for your store and other things. It's not opiniated, not doing AJAX, not doing views, not doing routing etc... Just does one thing, manage collections of your objects and is good at it.
+Handles collection (à la backbone) for your store and other things. It's not opiniated, not doing AJAX, not doing views, not doing routing etc... It just does one thing, manage your object collections and does it well.
 
 [![Build Status](https://travis-ci.org/debrice/collection.svg?branch=master)](https://travis-ci.org/debrice/collection)
 
-2.7kb, no dependencies, to do things cool things like:
+2.7kb, no dependencies, to do cool things like:
 
 ```javascript
 function is_odd(value) {
