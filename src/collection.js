@@ -238,7 +238,7 @@ function Collection(_models, primary_key) {
      * // return model with the pk set to 1
      * var model = collection.get(1);
      * // return model with email "john.doe@gmail.com"
-     * var user = collection.get('email', 'john.doe@gmail.com'
+     * var user = collection.get('email', 'john.doe@gmail.com')
      */
     function get(attribute, value) {
         // if get(id) gets called we consider that

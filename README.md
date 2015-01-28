@@ -127,9 +127,10 @@ my_collection.remove('name', 'second');
 Same as remove, `Collection.get()` accepts a primary key or an
 attribute and value to match.
 
-If a primary key is passed a single element will be returned,
+A single element is always returned. If a primary key is passed
+the corresponding object will be returned,
 in the the case of an attribute name and value you'll receive
-an array (possibly empty)
+the first matching object.
 
 ```javascript
 var my_collection = new Collection();
@@ -139,12 +140,11 @@ my_collection.get(1);
 // returns {id: 1, name: 'first'}
 ```
 
-or the attribute and the value to match across the collection. Beware that
-this method will return an array and not a single model as previously.
+or the attribute and the value to match across the collection.
 
 ```javascript
 my_collection.get('name', 'second');
-// returns [{id: 2, name: 'second'}]
+// returns {id: 2, name: 'second'}
 ```
 
 
@@ -267,6 +267,8 @@ my_collection.sort('name');
 * `models`: returns the collection's content (an array).
 
 ## License
+
+##
 
 This library is released under the MIT license
 
