@@ -285,9 +285,25 @@ my_collection.sort('name');
 * `reverse()`: reverse and returns the collection (not a new collection).
 * `models`: returns the collection's content (an array).
 
-## License
+## Testing
 
-##
+Test are run using QUnit library. First download this repository
+
+```
+$ git clone git@github.com:debrice/collection.git
+```
+
+then inside the repository install the QUnit library using bower
+
+```
+$ cd collection
+$ bower install --dev
+```
+
+Then simply open the `test.html` file with the web-browser you want to run the
+test against. The tests can be found in the `src/test.js` file.
+
+## License
 
 This library is released under the MIT license
 

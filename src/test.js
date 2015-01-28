@@ -96,16 +96,16 @@ QUnit.module("Collection where");
 QUnit.test("Should return a collection matching the clause", function( assert ) {
     var collection = new Collection([john, fred, tim]);
 
-    the_does = collection.where({last_name: 'doe'});
+    var the_does = collection.where({last_name: 'doe'});
     assert.deepEqual(the_does.models, [fred, tim],
       "Where should accept an attribute and value to match against");
 
     function is_odd(value){ return value % 2; }
-    the_odds = collection.where({id: is_odd});
+    var the_odds = collection.where({id: is_odd});
     assert.deepEqual(the_odds.models, [john, tim],
       "Where should accept an attribute function to match against");
 
-    the_odd_does = collection.where({last_name: 'doe', id: is_odd});
+    var the_odd_does = collection.where({last_name: 'doe', id: is_odd});
     assert.deepEqual(the_odd_does.models, [tim],
       "Where should accept function and a value mixed together");
 });
@@ -116,7 +116,7 @@ QUnit.test("Should return a collection matching the filter", function( assert ) 
 
     function is_a_doe(model){ return model.last_name === "doe"; }
 
-    the_does = collection.filter(is_a_doe);
+    var the_does = collection.filter(is_a_doe);
     assert.deepEqual(the_does.models, [fred, tim],
       "Where should keep only matching models");
 });
