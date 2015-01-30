@@ -106,11 +106,11 @@ will index by the 'id' key. To change this behavior, simply pass the primary key
 to the constructor:
 
 ```javascript
-models = [
+var models = [
  {ext_id: 1, value: 'one'},
  {ext_id: 2, value: 'two'},
  {ext_id: 3, value: 'three'}
-]
+];
 var my_collection = new Collection(models, 'ext_id');
 ```
 
