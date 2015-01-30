@@ -2,7 +2,7 @@
 
 Handles collection (à la backbone) for your store and other things. It's not opiniated, not doing AJAX, not doing views, not doing routing etc... Just does one thing, manage collections of your objects and is good at it.
 
-2.7kb, no dependencies, to do cool things like:
+2.2kb, no dependencies, to do cool things like:
 
 ```javascript
 function is_odd(value) {
@@ -200,6 +200,29 @@ my_collection.where({id: is_odd, name: 'Joe'});
 ```
 
 The value returned by `Collection.where()` is always a Collection instance.
+
+### Where helpers
+
+Where comes with some helpers to make your life easier.
+
+* `collection.min(value)`: Only keep value equal or above the value
+* `collection.max(value)`: Only keep value equal or under the value
+* `collection.within(value, value)`: Only keep value within the values (inclusive)
+* `collection.contains(str)`: Accept a string or regexp to match string against
+* `collection.fuzzy(str)`: Fuzzy match strings "to ea" will match "Today I eat"
+
+Usage:
+
+```javascript
+var collection = new Collection([
+  {id: 1, name: 'Joe', age: 16},
+  {id: 2, name: 'Joe', age: 22},
+  {id: 3, name: 'Tedd', age: 55}
+]);
+
+collection.where(age: collection.min(22), name: collection.contains('o')});
+// returns new Collection([{id: 2, name: 'Joe', age: 22}]);
+```
 
 ### Collection.select
 

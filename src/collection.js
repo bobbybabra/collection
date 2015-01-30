@@ -160,6 +160,48 @@ function Collection(_models, primary_key) {
     }
 
     /*
+     * Series of where helpers
+     * contains()
+     * fuzzy()
+     * min()
+     * max()
+     * within()
+     */
+
+    function contains(str){
+      var regexp = new RegExp(str, 'gi');
+      return function(value){
+        return regexp.test(value);
+      };
+    }
+
+    function fuzzy(str){
+      var predicats = str.split(' ');
+      var regexp = new RegExp(predicats.join('[^\\s]*\\s.*'), 'gi');
+      return function(value){
+        return regexp.test(value);
+      };
+    }
+
+    function max(num){
+      return function(value){
+        return value <= num;
+      }
+    }
+
+    function min(num){
+      return function(value){
+        return value >= num;
+      }
+    }
+
+    function within(min, max){
+      return function(value){
+        return value >= Math.min(min, max) && value <= Math.max(min,max);
+      }
+    }
+
+    /*
      * Return only the selected attribute
      *
      * // select the id only
@@ -227,7 +269,7 @@ function Collection(_models, primary_key) {
                 return -1;
             });
         }
-        return Collection(_models);
+        return new Collection(_models);
     }
 
     /*
@@ -297,6 +339,11 @@ function Collection(_models, primary_key) {
       'filter': filter,
       'each': each,
       'where': where,
+      'min': min,
+      'max': max,
+      'within': within,
+      'contains': contains,
+      'fuzzy': fuzzy,
       'select': select,
       'sort': sort,
       'get': get,

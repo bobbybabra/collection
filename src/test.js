@@ -1,6 +1,6 @@
-var john = {id: 1, first_name:'john', last_name:'redford', xid: 'x1'};
-var fred = {id: 2, first_name:'fred', last_name: 'doe', xid: 'x2'};
-var tim = {id: 3, first_name:'tim', last_name: 'doe', xid: 'x3'};
+var john = {id: 1, first_name:'john', last_name:'redford', xid: 'x1', age: 22};
+var fred = {id: 2, first_name:'fred', last_name: 'doe', xid: 'x2', age: 16};
+var tim = {id: 3, first_name:'tim', last_name: 'doe', xid: 'x3', age: 55};
 
 QUnit.module( "Collection constructor" );
 
@@ -194,4 +194,63 @@ QUnit.test("sort()", function( assert ){
   function desc_compare(a, b){ return b - a; }
   assert.deepEqual(collection.sort('id', desc_compare).models, [tim, fred, john],
     "Should sort the collection according to an callback function");
+});
+
+QUnit.module("where helpers");
+QUnit.test("contains()", function( assert ){
+  var books = [
+    {id: 1, title: "A Midsummer Night's Dream"},
+    {id: 2, title: "Twelfth Night"},
+    {id: 3, title: "The Merchant of Venice"}
+  ]
+  var collection = new Collection(books);
+
+  var result = collection.where({title: collection.contains("Merchant")});
+  assert.deepEqual(result.models, [books[2]],
+    "Should find matching strings");
+
+  var result = collection.where({title: collection.contains("merchant")});
+  assert.deepEqual(result.models, [books[2]],
+    "Should find matching strings case insensitive");
+});
+
+QUnit.test("fuzzy()", function( assert ){
+  var books = [
+    {id: 1, title: "A Midsummer Night's Dream"},
+    {id: 2, title: "Twelfth Night"},
+    {id: 3, title: "The Merchant of Venice"}
+  ]
+  var collection = new Collection(books);
+
+  var result = collection.where({title: collection.fuzzy("merc eni")});
+  assert.deepEqual(result.models, [books[2]],
+    "Should fuzzy match models");
+
+  var result = collection.where({title: collection.fuzzy("er n")});
+  assert.deepEqual(result.models, [books[0], books[2]],
+    "Should fuzzy match models");
+});
+
+QUnit.test("min()", function( assert ){
+  var collection = new Collection([tim, fred, john]);
+
+  var result = collection.where({age: collection.min(22)});
+  assert.deepEqual(result.models, [tim, john],
+    "Should return result above or equal the constraint");
+});
+
+QUnit.test("max()", function( assert ){
+  var collection = new Collection([tim, fred, john]);
+
+  var result = collection.where({age: collection.max(22)});
+  assert.deepEqual(result.models, [fred, john],
+    "Should return result under or equal the constraint");
+});
+
+QUnit.test("within()", function( assert ){
+  var collection = new Collection([tim, fred, john]);
+
+  var result = collection.where({age: collection.within(16, 25)});
+  assert.deepEqual(result.models, [fred, john],
+    "Should return result within (included) the constraint");
 });
