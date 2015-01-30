@@ -169,7 +169,7 @@ function Collection(_models, primary_key) {
      */
 
     function contains(str){
-      var regexp = new RegExp(str, 'gi');
+      var regexp = new RegExp(str, 'i');
       return function(value){
         return regexp.test(value);
       };
@@ -177,7 +177,7 @@ function Collection(_models, primary_key) {
 
     function fuzzy(str){
       var predicats = str.split(' ');
-      var regexp = new RegExp(predicats.join('[^\\s]*\\s.*'), 'gi');
+      var regexp = new RegExp(predicats.join('[^\\s]*\\s.*'), 'i');
       return function(value){
         return regexp.test(value);
       };
