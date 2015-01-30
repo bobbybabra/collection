@@ -101,8 +101,18 @@ By default the `Collection` will be emtpy and the primary key will be
 set to `id`.
 
 Every model needs to have an ID. A convenience `Collection.uuid()` method
-is provided for you to generate random unique IDs.
+is provided for you to generate random unique IDs. By default the collection
+will index by the 'id' key. To change this behavior, simply pass the primary key
+to the constructor:
 
+```javascript
+models = [
+ {ext_id: 1, value: 'one'},
+ {ext_id: 2, value: 'two'},
+ {ext_id: 3, value: 'three'}
+]
+var my_collection = new Collection(models, 'ext_id');
+```
 
 ### Collection.add
 
