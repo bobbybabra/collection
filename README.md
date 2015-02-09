@@ -285,21 +285,22 @@ my_collection.select(['id','first_name'])
 
 
 ```javascript
-var engineers = new Collection([
-  {id: 1, first_name: 'Joe', last_name: 'Doe'},
-  {id: 2, first_name: 'Joe', last_name: 'Regan'},
-]);
+var joe_doe = {id: 1, first_name: 'Joe', last_name: 'Doe'};
+var joe_regan = {id: 2, first_name: 'Joe', last_name: 'Regan'};
+var tedd_ford = {id: 3, first_name: 'Tedd', last_name: 'Ford'};
 
-var professors = new Collection([
-  {id: 1, first_name: 'Joe', last_name: 'Doe'},
-  {id: 3, first_name: 'Tedd', last_name: 'Ford'}
-]);
+var engineers = new Collection([joe_doe, joe_regan]);
 
-professor_engineers = new professors.where({'id': engineers.select('id')});
-// returns new Collection([{id: 1, first_name: 'Joe', last_name: 'Doe'}])
+var professors = new Collection([joe_doe, tedd_ford])
+
+// An intersections
+var professor_engineers = professors.where({'id': engineers.select('id')});
+// returns new Collection([joe_doe])
+
+// A Union
+var professor_and_engineers = new Collection(professors.models).add(engineers.models);
+// returns new Collection([joe_doe, joe_regan, tedd_ford])
 ```
-
-
 
 ### Collection.filter
 
@@ -351,24 +352,6 @@ my_collection.sort('name');
 * `reverse()`: reverse and returns the collection (not a new collection).
 * `models`: returns the collection's content (an array).
 
-## Testing
-
-Test are run using QUnit library. First download this repository
-
-```
-$ git clone git@github.com:debrice/collection.git
-```
-
-then inside the repository install the QUnit library using bower
-
-```
-$ cd collection
-$ bower install --dev
-```
-
-Then simply open the `test.html` file with the web-browser you want to run the
-test against. The tests can be found in the `src/test.js` file.
-
 ### Events
 
 You may register listeners to actions happening to your collection. Available
@@ -398,6 +381,24 @@ var unregister = my_collection.on('change', onChange);
 // will trigger the `add` and `change` event
 my_collection.add({id: 2, name: 'Alan'});
 ```
+
+## Testing
+
+Test are run using QUnit library. First download this repository
+
+```
+$ git clone git@github.com:debrice/collection.git
+```
+
+then inside the repository install the QUnit library using bower
+
+```
+$ cd collection
+$ bower install --dev
+```
+
+Then simply open the `test.html` file with the web-browser you want to run the
+test against. The tests can be found in the `src/test.js` file.
 
 ## License
 
