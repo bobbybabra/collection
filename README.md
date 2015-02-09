@@ -2,6 +2,8 @@
 
 Handles collection (à la backbone) for your store and other things. It's not opiniated, not doing AJAX, not doing views, not doing routing etc... Just does one thing, manage collections of your objects and is good at it.
 
+[Read the API!](src/README.md)
+
 2.8kb, no dependencies, to do cool things like:
 
 ```javascript
