@@ -158,20 +158,20 @@ QUnit.test("Should return a collection not matching the predicats", function( as
 
     var the_does = collection.not({last_name: 'doe'});
     assert.deepEqual(the_does.models, [john],
-      "Where should accept an attribute and value to match against");
+      "Not should accept an attribute and value to match against");
 
     function is_odd(value){ return value % 2; }
     var the_odds = collection.not({id: is_odd});
     assert.deepEqual(the_odds.models, [fred],
-      "Where should accept an attribute function to match against");
+      "Not should accept an attribute function to match against");
 
     var the_odd_does = collection.not({last_name: 'doe', id: is_odd});
     assert.deepEqual(the_odd_does.models, [john, fred],
-      "Where should accept function and a value mixed together");
+      "Not should accept function and a value mixed together");
 
     var tim_john = collection.not({first_name: ['tim', 'john']});
     assert.deepEqual(tim_john.models, [fred],
-      "Where should accept an array of matching attributes");
+      "Not should accept an array of matching attributes");
 });
 
 QUnit.module("Collection filter");
