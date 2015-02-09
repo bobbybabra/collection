@@ -461,7 +461,7 @@ function Collection(_models, primary_key) {
    * if only on argument is passed, the get is matched
    * against the model primary key
    * @param {string} attribute - Attribute to search against
-   * @param {string,number} value - Value to be matched
+   * @param {string|number} value - Value to be matched
    * @returns {object} Returns a single model.
    * @example
    *     // return model with the pk set to 1
