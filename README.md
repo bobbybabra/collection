@@ -2,7 +2,7 @@
 
 Handles collection (à la backbone) for your store and other things. It's not opiniated, not doing AJAX, not doing views, not doing routing etc... Just does one thing, manage collections of your objects and is good at it.
 
-2.2kb, no dependencies, to do cool things like:
+2.8kb, no dependencies, to do cool things like:
 
 ```javascript
 function is_odd(value) {
@@ -19,7 +19,6 @@ var my_collection = new Collection([
 my_collection.where({id: is_odd, first_name: 'John'}).select(['first_name', 'last_name']);
 // returns [{last_name: 'Doe', first_name: 'John'}]
 ```
-
 
 ## Install
 
@@ -336,6 +335,33 @@ $ bower install --dev
 
 Then simply open the `test.html` file with the web-browser you want to run the
 test against. The tests can be found in the `src/test.js` file.
+
+### Events
+
+You may register listeners to actions happening to your collection. Available
+events are:
+
+* `change`: Triggered on every event (remove, sort, add)
+* `sort`: Whenever the collection is reversed or sorted
+* `add`: A model got added to your collection
+* `remove`: A model got removed to your collection
+
+```javascript
+var my_collection = new Collection([{id: 1, name: 'Joe'}]);
+
+function onChange(){
+  alert("Collection got changed!");
+
+  // stop listening to change
+  my_collection.off('change', onChange);
+}
+
+// trigger onChange method when collection changes
+my_collection.on('change', onChange);
+
+// will trigger the `add` and `change` event
+my_collection.add({id: 2, name: 'Alan'});
+```
 
 ## License
 

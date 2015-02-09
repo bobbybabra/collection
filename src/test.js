@@ -254,3 +254,152 @@ QUnit.test("within()", function( assert ){
   assert.deepEqual(result.models, [fred, john],
     "Should return result within (included) the constraint");
 });
+
+QUnit.module("Collection events");
+QUnit.test("on('change')", function( assert ){
+    var collection = new Collection([john, fred, tim]);
+
+    var changed = false;
+
+    function onChange(){
+      changed = true;
+    }
+
+    collection.on('change', onChange);
+
+    collection.remove(john.id);
+    assert.equal(changed, true,
+      "The collection should fire a change event on delete.");
+
+    changed = false;
+
+    collection.add(john);
+    assert.equal(changed, true,
+      "The collection should fire a change event on add.");
+
+    changed = false;
+
+    collection.reverse();
+    assert.equal(changed, true,
+      "The collection should fire a change event on reverse.");
+
+    changed = false;
+
+    collection.sort('first_name');
+    assert.equal(changed, true,
+      "The collection should fire a change event on sort.");
+
+    changed = false;
+
+    collection.empty();
+    assert.equal(changed, true,
+      "The collection should fire a change event on empty.");
+
+    changed = false;
+
+    collection.empty();
+    assert.equal(changed, false,
+      "The collection should not fire a change event on emptying an empty collection.");
+
+    changed = false;
+
+    collection.remove(john.id);
+    assert.equal(changed, false,
+      "The collection should not fire a change event if nothing got removed.");
+
+    changed = false;
+
+    collection.add([]);
+    assert.equal(changed, false,
+      "The collection should not fire a change event if nothing got added.");
+
+    changed = false;
+
+    collection.sort('first_name');
+    assert.equal(changed, false,
+      "The collection should not fire a change event on sorting an empty collection.");
+
+    changed = false;
+
+    collection.reverse();
+    assert.equal(changed, false,
+      "The collection should not fire a change event on reversing an empty collection.");
+});
+
+QUnit.test("on('sort')", function( assert ){
+    var collection = new Collection([john, fred, tim]);
+
+    var sorted = false;
+
+    function onSort(){
+      sorted = true;
+    }
+
+    collection.on('sort', onSort);
+
+    collection.reverse();
+    assert.equal(sorted, true,
+      "The collection should fire a sort event on reverse.");
+
+    sorted = false;
+
+    collection.sort('first_name');
+    assert.equal(sorted, true,
+      "The collection should fire a sort event on sort.");
+});
+
+QUnit.test("on('add')", function( assert ){
+    var collection = new Collection([john, fred]);
+
+    var added = false;
+
+    function onAdd(){
+      added = true;
+    }
+
+    collection.on('add', onAdd);
+
+    collection.add(tim);
+    assert.equal(added, true,
+      "The collection should fire a add event on add.");
+});
+
+QUnit.test("on('remove')", function( assert ){
+    var collection = new Collection([john, fred, tim]);
+
+    var removed = false;
+
+    function onRemove(){
+      removed = true;
+    }
+
+    collection.on('remove', onRemove);
+
+    collection.remove(tim.id);
+    assert.equal(removed, true,
+      "The collection should fire a remove event on remove.");
+});
+
+QUnit.test("off()", function( assert ){
+    var collection = new Collection([john, fred, tim]);
+
+    var changed = false;
+
+    function onChange(){
+      changed = true;
+    }
+
+    collection.on('change', onChange);
+
+    collection.remove(john.id);
+    assert.equal(changed, true,
+      "The collection should fire the attached listener");
+
+    changed = false;
+    collection.off('change', onChange);
+
+    collection.remove(john.id);
+    assert.equal(changed, false,
+      "The collection should not fire the attached listener once detached");
+
+});
