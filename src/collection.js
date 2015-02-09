@@ -47,10 +47,12 @@ function Collection(_models, primary_key) {
   /**
    * Returns the count of models contained in the collection
    * @example
-   *     collection.models
-   *     -> [a, b]
-   *     collection.size()
-   *     -> 2
+   * ```js
+   * collection.models
+   * // [a, b]
+   * collection.size()
+   * // 2
+   * ```
    */
   function size() {
     return models.length;
@@ -59,10 +61,12 @@ function Collection(_models, primary_key) {
   /**
    * Returns true if the collection doesn't contain any model
    * @example
-   *     collection.models
-   *     -> [a, b]
-   *     collection.isEmpty()
-   *     -> false
+   * ```js
+   * collection.models
+   * // [a, b]
+   * collection.isEmpty()
+   * // false
+   * ```
    */
   function isEmpty() {
     return models.length === 0;
@@ -97,15 +101,17 @@ function Collection(_models, primary_key) {
   /**
    * Returns an array with the returned values of the callback
    * iteration stops if the callback returns `false`.
-   *
-   *     function callback(model, position){
-   *       // return the first 3 models
-   *       if(position < 3)
-   *         return model;
-   *       else
-   *         return false;
-   *     }
-   *     var first_three = collection.each(callback);
+   * @example
+   * ```js
+   * function callback(model, position){
+   *   // return the first 3 models
+   *   if(position < 3)
+   *     return model;
+   *   else
+   *     return false;
+   * }
+   * var first_three = collection.each(callback);
+   * ```
    */
   function each(callback) {
     var r, i, result = [];
@@ -123,11 +129,13 @@ function Collection(_models, primary_key) {
    * and the position within the current iteration.
    * @param {function} func - filtering function
    * @example
-   *     // return models with an odd id
-   *     function callback(model, models, position){
-   *       return model.id % 2;
-   *     }
-   *     var models = collection.filter(callback);
+   * ```js
+   * // return models with an odd id
+   * function callback(model, models, position){
+   *   return model.id % 2;
+   * }
+   * var models = collection.filter(callback);
+   * ```
    */
   function filter(func) {
     var r = [], position = 0;
@@ -154,16 +162,18 @@ function Collection(_models, primary_key) {
    * @fires 'remove'
    * @returns the current collection for chaining
    * @example
-   *     // remove the object with a primary key of 1
-   *     collection.remove(1);
-   *     // remove the object with first name 'john'
-   *     collection.remove('first_name', 'john');
-   *     // remove the objects with a primary key of 1, 3 or 5
-   *     collection.remove([1,3,5]);
-   *     // remove all the object where the first_name is 'john' or 'steve'
-   *     collection.remove('first_name', ['john', 'steve']);
-   *     // remove all the object with an age within 21 and 35
-   *     collection.remove('age', collection.within(21, 35));
+   * ```js
+   * // remove the object with a primary key of 1
+   * collection.remove(1);
+   * // remove the object with first name 'john'
+   * collection.remove('first_name', 'john');
+   * // remove the objects with a primary key of 1, 3 or 5
+   * collection.remove([1,3,5]);
+   * // remove all the object where the first_name is 'john' or 'steve'
+   * collection.remove('first_name', ['john', 'steve']);
+   * // remove all the object with an age within 21 and 35
+   * collection.remove('age', collection.within(21, 35));
+   * ```
    */
   function remove(attribute, value, silent) {
     var model_deleted = [];
@@ -224,8 +234,10 @@ function Collection(_models, primary_key) {
    * @param {object} select - JSON object of predicates.
    * @returns the current collection for chaining
    * @example
-   *     // select name not starting with "rob"
-   *     collection.not({name: Collection.contains('^rob')});
+   * ```js
+   * // select name not starting with "rob"
+   * collection.not({name: Collection.contains('^rob')});
+   * ```
    */
   function not(select) {
     return where(select, true);
@@ -236,11 +248,13 @@ function Collection(_models, primary_key) {
    * @param {object} select - JSON object of predicates.
    * @returns the current collection for chaining
    * @example
-   *     // select name starting with "rob" and with in [1,2,3]
-   *     collection.where({
-   *         id: [1,2,3],
-   *         name: Collection.contains('rob')
-   *     });
+   * ```js
+   * // select name starting with "rob" and with in [1,2,3]
+   * collection.where({
+   *     id: [1,2,3],
+   *     name: Collection.contains('rob')
+   * });
+   * ```
    */
   function where(select, not) {
     var match, r = [];
@@ -293,7 +307,9 @@ function Collection(_models, primary_key) {
    * @param {string} str - String or regexp to match models against
    * @returns {function} Callable accepting a string.
    * @example
-   *    var avenues = collection.where('address', collection.contains('avenue'));
+   * ```js
+   * var avenues = collection.where('address', collection.contains('avenue'));
+   * ```
    */
   function contains(str){
     var regexp = new RegExp(str, 'i');
@@ -307,7 +323,9 @@ function Collection(_models, primary_key) {
    * @param {string} str - String to match a model attribute against
    * @returns {function} Callable accepting a string.
    * @example
-   *    var victor_hugos = books.where('author', collection.fuzzy('vic hug'));
+   * ```js
+   * var victor_hugos = books.where('author', collection.fuzzy('vic hug'));
+   * ```
    */
   function fuzzy(str){
     var predicats = str.split(' ');
@@ -322,7 +340,9 @@ function Collection(_models, primary_key) {
    * @param {number} num - maximum (inclusive) value
    * @returns {function} Callable accepting a number.
    * @example
-   *    var non_drinkers = people.where('age', collection.max(20));
+   * ```js
+   * var non_drinkers = people.where('age', collection.max(20));
+   * ```
    */
   function max(num){
     return function(value){
@@ -335,7 +355,9 @@ function Collection(_models, primary_key) {
    * @param {number} num - minimum (inclusive) value
    * @returns {function} Callable accepting a number.
    * @example
-   *    var adults = people.where('age', collection.max(21));
+   * ```js
+   * var adults = people.where('age', collection.max(21));
+   * ```
    */
   function min(num){
     return function(value){
@@ -349,7 +371,9 @@ function Collection(_models, primary_key) {
    * @param {number} max - maximum (inclusive) value
    * @returns {function} Callable accepting a number.
    * @example
-   *    var teens = people.within('age', collection.within(14,18));
+   * ```js
+   * var teens = people.within('age', collection.within(14,18));
+   * ```
    */
   function within(min, max){
     return function(value){
@@ -363,13 +387,15 @@ function Collection(_models, primary_key) {
    * @returns a flat array of attribute if a string was requested
    * @returns an array of object if an array of string was requested
    * @example
-   *     // select the id only
-   *     collection.select('id');
-   *     returns an array of the contained ids [1, 2, 3...]
+   * ```js
+   * // select the id only
+   * collection.select('id');
+   * returns an array of the contained ids [1, 2, 3...]
    *
-   *     // select the names and id
-   *     collection.select(['id', 'name'])
-   *     // returns [{id: 1, name: 'Joe'}, {id: 2, name: 'Fred'}...]
+   * // select the names and id
+   * collection.select(['id', 'name'])
+   * // returns [{id: 1, name: 'Joe'}, {id: 2, name: 'Fred'}...]
+   * ```
    */
   function select(names) {
     var result = [];
@@ -395,12 +421,14 @@ function Collection(_models, primary_key) {
    * @fires 'sort'
    * @param {boolean} silent - Mute the events when true
    * @example
-   *     collection.models
-   *     -> [a, b]
-   *     collection.reverse()
-   *     -> [b, a]
-   *     collection.models
-   *     -> [b, a]
+   * ```js
+   * collection.models
+   * // [a, b]
+   * collection.reverse()
+   * // [b, a]
+   * collection.models
+   * // [b, a]
+   * ```
    */
   function reverse(silent) {
     if (isEmpty()) return this;
@@ -426,9 +454,12 @@ function Collection(_models, primary_key) {
    * @fires 'change'
    * @fires 'sort'
    * @example
-   *     sort callback(attribute_value_a, attribute_value_b){
-   *       return attribute_value_a - attribute_value_b
-   *     }
+   * ```js
+   * sort_callback(attribute_value_a, attribute_value_b){
+   *   return attribute_value_a - attribute_value_b
+   * }
+   * my_collection.sort(sort_callback);
+   * ```
    */
   function sort(attribute, callback, silent) {
     if (isEmpty()) return this;
@@ -464,10 +495,12 @@ function Collection(_models, primary_key) {
    * @param {string|number} value - Value to be matched
    * @returns {object} Returns a single model.
    * @example
-   *     // return model with the pk set to 1
-   *     var model = collection.get(1);
-   *     // return model with email "john.doe@gmail.com"
-   *     var user = collection.get('email', 'john.doe@gmail.com')
+   * ```js
+   * // return model with the pk set to 1
+   * var model = collection.get(1);
+   * // return model with email "john.doe@gmail.com"
+   * var user = collection.get('email', 'john.doe@gmail.com')
+   * ```
    */
   function get(attribute, value) {
     // if get(id) gets called we consider that

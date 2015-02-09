@@ -40,21 +40,23 @@ The only requirement for your models is to have a unique primary key.
 Returns the count of models contained in the collection
 
 **Example**  
+```js
 collection.models
-    -> [a, b]
-    collection.size()
-    -> 2
-
+// [a, b]
+collection.size()
+// 2
+```
 <a name="Collection..isEmpty"></a>
 ### Collection~isEmpty()
 Returns true if the collection doesn't contain any model
 
 **Example**  
+```js
 collection.models
-    -> [a, b]
-    collection.isEmpty()
-    -> false
-
+// [a, b]
+collection.isEmpty()
+// false
+```
 <a name="Collection..empty"></a>
 ### Collection~empty(silent)
 Empty the collection
@@ -70,15 +72,17 @@ Empty the collection
 Returns an array with the returned values of the callback
 iteration stops if the callback returns `false`.
 
-    function callback(model, position){
-      // return the first 3 models
-      if(position < 3)
-        return model;
-      else
-        return false;
-    }
-    var first_three = collection.each(callback);
-
+**Example**  
+```js
+function callback(model, position){
+  // return the first 3 models
+  if(position < 3)
+    return model;
+  else
+    return false;
+}
+var first_three = collection.each(callback);
+```
 <a name="Collection..filter"></a>
 ### Collection~filter(func)
 Returns model for which the argument function returns true.
@@ -92,12 +96,13 @@ and the position within the current iteration.
 | func | <code>function</code> | filtering function |
 
 **Example**  
+```js
 // return models with an odd id
-    function callback(model, models, position){
-      return model.id % 2;
-    }
-    var models = collection.filter(callback);
-
+function callback(model, models, position){
+  return model.id % 2;
+}
+var models = collection.filter(callback);
+```
 <a name="Collection..remove"></a>
 ### Collection~remove()  
 Remove all the objects with a matching attribute.
@@ -114,17 +119,18 @@ receive the model's attribute value as an argument.
 **Returns**: the current collection for chaining  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;remove&#x27;</code>  
 **Example**  
+```js
 // remove the object with a primary key of 1
-    collection.remove(1);
-    // remove the object with first name 'john'
-    collection.remove('first_name', 'john');
-    // remove the objects with a primary key of 1, 3 or 5
-    collection.remove([1,3,5]);
-    // remove all the object where the first_name is 'john' or 'steve'
-    collection.remove('first_name', ['john', 'steve']);
-    // remove all the object with an age within 21 and 35
-    collection.remove('age', collection.within(21, 35));
-
+collection.remove(1);
+// remove the object with first name 'john'
+collection.remove('first_name', 'john');
+// remove the objects with a primary key of 1, 3 or 5
+collection.remove([1,3,5]);
+// remove all the object where the first_name is 'john' or 'steve'
+collection.remove('first_name', ['john', 'steve']);
+// remove all the object with an age within 21 and 35
+collection.remove('age', collection.within(21, 35));
+```
 <a name="Collection..not"></a>
 ### Collection~not(select)  
 return a new collection of non matching models (see collection.where)
@@ -136,9 +142,10 @@ return a new collection of non matching models (see collection.where)
 | select | <code>object</code> | JSON object of predicates. |
 
 **Example**  
+```js
 // select name not starting with "rob"
-    collection.not({name: Collection.contains('^rob')});
-
+collection.not({name: Collection.contains('^rob')});
+```
 <a name="Collection..where"></a>
 ### Collection~where(select)  
 return a new collection of matching models
@@ -150,12 +157,13 @@ return a new collection of matching models
 | select | <code>object</code> | JSON object of predicates. |
 
 **Example**  
+```js
 // select name starting with "rob" and with in [1,2,3]
-    collection.where({
-        id: [1,2,3],
-        name: Collection.contains('rob')
-    });
-
+collection.where({
+    id: [1,2,3],
+    name: Collection.contains('rob')
+});
+```
 <a name="Collection..contains"></a>
 ### Collection~contains(str) ⇒ <code>function</code>
 Where filter to string match value.
@@ -167,8 +175,9 @@ Where filter to string match value.
 | str | <code>string</code> | String or regexp to match models against |
 
 **Example**  
+```js
 var avenues = collection.where('address', collection.contains('avenue'));
-
+```
 <a name="Collection..fuzzy"></a>
 ### Collection~fuzzy(str) ⇒ <code>function</code>
 Where filter to fuzzy match strings.
@@ -180,8 +189,9 @@ Where filter to fuzzy match strings.
 | str | <code>string</code> | String to match a model attribute against |
 
 **Example**  
+```js
 var victor_hugos = books.where('author', collection.fuzzy('vic hug'));
-
+```
 <a name="Collection..max"></a>
 ### Collection~max(num) ⇒ <code>function</code>
 Where filter up to a maximum value.
@@ -193,8 +203,9 @@ Where filter up to a maximum value.
 | num | <code>number</code> | maximum (inclusive) value |
 
 **Example**  
+```js
 var non_drinkers = people.where('age', collection.max(20));
-
+```
 <a name="Collection..min"></a>
 ### Collection~min(num) ⇒ <code>function</code>
 Where filter from a minimum value.
@@ -206,8 +217,9 @@ Where filter from a minimum value.
 | num | <code>number</code> | minimum (inclusive) value |
 
 **Example**  
+```js
 var adults = people.where('age', collection.max(21));
-
+```
 <a name="Collection..within"></a>
 ### Collection~within(min, max) ⇒ <code>function</code>
 Where filter within two values.
@@ -220,8 +232,9 @@ Where filter within two values.
 | max | <code>number</code> | maximum (inclusive) value |
 
 **Example**  
+```js
 var teens = people.within('age', collection.within(14,18));
-
+```
 <a name="Collection..select"></a>
 ### Collection~select()  
 Return only the selected attribute on the collection.
@@ -229,14 +242,15 @@ Return only the selected attribute on the collection.
 **Returns**: a flat array of attribute if a string was requestedan array of object if an array of string was requested  
 **params**: {string, array} names - Attribute or list of attributes  
 **Example**  
+```js
 // select the id only
-    collection.select('id');
-    returns an array of the contained ids [1, 2, 3...]
+collection.select('id');
+returns an array of the contained ids [1, 2, 3...]
 
-    // select the names and id
-    collection.select(['id', 'name'])
-    // returns [{id: 1, name: 'Joe'}, {id: 2, name: 'Fred'}...]
-
+// select the names and id
+collection.select(['id', 'name'])
+// returns [{id: 1, name: 'Joe'}, {id: 2, name: 'Fred'}...]
+```
 <a name="Collection..reverse"></a>
 ### Collection~reverse(silent)
 Reverse the order of the current collection
@@ -248,13 +262,14 @@ Reverse the order of the current collection
 | silent | <code>boolean</code> | Mute the events when true |
 
 **Example**  
+```js
 collection.models
-    -> [a, b]
-    collection.reverse()
-    -> [b, a]
-    collection.models
-    -> [b, a]
-
+// [a, b]
+collection.reverse()
+// [b, a]
+collection.models
+// [b, a]
+```
 <a name="Collection..sort"></a>
 ### Collection~sort(attribute, callback, silent)
 Returns a sorted the collection sorted according to a given
@@ -270,10 +285,12 @@ callback will be used for sorting
 | silent | <code>boolean</code> | Mute the events when true |
 
 **Example**  
-sort callback(attribute_value_a, attribute_value_b){
-      return attribute_value_a - attribute_value_b
-    }
-
+```js
+sort_callback(attribute_value_a, attribute_value_b){
+  return attribute_value_a - attribute_value_b
+}
+my_collection.sort(sort_callback);
+```
 <a name="Collection..get"></a>
 ### Collection~get(attribute, value) ⇒ <code>object</code>
 Returns the first model with the matching attribute
@@ -288,11 +305,12 @@ against the model primary key
 | value | <code>string</code> \| <code>number</code> | Value to be matched |
 
 **Example**  
+```js
 // return model with the pk set to 1
-    var model = collection.get(1);
-    // return model with email "john.doe@gmail.com"
-    var user = collection.get('email', 'john.doe@gmail.com')
-
+var model = collection.get(1);
+// return model with email "john.doe@gmail.com"
+var user = collection.get('email', 'john.doe@gmail.com')
+```
 <a name="Collection..add"></a>
 ### Collection~add(models, silent)  
 Add a models or an array of models to the collection.
