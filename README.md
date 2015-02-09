@@ -346,6 +346,9 @@ events are:
 * `add`: A model got added to your collection
 * `remove`: A model got removed to your collection
 
+When calling on, a de-register method is returned to simplify deregistering
+process.
+
 ```javascript
 var my_collection = new Collection([{id: 1, name: 'Joe'}]);
 
@@ -353,11 +356,11 @@ function onChange(){
   alert("Collection got changed!");
 
   // stop listening to change
-  my_collection.off('change', onChange);
+  unregister();
 }
 
 // trigger onChange method when collection changes
-my_collection.on('change', onChange);
+var unregister = my_collection.on('change', onChange);
 
 // will trigger the `add` and `change` event
 my_collection.add({id: 2, name: 'Alan'});

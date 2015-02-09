@@ -390,6 +390,11 @@ function Collection(_models, primary_key) {
       events[event_name] = [];
     }
     events[event_name].push(func);
+
+    // return a de-registration call
+    return function(){
+      off(event_name, func);
+    }
   }
 
   /*
