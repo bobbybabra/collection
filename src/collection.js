@@ -130,31 +130,60 @@ function Collection(_models, primary_key) {
    * be used to match against every object primary key.
    * If a function is passed a the first attribute
    * it will be called on every model as a filter
+   *
+   *     // remove the object with a primary key of 1
+   *     collection.remove(1);
+   *     // remove the object with first name 'john'
+   *     collection.remove('first_name', 'john');
+   *     // remove the objects with a primary key of 1, 3 or 5
+   *     collection.remove([1,3,5]);
+   *     // remove all the object where the first_name is 'john' or 'steve'
+   *     collection.remove('first_name', ['john', 'steve']);
+   *     // remove all the object with an age within 21 and 35
+   *     collection.remove('age', collection.within(21, 35));
    */
   function remove(attribute, value, silent) {
-    var callback, model_deleted = [];
+    var model_deleted = [];
 
-    if(arguments.length === 1){
-      if (typeof attribute === 'function') {
-          callback = attribute;
-      }
-      else{
-        value = attribute;
-        attribute = primary_key;
-      }
+    // if a single argument is passsed and is not a function
+    // we infer that the filtering occurs on the primary key.
+    // Otherwise the argument is considered a filter on the
+    // whole models
+    if(arguments.length === 1 && typeof attribute != 'function'){
+      value = attribute;
+      attribute = primary_key;
     }
 
     function match(model){
-      if(callback) return callback(model);
+      // If a single callback got passed, consider passing it as a
+      // global filter against the entire model.
+      if(typeof value === 'undefined'){
+        return attribute(model);
+      }
+
+      // If the filter is an array, check if the attribute
+      // is contained within that filter
+      if(Array.isArray(value)){
+        return value.indexOf(model[attribute]) > -1;
+      }
+
+      // If the filter is a function, use it's return value when
+      // pass the value of the attribute
+      if(typeof value === 'function'){
+        return value(model[attribute]);
+      }
+
+      // otherwise consider it a simple comparaison
       return model[attribute] === value;
     }
 
-    for (var i = 0; i < models.length; i++) {
+    // Going through the list upside down as we might pop
+    // item during the loop.
+    for (var i = models.length - 1; i >= 0; i--) {
       if (match(models[i])) {
         model_deleted.push(index[models[i][primary_key]]);
         delete index[models[i][primary_key]];
         models.splice(i, 1);
-        i = i - 1;
       }
     }
 
@@ -175,24 +204,48 @@ function Collection(_models, primary_key) {
    * collection.where(select);
    */
   function where(select) {
-    var r = [];
+    var match, r = [];
+
     each(function (model) {
-      var match = true;
+      // match is our marker and reset to true for every model
+      // We expect more often a mismatch than a match, so
+      // we look for a mismatch and break a soon as one is
+      // detected
+      match = true;
+
       for (var key in select) {
+        // If the predicat is a function we'll run it
+        // against the current attribute value.
         if (typeof select[key] === 'function') {
-          if (!select[key](model[key])) match = false;
-        } else if (Array.isArray(select[key])) {
-          var sub_match = false;
-          for (var i = 0; i < select[key].length; i++) {
-            if (select[key][i] === model[key]) sub_match = true;
+          if (!select[key](model[key])){
+            match = false;
+            break;
           }
-          match = match && sub_match;
-        } else {
-          if (select[key] !== model[key]) match = false;
+        }
+
+        // If the selection is an array of value,
+        // we'll try to match this value against the array
+        else if (Array.isArray(select[key])) {
+          if(select[key].indexOf(model[key]) === -1){
+            match = false;
+            break;
+          }
+        }
+
+        // otherwise we expect a straight comparaison between
+        // value and model's attribute
+        else {
+          if (select[key] !== model[key]){
+            match = false;
+            break;
+          }
         }
       }
+
+      // add the model if was a match
       if(match) r.push(model);
     });
+
     return new Collection(r);
   }
 

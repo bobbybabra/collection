@@ -55,10 +55,48 @@ QUnit.test("Should remove a model", function( assert ) {
     collection.remove('last_name', 'doe');
     assert.equal(collection.models.length, 1,
       "The collection should remove all models matching the criteria.");
+    assert.deepEqual(collection.models[0], john,
+      "The collection should keep matching model.");
 
     collection.remove(john.id);
     assert.equal(collection.models.length, 0,
       "The collection should removed objects matching the primary key.");
+});
+
+QUnit.test("Should remove a list of model through a callback", function( assert ) {
+    var collection = new Collection([john, fred, tim]);
+
+    collection.remove('age', collection.within(22, 16));
+    assert.equal(collection.models.length, 1,
+      "The collection should remove all models matching the attribute callback.");
+    assert.deepEqual(collection.models[0], tim,
+      "The collection should keep matching model.");
+
+    collection = new Collection([john, fred, tim]);
+
+    function hasOddId(model){ return model.id % 2; }
+    collection.remove(hasOddId);
+    assert.equal(collection.models.length, 1,
+      "The collection should remove all models matching callback.");
+    assert.deepEqual(collection.models[0], fred,
+      "The collection should keep matching model.");
+});
+
+QUnit.test("Should remove a list of model using callback", function( assert ) {
+    var collection = new Collection([john, fred, tim]);
+
+    collection.remove('first_name', ['john', 'fred']);
+    assert.equal(collection.models.length, 1,
+      "The collection should remove all models matching the criteria.");
+    assert.deepEqual(collection.models[0], tim,
+      "The collection should keep matching model.");
+
+    collection = new Collection([john, fred, tim]);
+    collection.remove([john.id, fred.id]);
+    assert.equal(collection.models.length, 1,
+      "The collection should remove all models matching the criteria.");
+    assert.deepEqual(collection.models[0], tim,
+      "The collection should keep matching model.");
 });
 
 QUnit.module("Collection get");
@@ -108,6 +146,10 @@ QUnit.test("Should return a collection matching the clause", function( assert ) 
     var the_odd_does = collection.where({last_name: 'doe', id: is_odd});
     assert.deepEqual(the_odd_does.models, [tim],
       "Where should accept function and a value mixed together");
+
+    var tim_john = collection.where({first_name: ['tim', 'john']});
+    assert.deepEqual(tim_john.models, [john, tim],
+      "Where should accept an array of matching attributes");
 });
 
 QUnit.module("Collection filter");
