@@ -233,6 +233,25 @@ my_collection.where({id: is_odd, name: 'Joe'});
 
 The value returned by `Collection.where()` is always a Collection instance.
 
+### Collection.not
+
+This will return you the opposite of `where`
+```javascript
+function is_odd(value) {
+  return value % 2
+}
+
+var my_collection = new Collection([
+  {id: 1, name: 'Joe'},
+  {id: 2, name: 'Joe'},
+  {id: 3, name: 'Tedd'}
+]);
+
+// filters id with a callable and name with a value
+my_collection.not({id: is_odd});
+// returns new Collection([{id: 2, name: 'Joe'}])
+```
+
 ### Where helpers
 
 Where comes with some helpers to make your life easier.

@@ -197,13 +197,25 @@ function Collection(_models, primary_key) {
   }
 
   /*
-   * return a collection of matching elements
+   * return a collection of non matching models
    *
-   * // select name starting with "rob" and with in [1,2,3]
-   * var select = {id: [1,2,3], name: /^rob/};
-   * collection.where(select);
+   *     // select name not starting with "rob"
+   *     collection.whereNot({name: Collection.contains('^rob')});
    */
-  function where(select) {
+  function whereNot(select) {
+    return where(select, true);
+  }
+
+  /*
+   * return a collection of matching models
+   *
+   *     // select name starting with "rob" and with in [1,2,3]
+   *     collection.where({
+   *         id: [1,2,3],
+   *         name: Collection.contains('rob')
+   *     });
+   */
+  function where(select, not) {
     var match, r = [];
 
     each(function (model) {
@@ -243,7 +255,7 @@ function Collection(_models, primary_key) {
       }
 
       // add the model if was a match
-      if(match) r.push(model);
+      if((!match && not) || (match && !not)) r.push(model);
     });
 
     return new Collection(r);
@@ -493,6 +505,7 @@ function Collection(_models, primary_key) {
     'filter': filter,
     'each': each,
     'where': where,
+    'not': whereNot,
     'min': min,
     'max': max,
     'within': within,
