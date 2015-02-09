@@ -25,6 +25,13 @@
  *
  */
 
+/**
+ * Container for a collection of javascript models (JSON).
+ * The only requirement for your models is to have a unique primary key.
+ * @contstructor
+ * @param {array} models - An initial list of models
+ * @param {string} primary_key - Default to 'id', this is the primary key of your collection.
+ */
 function Collection(_models, primary_key) {
   // by default primary key is set to be 'id'
   var models = [];
@@ -37,21 +44,21 @@ function Collection(_models, primary_key) {
     add(_models);
   }
 
-  /*
+  /**
    * Returns the count of models contained in the collection
-   *
-   * > collection.models
-   * -> [a, b]
-   * > collection.size()
-   * -> 2
+   * @example
+   *     collection.models
+   *     -> [a, b]
+   *     collection.size()
+   *     -> 2
    */
   function size() {
     return models.length;
   }
 
-  /*
+  /**
    * Returns true if the collection doesn't contain any model
-   *
+   * @example
    *     collection.models
    *     -> [a, b]
    *     collection.isEmpty()
@@ -61,8 +68,12 @@ function Collection(_models, primary_key) {
     return models.length === 0;
   }
 
-  /*
-   * empty the collection
+  /**
+   * Empty the collection
+   * @param {boolean} silent - Default to false, prevent events
+   * from being triggered when true.
+   * @fires 'change'
+   * @fires 'remove'
    */
   function empty(silent) {
     index = {};
@@ -83,7 +94,7 @@ function Collection(_models, primary_key) {
     return this;
   }
 
-  /*
+  /**
    * Returns an array with the returned values of the callback
    * iteration stops if the callback returns `false`.
    *
@@ -105,32 +116,44 @@ function Collection(_models, primary_key) {
     return result;
   }
 
-  /*
-   * Returns model for which the callback function returns true.
-   *
+  /**
+   * Returns model for which the argument function returns true.
+   * filter accepts a function to filter it's content. The function
+   * receives 3 arguments: the current model, the collection's models,
+   * and the position within the current iteration.
+   * @param {function} func - filtering function
+   * @example
    *     // return models with an odd id
-   *     function callback(model, collection, position){
+   *     function callback(model, models, position){
    *       return model.id % 2;
    *     }
    *     var models = collection.filter(callback);
    */
-  function filter(callback) {
+  function filter(func) {
     var r = [], position = 0;
     each(function (model, position) {
-      if(callback(model, models, position)){
+      if(func(model, models, position)){
         r.push(model);
       }
     });
     return new Collection(r);
   }
 
-  /*
+  /**
    * Remove all the objects with a matching attribute.
    * If only one argument is passed the argument will
    * be used to match against every object primary key.
-   * If a function is passed a the first attribute
-   * it will be called on every model as a filter
    *
+   * If only a function is passed it will be called on every
+   * model as a filter.
+   *
+   * A function can also be used in conjunction with an
+   * attribute name. In this case, the function will
+   * receive the model's attribute value as an argument.
+   * @fires 'change'
+   * @fires 'remove'
+   * @returns the current collection for chaining
+   * @example
    *     // remove the object with a primary key of 1
    *     collection.remove(1);
    *     // remove the object with first name 'john'
@@ -196,19 +219,23 @@ function Collection(_models, primary_key) {
     return this;
   }
 
-  /*
-   * return a collection of non matching models
-   *
+  /**
+   * return a new collection of non matching models (see collection.where)
+   * @param {object} select - JSON object of predicates.
+   * @returns the current collection for chaining
+   * @example
    *     // select name not starting with "rob"
-   *     collection.whereNot({name: Collection.contains('^rob')});
+   *     collection.not({name: Collection.contains('^rob')});
    */
-  function whereNot(select) {
+  function not(select) {
     return where(select, true);
   }
 
-  /*
-   * return a collection of matching models
-   *
+  /**
+   * return a new collection of matching models
+   * @param {object} select - JSON object of predicates.
+   * @returns the current collection for chaining
+   * @example
    *     // select name starting with "rob" and with in [1,2,3]
    *     collection.where({
    *         id: [1,2,3],
@@ -261,15 +288,13 @@ function Collection(_models, primary_key) {
     return new Collection(r);
   }
 
-  /*
-   * Series of where helpers
-   * contains()
-   * fuzzy()
-   * min()
-   * max()
-   * within()
+  /**
+   * Where filter to string match value.
+   * @param {string} str - String or regexp to match models against
+   * @returns {function} Callable accepting a string.
+   * @example
+   *    var avenues = collection.where('address', collection.contains('avenue'));
    */
-
   function contains(str){
     var regexp = new RegExp(str, 'i');
     return function(value){
@@ -277,6 +302,13 @@ function Collection(_models, primary_key) {
     };
   }
 
+  /**
+   * Where filter to fuzzy match strings.
+   * @param {string} str - String to match a model attribute against
+   * @returns {function} Callable accepting a string.
+   * @example
+   *    var victor_hugos = books.where('author', collection.fuzzy('vic hug'));
+   */
   function fuzzy(str){
     var predicats = str.split(' ');
     var regexp = new RegExp(predicats.join('[^\\s]*\\s.*'), 'i');
@@ -285,27 +317,52 @@ function Collection(_models, primary_key) {
     };
   }
 
+  /**
+   * Where filter up to a maximum value.
+   * @param {number} num - maximum (inclusive) value
+   * @returns {function} Callable accepting a number.
+   * @example
+   *    var non_drinkers = people.where('age', collection.max(20));
+   */
   function max(num){
     return function(value){
       return value <= num;
     }
   }
 
+  /**
+   * Where filter from a minimum value.
+   * @param {number} num - minimum (inclusive) value
+   * @returns {function} Callable accepting a number.
+   * @example
+   *    var adults = people.where('age', collection.max(21));
+   */
   function min(num){
     return function(value){
       return value >= num;
     }
   }
 
+  /**
+   * Where filter within two values.
+   * @param {number} min - minimum (inclusive) value
+   * @param {number} max - maximum (inclusive) value
+   * @returns {function} Callable accepting a number.
+   * @example
+   *    var teens = people.within('age', collection.within(14,18));
+   */
   function within(min, max){
     return function(value){
       return value >= Math.min(min, max) && value <= Math.max(min,max);
     }
   }
 
-  /*
-   * Return only the selected attribute
-   *
+  /**
+   * Return only the selected attribute on the collection.
+   * @params {string, array} names - Attribute or list of attributes
+   * @returns a flat array of attribute if a string was requested
+   * @returns an array of object if an array of string was requested
+   * @example
    *     // select the id only
    *     collection.select('id');
    *     returns an array of the contained ids [1, 2, 3...]
@@ -332,9 +389,12 @@ function Collection(_models, primary_key) {
     return result;
   }
 
-  /*
+  /**
    * Reverse the order of the current collection
-   *
+   * @fires 'change'
+   * @fires 'sort'
+   * @param {boolean} silent - Mute the events when true
+   * @example
    *     collection.models
    *     -> [a, b]
    *     collection.reverse()
@@ -356,11 +416,16 @@ function Collection(_models, primary_key) {
     return this;
   }
 
-  /*
+  /**
    * Returns a sorted the collection sorted according to a given
    * attribute. if a callback is passed, the return value of this
    * callback will be used for sorting
-   *
+   * @param {string} attribute - Property to sort against
+   * @param {function} callback - Optional method to do the sorting yourself
+   * @param {boolean} silent - Mute the events when true
+   * @fires 'change'
+   * @fires 'sort'
+   * @example
    *     sort callback(attribute_value_a, attribute_value_b){
    *       return attribute_value_a - attribute_value_b
    *     }
@@ -391,11 +456,14 @@ function Collection(_models, primary_key) {
     return this;
   }
 
-  /*
+  /**
    * Returns the first model with the matching attribute
    * if only on argument is passed, the get is matched
    * against the model primary key
-   *
+   * @param {string} attribute - Attribute to search against
+   * @param {string,number} value - Value to be matched
+   * @returns {object} Returns a single model.
+   * @example
    *     // return model with the pk set to 1
    *     var model = collection.get(1);
    *     // return model with email "john.doe@gmail.com"
@@ -417,10 +485,15 @@ function Collection(_models, primary_key) {
     return r;
   }
 
-  /*
+  /**
    * Add a models or an array of models to the collection.
    * Adding will replace existing model with the same
    * primary key value.
+   * @param {array|object} models - List of models or single model to add
+   * @param {boolean} silent - Add model silently (no event triggered)
+   * @fires 'change'
+   * @fires 'add'
+   * @returns the current collection for chaining
    */
   function add(_models, silent){
     // makes an array if not one aleardy
@@ -432,7 +505,8 @@ function Collection(_models, primary_key) {
     for(var model, i = 0; i < _models.length; i++){
       model = _models[i];
       // first remove the model if its in the collection
-      remove(model[primary_key]);
+      // but lets do it silently, the main action is still add
+      remove(primary_key, model[primary_key], tru);
       // then add it to the collection
       models.push(model);
       index[model[primary_key]] = model;
@@ -447,8 +521,12 @@ function Collection(_models, primary_key) {
     return this
   }
 
-  /*
-   * Register a callback on an event
+  /**
+   * Register a callback on an given event
+   * event can be 'change', 'remove', 'add' or 'sort'.
+   * @param {string} event_name - Event to listen to.
+   * @param {function} func - Listener to be called on event.
+   * @returns {function} Unregister callback
    */
   function on(event_name, func){
     if (!events[event_name]) {
@@ -462,8 +540,10 @@ function Collection(_models, primary_key) {
     }
   }
 
-  /*
+  /**
    * Unregister a callback on an event
+   * @param {string} event_name - Event to unregister from.
+   * @param {function} func - Listener to unregister.
    */
   function off(event_name, func){
     var index = events[event_name].indexOf(func);
@@ -472,8 +552,10 @@ function Collection(_models, primary_key) {
     }
   }
 
-  /*
+  /**
    * Fire an event
+   * @param {string} event_name - Event stack to be fired.
+   * @param {object} data - Data to be passed to the listener.
    */
   function fire(event_name, data){
     if(event_name in events){
@@ -489,7 +571,9 @@ function Collection(_models, primary_key) {
     return v.toString(16);
   }
 
-  // utility method that returns a valid uuid
+  /**
+   * utility method that returns a valid uuid
+   */
   function uuid(){
     var uuid_format = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
     return uuid_format.replace(/[xy]/g, _interpolate_uuid);
