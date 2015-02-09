@@ -56,11 +56,11 @@ QUnit.test("Should remove a model", function( assert ) {
     assert.equal(collection.models.length, 1,
       "The collection should remove all models matching the criteria.");
     assert.deepEqual(collection.models[0], john,
-      "The collection should keep matching model.");
+      "The collection should have kept non matching model.");
 
     collection.remove(john.id);
     assert.equal(collection.models.length, 0,
-      "The collection should removed objects matching the primary key.");
+      "The collection should remove objects matching the primary key.");
 });
 
 QUnit.test("Should remove a list of model through a callback", function( assert ) {
@@ -466,4 +466,60 @@ QUnit.test("off()", function( assert ){
     assert.equal(changed, false,
       "The collection should not fire the attached listener once detached");
 
+});
+
+QUnit.module("Chainability");
+QUnit.test("add and remove should be chainable and mutable", function( assert ){
+  var collection = new Collection([john]);
+
+  collection.add(tim).remove(john.id);
+
+  assert.deepEqual(collection.models,[tim],
+    "Add and remove should act on the same collection and be chainable");
+});
+
+QUnit.test("where and not should be chainable and immutable", function( assert ){
+  var collection = new Collection([tim, fred, john]);
+  var new_collection = collection.not({last_name: 'doe'})
+    .where({id: collection.max(2)});
+
+  assert.deepEqual(collection.models,[tim, fred, john],
+    "Where and Not should return a new collection");
+
+  assert.deepEqual(new_collection.models,[john],
+    "Where and Not should act on the a new collection and be chainable");
+
+});
+
+QUnit.module("Performance");
+QUnit.test("Sorting", function( assert ){
+  var collection = new Collection();
+  for(var i = 0; i < 1000; i++){
+    collection.add({id: i, value: Math.random()});
+  }
+
+  start = new Date().getTime();
+
+  collection.sort('value');
+
+  elapsed = new Date().getTime() - start;
+
+  assert.ok(elapsed < 50,
+    "Should sort a 1000 items in less than 50ms (took "+ elapsed +"ms)");
+});
+
+QUnit.test("Where", function( assert ){
+  var collection = new Collection();
+  for(var i = 0; i < 1000; i++){
+    collection.add({id: i, value: i * i});
+  }
+
+  start = new Date().getTime();
+
+  collection.where({'value': collection.within(1000, 50000)});
+
+  elapsed = new Date().getTime() - start;
+
+  assert.ok(elapsed < 10,
+    "Should where over a 1000 items in less than 10ms (took "+ elapsed +"ms)");
 });
