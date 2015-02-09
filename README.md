@@ -143,13 +143,32 @@ my_collection.add({id: 1, name: 'first'}, {id: 2, name: 'second'}]);
 
 // remove object with id (primary key) equal to 1
 my_collection.remove(1);
+```
 
-or the attribute and the value to be removed
+...the attribute and the value to be removed
+
+```javascript
 
 // remove object with name equal to 'second'
 my_collection.remove('name', 'second');
 ```
 
+or a callback, not unlike filter.
+
+```javascript
+function has_odd_id(object) {
+  return object.id % 2
+}
+
+var my_collection = new Collection([
+  {id: 1, name: 'Joe'},
+  {id: 2, name: 'Joe'},
+  {id: 3, name: 'Tedd'}
+]);
+
+my_collection.remove(has_odd_id);
+// returns the reduced Collection([{id: 2, name: 'Joe'}])
+```
 
 ### Collection.get
 
