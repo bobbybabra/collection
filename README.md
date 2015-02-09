@@ -170,6 +170,20 @@ my_collection.remove(has_odd_id);
 // returns the reduced Collection([{id: 2, name: 'Joe'}])
 ```
 
+Finally, when removing using an attribute, you can use where helper
+to do so
+
+```javascript
+var my_collection = new Collection([
+  {id: 1, name: 'Joe', age: 18},
+  {id: 2, name: 'Joe', age: 22},
+  {id: 3, name: 'Tedd', age: 50}
+]);
+
+my_collection.remove('age', Collection.within(18,22));
+// returns the reduced Collection([{id: 1, name: 'Joe', age: 18},{id: 2, name: 'Joe', age: 22}])
+```
+
 ### Collection.get
 
 Same as remove, `Collection.get()` accepts a primary key or an
