@@ -169,16 +169,16 @@ QUnit.test("Should paginate accross records", function( assert ) {
     assert.equal(page.from, 1,
       "Should have the correct bottom boundary");
 
-    assert.equal(page.to, 2,
+    assert.equal(page.to, 1,
       "Should have the correct top boundary");
 
     assert.equal(page.page, 2,
       "Should have the correct page number");
 
-    assert.equal(collection.page(1,3).has_next, false,
+    assert.equal(collection.page(1, 3).has_next, false,
       "Should indicate if there is no next page");
 
-    assert.equal(collection.page(1,1).has_previous, false,
+    assert.equal(collection.page(1, 1).has_previous, false,
       "Should indicate if there is no previous page");
 });
 

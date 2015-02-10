@@ -489,7 +489,7 @@ function Collection(_models, primary_key) {
   }
 
   /**
-   * Paginate through the results.
+   * Paginate through the models contained in a collection.
    * Returns a JSON object with keys to help you paginate your listing:
    * ```js
    * {
