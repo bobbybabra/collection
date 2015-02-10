@@ -289,11 +289,11 @@ var collection = new Collection([model, model,...]);
 page = collection.page(50, 1);
 console.log(page);
 {
-  page': 1,
-  has_previous': false,
-  has_next': true,
-  from': 0,
-  to': 49,
+  page: 1,
+  has_previous: false,
+  has_next: true,
+  from: 0,
+  to: 49,
   models: [model, model,...]
 }
 ```
