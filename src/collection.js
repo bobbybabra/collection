@@ -387,9 +387,10 @@ function Collection(_models, primary_key) {
    * To remap attributes, you can pass an object where the key is the
    * attribute you want to read, the value will be the mapped name.
    *
-   * @params {string, array, object} names - Attribute or list of attributes
+   * @param {string} names - request a flat list of attribute value (a pluck).
+   * @param {array} names - request a list of object containings those attributes.
+   * @param {object} names - request a mapped list of object containings those attributes.
    * @returns {array} a flat array of attribute if a string was requested
-   * @returns {array} an array of object if an array of string was requested
    * @example
    * ```js
    * // select the id only
