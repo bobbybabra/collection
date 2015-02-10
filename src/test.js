@@ -198,6 +198,9 @@ QUnit.test("Should paginate accross records", function( assert ) {
     assert.equal(page.page, 2,
       "Should have the correct page number");
 
+    assert.equal(collection.page(2, 1).pages, 2,
+      "Should have the correct amount of pages (round ceil)");
+
     assert.equal(collection.page(1, 3).has_next, false,
       "Should indicate if there is no next page");
 

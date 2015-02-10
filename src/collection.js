@@ -542,6 +542,7 @@ function Collection(_models, primary_key) {
 
     return {
       'page': page,
+      'pages': Math.ceil(models.length / page_size),
       'has_previous': page > 1,
       'has_next': to < models.length,
       'from': from,
