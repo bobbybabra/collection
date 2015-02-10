@@ -240,9 +240,11 @@ var teens = people.within('age', collection.within(14,18));
 <a name="Collection..select"></a>
 ### Collection~select() ⇒ <code>array</code> \| <code>array</code>
 Return only the selected attribute on the collection.
+To remap attributes, you can pass an object where the key is the
+attribute you want to read, the value will be the mapped name.
 
 **Returns**: <code>array</code> - a flat array of attribute if a string was requested<code>array</code> - an array of object if an array of string was requested  
-**params**: {string, array} names - Attribute or list of attributes  
+**params**: {string, array, object} names - Attribute or list of attributes  
 **Example**  
 ```js
 // select the id only
@@ -250,8 +252,12 @@ collection.select('id');
 returns an array of the contained ids [1, 2, 3...]
 
 // select the names and id
-collection.select(['id', 'name'])
+collection.select(['id', 'name']);
 // returns [{id: 1, name: 'Joe'}, {id: 2, name: 'Fred'}...]
+
+// select the 'name' as 'first_name' and keep 'id' as 'id'
+collection.select({id:'id', name: 'first_name'});
+// returns [{id: 1, first_name: 'Joe'}, {id: 2, first_name: 'Fred'}...]
 ```
 <a name="Collection..reverse"></a>
 ### Collection~reverse(silent)
@@ -295,7 +301,7 @@ my_collection.sort(sort_callback);
 ```
 <a name="Collection..page"></a>
 ### Collection~page(page_size, page) ⇒ <code>object</code>
-Paginate through the results.
+Paginate through the models contained in a collection.
 Returns a JSON object with keys to help you paginate your listing:
 ```js
 {

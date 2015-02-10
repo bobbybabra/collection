@@ -128,6 +128,15 @@ QUnit.test("Should return only the selected attributes", function( assert ) {
       {first_name: fred.first_name, last_name: fred.last_name },
       {first_name: tim.first_name, last_name: tim.last_name }
     ], "Select should return an array of object when an array is selected");
+
+    var selection = collection.select({first_name: 'name'});
+
+    assert.deepEqual(selection, [
+      {name: john.first_name},
+      {name: fred.first_name},
+      {name: tim.first_name}
+    ], "Select should return an array of mapped object when an object is selected");
+
 });
 
 QUnit.module("Collection where");
@@ -156,7 +165,7 @@ QUnit.module("Collection page");
 QUnit.test("Should paginate accross records", function( assert ) {
     var collection = new Collection([john, fred, tim]);
 
-    page = collection.page(1,2);
+    var page = collection.page(1,2);
     assert.deepEqual(page.models, [fred],
       "Should return models contained on requested the page");
 
@@ -528,11 +537,11 @@ QUnit.test("Sorting", function( assert ){
     collection.add({id: i, value: Math.random()});
   }
 
-  start = new Date().getTime();
+  var start = new Date().getTime();
 
   collection.sort('value');
 
-  elapsed = new Date().getTime() - start;
+  var elapsed = new Date().getTime() - start;
 
   assert.ok(elapsed < 50,
     "Should sort a 1000 items in less than 50ms (took "+ elapsed +"ms)");
@@ -544,11 +553,11 @@ QUnit.test("Where", function( assert ){
     collection.add({id: i, value: i * i});
   }
 
-  start = new Date().getTime();
+  var start = new Date().getTime();
 
   collection.where({'value': collection.within(1000, 50000)});
 
-  elapsed = new Date().getTime() - start;
+  var elapsed = new Date().getTime() - start;
 
   assert.ok(elapsed < 10,
     "Should where over a 1000 items in less than 10ms (took "+ elapsed +"ms)");

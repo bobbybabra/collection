@@ -384,7 +384,10 @@ function Collection(_models, primary_key) {
 
   /**
    * Return only the selected attribute on the collection.
-   * @params {string, array} names - Attribute or list of attributes
+   * To remap attributes, you can pass an object where the key is the
+   * attribute you want to read, the value will be the mapped name.
+   *
+   * @params {string, array, object} names - Attribute or list of attributes
    * @returns {array} a flat array of attribute if a string was requested
    * @returns {array} an array of object if an array of string was requested
    * @example
@@ -394,17 +397,26 @@ function Collection(_models, primary_key) {
    * returns an array of the contained ids [1, 2, 3...]
    *
    * // select the names and id
-   * collection.select(['id', 'name'])
+   * collection.select(['id', 'name']);
    * // returns [{id: 1, name: 'Joe'}, {id: 2, name: 'Fred'}...]
+   *
+   * // select the 'name' as 'first_name' and keep 'id' as 'id'
+   * collection.select({id:'id', name: 'first_name'});
+   * // returns [{id: 1, first_name: 'Joe'}, {id: 2, first_name: 'Fred'}...]
    * ```
    */
   function select(names) {
     var result = [];
+
+    // if the names is only an attribute name
     if (typeof names === 'string'){
       each(function(model){
         result.push(model[names]);
       });
-    }else{
+    }
+
+    // if the names are a list of model attributes
+    else if(Array.isArray(names)){
       each(function(model){
         var values = {};
         for(var i = 0; i < names.length; i++){
@@ -413,6 +425,18 @@ function Collection(_models, primary_key) {
         result.push(values);
       });
     }
+
+    // if the names are a mapping object
+    else{
+      each(function(model){
+        var values = {};
+        for(var key in names){
+          values[names[key]] = model[key];
+        }
+        result.push(values);
+      });
+    }
+
     return result;
   }
 
@@ -674,4 +698,3 @@ function Collection(_models, primary_key) {
     'fire': fire
   }
 }
-
