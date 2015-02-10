@@ -16,18 +16,19 @@ The only requirement for your models is to have a unique primary key.
   * [~isEmpty()](#Collection..isEmpty)
   * [~empty(silent)](#Collection..empty)
   * [~each()](#Collection..each)
-  * [~filter(func)](#Collection..filter)
-  * [~remove()](#Collection..remove)  
-  * [~not(select)](#Collection..not)  
-  * [~where(select)](#Collection..where)  
+  * [~filter(func)](#Collection..filter) ⇒ <code>collection</code>
+  * [~remove()](#Collection..remove) ⇒ <code>collection</code>
+  * [~not(select)](#Collection..not) ⇒ <code>collection</code>
+  * [~where(select)](#Collection..where) ⇒ <code>collection</code>
   * [~contains(str)](#Collection..contains) ⇒ <code>function</code>
   * [~fuzzy(str)](#Collection..fuzzy) ⇒ <code>function</code>
   * [~max(num)](#Collection..max) ⇒ <code>function</code>
   * [~min(num)](#Collection..min) ⇒ <code>function</code>
   * [~within(min, max)](#Collection..within) ⇒ <code>function</code>
-  * [~select()](#Collection..select)  
+  * [~select()](#Collection..select) ⇒ <code>array</code> \| <code>array</code>
   * [~reverse(silent)](#Collection..reverse)
   * [~sort(attribute, callback, silent)](#Collection..sort)
+  * [~page(page_size, page)](#Collection..page) ⇒ <code>object</code>
   * [~get(attribute, value)](#Collection..get) ⇒ <code>object</code>
   * [~add(models, silent)](#Collection..add)  
   * [~on(event_name, func)](#Collection..on) ⇒ <code>function</code>
@@ -84,12 +85,13 @@ function callback(model, position){
 var first_three = collection.each(callback);
 ```
 <a name="Collection..filter"></a>
-### Collection~filter(func)
+### Collection~filter(func) ⇒ <code>collection</code>
 Returns model for which the argument function returns true.
 filter accepts a function to filter it's content. The function
 receives 3 arguments: the current model, the collection's models,
 and the position within the current iteration.
 
+**Returns**: <code>collection</code> - Returns a new filtered collection  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -104,7 +106,7 @@ function callback(model, models, position){
 var models = collection.filter(callback);
 ```
 <a name="Collection..remove"></a>
-### Collection~remove()  
+### Collection~remove() ⇒ <code>collection</code>
 Remove all the objects with a matching attribute.
 If only one argument is passed the argument will
 be used to match against every object primary key.
@@ -116,7 +118,7 @@ A function can also be used in conjunction with an
 attribute name. In this case, the function will
 receive the model's attribute value as an argument.
 
-**Returns**: the current collection for chaining  
+**Returns**: <code>collection</code> - the current collection for chaining  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;remove&#x27;</code>  
 **Example**  
 ```js
@@ -132,10 +134,10 @@ collection.remove('first_name', ['john', 'steve']);
 collection.remove('age', collection.within(21, 35));
 ```
 <a name="Collection..not"></a>
-### Collection~not(select)  
+### Collection~not(select) ⇒ <code>collection</code>
 return a new collection of non matching models (see collection.where)
 
-**Returns**: the current collection for chaining  
+**Returns**: <code>collection</code> - the current collection for chaining  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -147,10 +149,10 @@ return a new collection of non matching models (see collection.where)
 collection.not({name: Collection.contains('^rob')});
 ```
 <a name="Collection..where"></a>
-### Collection~where(select)  
+### Collection~where(select) ⇒ <code>collection</code>
 return a new collection of matching models
 
-**Returns**: the current collection for chaining  
+**Returns**: <code>collection</code> - the current collection for chaining  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -236,10 +238,10 @@ Where filter within two values.
 var teens = people.within('age', collection.within(14,18));
 ```
 <a name="Collection..select"></a>
-### Collection~select()  
+### Collection~select() ⇒ <code>array</code> \| <code>array</code>
 Return only the selected attribute on the collection.
 
-**Returns**: a flat array of attribute if a string was requestedan array of object if an array of string was requested  
+**Returns**: <code>array</code> - a flat array of attribute if a string was requested<code>array</code> - an array of object if an array of string was requested  
 **params**: {string, array} names - Attribute or list of attributes  
 **Example**  
 ```js
@@ -291,6 +293,28 @@ sort_callback(attribute_value_a, attribute_value_b){
 }
 my_collection.sort(sort_callback);
 ```
+<a name="Collection..page"></a>
+### Collection~page(page_size, page) ⇒ <code>object</code>
+Paginate through the results.
+Returns a JSON object with keys to help you paginate your listing:
+```js
+{
+  page: 2,
+  has_previous: true
+  has_next: false
+  from: 20
+  to: 35
+  models:[...]
+}
+```
+
+**Returns**: <code>object</code> - Page object  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| page_size | <code>number</code> | How many item per page |
+| page | <code>number</code> | The page number |
+
 <a name="Collection..get"></a>
 ### Collection~get(attribute, value) ⇒ <code>object</code>
 Returns the first model with the matching attribute

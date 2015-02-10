@@ -152,6 +152,36 @@ QUnit.test("Should return a collection matching the clause", function( assert ) 
       "Where should accept an array of matching attributes");
 });
 
+QUnit.module("Collection page");
+QUnit.test("Should paginate accross records", function( assert ) {
+    var collection = new Collection([john, fred, tim]);
+
+    page = collection.page(1,2);
+    assert.deepEqual(page.models, [fred],
+      "Should return models contained on requested the page");
+
+    assert.equal(page.has_next, true,
+      "Should indicate if there is a next page");
+
+    assert.equal(page.has_previous, true,
+      "Should indicate if there is a previous page");
+
+    assert.equal(page.from, 1,
+      "Should have the correct bottom boundary");
+
+    assert.equal(page.to, 2,
+      "Should have the correct top boundary");
+
+    assert.equal(page.page, 2,
+      "Should have the correct page number");
+
+    assert.equal(collection.page(1,3).has_next, false,
+      "Should indicate if there is no next page");
+
+    assert.equal(collection.page(1,1).has_previous, false,
+      "Should indicate if there is no previous page");
+});
+
 QUnit.module("Collection not");
 QUnit.test("Should return a collection not matching the predicats", function( assert ) {
     var collection = new Collection([john, fred, tim]);

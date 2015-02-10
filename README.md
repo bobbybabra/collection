@@ -277,6 +277,27 @@ collection.where(age: collection.min(22), name: collection.contains('o')});
 // returns new Collection([{id: 2, name: 'Joe', age: 22}]);
 ```
 
+### Collection.page
+
+Often you'll need to display your collections paginated. `Collection.page`
+returns a JSON object to help you achieve paginated listing.
+
+```javascript
+var collection = new Collection([model, model,...]);
+
+// display the first page of 50 elements
+page = collection.page(50, 1);
+console.log(page);
+{
+  page': 1,
+  has_previous': false,
+  has_next': true,
+  from': 0,
+  to': 49,
+  models: [model, model,...]
+}
+```
+
 ### Collection.select
 
 Select will return the attributes you pick, not unlike pluck but with a twist.

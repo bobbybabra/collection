@@ -128,6 +128,7 @@ function Collection(_models, primary_key) {
    * receives 3 arguments: the current model, the collection's models,
    * and the position within the current iteration.
    * @param {function} func - filtering function
+   * @returns {collection} Returns a new filtered collection
    * @example
    * ```js
    * // return models with an odd id
@@ -160,7 +161,7 @@ function Collection(_models, primary_key) {
    * receive the model's attribute value as an argument.
    * @fires 'change'
    * @fires 'remove'
-   * @returns the current collection for chaining
+   * @returns {collection} the current collection for chaining
    * @example
    * ```js
    * // remove the object with a primary key of 1
@@ -232,7 +233,7 @@ function Collection(_models, primary_key) {
   /**
    * return a new collection of non matching models (see collection.where)
    * @param {object} select - JSON object of predicates.
-   * @returns the current collection for chaining
+   * @returns {collection} the current collection for chaining
    * @example
    * ```js
    * // select name not starting with "rob"
@@ -246,7 +247,7 @@ function Collection(_models, primary_key) {
   /**
    * return a new collection of matching models
    * @param {object} select - JSON object of predicates.
-   * @returns the current collection for chaining
+   * @returns {collection} the current collection for chaining
    * @example
    * ```js
    * // select name starting with "rob" and with in [1,2,3]
@@ -384,8 +385,8 @@ function Collection(_models, primary_key) {
   /**
    * Return only the selected attribute on the collection.
    * @params {string, array} names - Attribute or list of attributes
-   * @returns a flat array of attribute if a string was requested
-   * @returns an array of object if an array of string was requested
+   * @returns {array} a flat array of attribute if a string was requested
+   * @returns {array} an array of object if an array of string was requested
    * @example
    * ```js
    * // select the id only
@@ -488,6 +489,40 @@ function Collection(_models, primary_key) {
   }
 
   /**
+   * Paginate through the results.
+   * Returns a JSON object with keys to help you paginate your listing:
+   * ```js
+   * {
+   *   page: 2,
+   *   has_previous: true
+   *   has_next: false
+   *   from: 20
+   *   to: 35
+   *   models:[...]
+   * }
+   * ```
+   * @param {number} page_size - How many item per page
+   * @param {number} page - The page number
+   * @returns {object} Page object
+   */
+  function page(page_size, page){
+    var to = (page_size * page), from = to - page_size;
+
+    // maxout to the models length and prevent < 0 index
+    from = from > models.length ? models.length: from > 0 ? from : 0;
+    to = to > models.length ? models.length: to;
+
+    return {
+      'page': page,
+      'has_previous': page > 1,
+      'has_next': to < models.length,
+      'from': from,
+      'to': to - 1,
+      'models': models.slice(from, to)
+    };
+  }
+
+  /**
    * Returns the first model with the matching attribute
    * if only on argument is passed, the get is matched
    * against the model primary key
@@ -539,7 +574,7 @@ function Collection(_models, primary_key) {
       model = _models[i];
       // first remove the model if its in the collection
       // but lets do it silently, the main action is still add
-      remove(primary_key, model[primary_key], tru);
+      remove(primary_key, model[primary_key], true);
       // then add it to the collection
       models.push(model);
       index[model[primary_key]] = model;
@@ -622,7 +657,8 @@ function Collection(_models, primary_key) {
     'filter': filter,
     'each': each,
     'where': where,
-    'not': whereNot,
+    'page': page,
+    'not': not,
     'min': min,
     'max': max,
     'within': within,
