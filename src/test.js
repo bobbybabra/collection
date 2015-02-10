@@ -129,13 +129,27 @@ QUnit.test("Should return only the selected attributes", function( assert ) {
       {first_name: tim.first_name, last_name: tim.last_name }
     ], "Select should return an array of object when an array is selected");
 
-    var selection = collection.select({first_name: 'name'});
+    var selection = collection.select({'name': 'first_name'});
 
     assert.deepEqual(selection, [
       {name: john.first_name},
       {name: fred.first_name},
       {name: tim.first_name}
     ], "Select should return an array of mapped object when an object is selected");
+
+    function combineName(model){
+      return model.first_name + ' ' + model.last_name;
+    }
+
+    var selection = collection.select({id: 'id', name: combineName});
+
+    assert.deepEqual(selection, [
+      {id: 1, name: john.first_name + ' ' + john.last_name},
+      {id: 2, name: fred.first_name + ' ' + fred.last_name},
+      {id: 3, name: tim.first_name + ' ' + tim.last_name}
+    ], "Select should return an array of mapped generated properties");
+
+
 
 });
 

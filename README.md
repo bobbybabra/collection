@@ -322,6 +322,15 @@ my_collection.select(['id','first_name'])
 // returns  [{id: 1, first_name: 'Joe'},{id: 2, first_name: 'Joe'}...]
 ```
 
+You can also map values and pass function to create new ones
+
+```javascript
+function combineName(model){
+  return model.first_name + ' ' + model.last_name;
+}
+my_collection.select({ext_id: 'id', name: combineName});
+// returns  [{ext_id: 1, name: 'Joe Doe'}, {ext_id: 2, name: 'Joe Regan'},...]
+```
 
 *Note*: Now you can get fancy and do stuff like an intersection of collection
 

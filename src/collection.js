@@ -426,12 +426,15 @@ function Collection(_models, primary_key) {
       });
     }
 
-    // if the names are a mapping object
+    // if the names is a mapping object
     else{
       each(function(model){
         var values = {};
         for(var key in names){
-          values[names[key]] = model[key];
+          // If the selection a method to construct a value from the model
+          if(typeof names[key] === 'function') values[key] = names[key](model);
+          // otherwise apply simple attribute mapping
+          else values[key] = model[names[key]];
         }
         result.push(values);
       });
