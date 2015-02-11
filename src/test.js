@@ -146,7 +146,7 @@ QUnit.test("Should remove a list of model through a callback", function( assert 
       "The collection should keep matching model.");
 });
 
-QUnit.test("Should remove a list of model using callback", function( assert ) {
+QUnit.test("Should remove a list of model using array of values", function( assert ) {
     var collection = new Collection([john, fred, tim]);
 
     collection.remove('first_name', ['john', 'fred']);
@@ -611,6 +611,9 @@ QUnit.test("Should filter related collections", function( assert ){
 
   assert.equal(joined_tables.addresses.models.length, 2,
     "Should keep only the models matching the where");
+
+  assert.deepEqual(joined_tables.addresses.select('city'),
+    ['Los Angeles','Los Angeles'], "Objects kept should match the query");
 
   assert.equal(joined_tables.address_join.models.length, 1,
     "Should keep only the related models matching the where (join collection)");

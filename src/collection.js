@@ -38,10 +38,32 @@ function Collection(_models, primary_key) {
   var index = {};
   var events = {};
 
-  primary_key = primary_key || 'id';
+  // Official ascii information separator
+  // see http://en.wikipedia.org/wiki/Delimiter#ASCII_delimited_text
+  var delimiter = String.fromCharCode(31);
+
+
+  primary_key = [].concat(primary_key || 'id');
 
   if(_models) {
     add(_models);
+  }
+
+  function getPKValue(model){
+    var pk_values = []
+
+    for(var i = 0; i < primary_key.length; i++)
+      pk_values.push(model[primary_key[i]]);
+
+    return makeIndexStr(pk_values)
+  }
+
+  /**
+   * makeIndexStr will be use also used within the index for get and remove
+   * methods, it generates the value stored in the indexed.
+   */
+  function makeIndexStr(values){
+    return [].concat(values).join(delimiter);
   }
 
   /**
@@ -196,15 +218,14 @@ function Collection(_models, primary_key) {
    * ```
    */
   function remove(attribute, value, silent, not) {
-    var model_deleted = [];
+    var model, model_deleted = [];
 
     // if a single argument is passsed and is not a function
     // we infer that the filtering occurs on the primary key.
     // Otherwise the argument is considered a filter on the
     // whole models
-
     if(typeof value === 'undefined' && typeof attribute != 'function'){
-      value = attribute;
+      value = makeIndexStr(attribute);
       attribute = primary_key;
     }
 
@@ -215,6 +236,9 @@ function Collection(_models, primary_key) {
     }
 
     function _match(model){
+      if(attribute === primary_key){
+        return getPKValue(model) === value;
+      }
       // If a single callback got passed, consider passing it as a
       // global filter against the entire model.
       if(typeof value === 'undefined'){
@@ -240,9 +264,10 @@ function Collection(_models, primary_key) {
     // Going through the list upside down as we might pop
     // item during the loop.
     for (var i = models.length - 1; i >= 0; i--) {
-      if (match(models[i])) {
-        model_deleted.push(index[models[i][primary_key]]);
-        delete index[models[i][primary_key]];
+      model = models[i];
+      if (match(model)) {
+        model_deleted.push(index[getPKValue(model)]);
+        delete index[getPKValue(model)];
         models.splice(i, 1);
       }
     }
@@ -597,7 +622,7 @@ function Collection(_models, primary_key) {
     // if get(id) gets called we consider that
     // the argument passed is the primary key
     if(arguments.length === 1 || attribute === primary_key){
-      return index[attribute];
+      return index[makeIndexStr(attribute)];
     }
     var r = null;
     each(function (model) {
@@ -630,10 +655,11 @@ function Collection(_models, primary_key) {
       model = _models[i];
       // first remove the model if its in the collection
       // but lets do it silently, the main action is still add
-      remove(primary_key, model[primary_key], true);
+      remove(getPKValue(model), undefined, true);
+
       // then add it to the collection
       models.push(model);
-      index[model[primary_key]] = model;
+      index[getPKValue(model)] = model;
     }
 
     // only trigger events if not silenced
