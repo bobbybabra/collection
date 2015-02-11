@@ -149,6 +149,21 @@ function Collection(_models, primary_key) {
   }
 
   /**
+   * The opposite of remove, the collection will remove any object
+   * not matching the query and only keep the one matching the query.
+   * @param {string} attribute - model's attribute to match against
+   * @param {string} value - Value expected
+   * @param {boolean} silent - Do not trigger event if true
+   * @fires 'change'
+   * @fires 'remove'
+   * @returns {collection} the current collection for chaining
+   */
+  function keep(attribute, value, silent) {
+    return remove(attribute, value, silent, true);
+  }
+
+
+  /**
    * Remove all the objects with a matching attribute.
    * If only one argument is passed the argument will
    * be used to match against every object primary key.
@@ -159,6 +174,10 @@ function Collection(_models, primary_key) {
    * A function can also be used in conjunction with an
    * attribute name. In this case, the function will
    * receive the model's attribute value as an argument.
+   * @param {string} attribute - model's attribute to match against
+   * @param {string} value - Value expected
+   * @param {boolean} silent - Do not trigger event if true
+   * @param {boolean} not - Does the opposite, keeps items matching the query
    * @fires 'change'
    * @fires 'remove'
    * @returns {collection} the current collection for chaining
@@ -176,19 +195,26 @@ function Collection(_models, primary_key) {
    * collection.remove('age', collection.within(21, 35));
    * ```
    */
-  function remove(attribute, value, silent) {
+  function remove(attribute, value, silent, not) {
     var model_deleted = [];
 
     // if a single argument is passsed and is not a function
     // we infer that the filtering occurs on the primary key.
     // Otherwise the argument is considered a filter on the
     // whole models
-    if(arguments.length === 1 && typeof attribute != 'function'){
+
+    if(typeof value === 'undefined' && typeof attribute != 'function'){
       value = attribute;
       attribute = primary_key;
     }
 
+    // If we pass not, we want the opposite match to be removed,
+    // aka keep the model when the match is valid.
     function match(model){
+      return not ? !_match(model) : _match(model);
+    }
+
+    function _match(model){
       // If a single callback got passed, consider passing it as a
       // global filter against the entire model.
       if(typeof value === 'undefined'){
@@ -522,6 +548,7 @@ function Collection(_models, primary_key) {
    * ```js
    * {
    *   page: 2,
+   *   pages: 2,
    *   has_previous: true
    *   has_next: false
    *   from: 20
@@ -686,6 +713,7 @@ function Collection(_models, primary_key) {
     'filter': filter,
     'each': each,
     'where': where,
+    'keep': keep,
     'page': page,
     'not': not,
     'min': min,
@@ -703,3 +731,60 @@ function Collection(_models, primary_key) {
     'fire': fire
   }
 }
+/**
+ * Join and trim Collections according to relations and where clause
+ * passed.
+ * Relation should be read as only keep the models in the second collection
+ * connected to the first.
+ * @param {object} collections - Collections to be filtered through
+ * @param {object} relations - Relation between the tables
+ * @param {object} where - Filtering clause
+ */
+Collection.join = function(collections, relations, where){
+  var indexes, relation, collection, attribute, left, right, clause;
+  var r = {};
+
+  // Clone the collections, we're supposed to stay immutable
+  for(collection in collections){
+    r[collection] = new Collection(collections[collection].models);
+  }
+
+  // first group together the where clauses
+  var wheres = {}
+  for(var collection_attribute in where){
+    collection = collection_attribute.split('.')[0];
+    attribute = collection_attribute.split('.')[1];
+    clause = where[collection_attribute];
+    if(!(collection in wheres)) wheres[collection] = {};
+    wheres[collection][attribute] = clause;
+  }
+
+  // Apply the filter on the different collections
+  for(collection in wheres){
+    r[collection] = r[collection].where(wheres[collection]);
+  }
+
+  // Trim the collections according to their relation
+  // The triming implies only keeping record in the right collection
+  // that have a relation matching in the left table
+  relations.forEach(function(relation, index){
+    right = relation[1];
+    left = relation[0];
+
+    // format is 'collection.attribute' for left and right relations
+    // definition
+    collection = r[left.split('.')[0]];
+    attribute = left.split('.')[1];
+
+    // first lets select the indexes from the first table
+    indexes = collection.select(attribute);
+
+    // then remove trim the right table to match only those
+    collection = r[right.split('.')[0]];
+    attribute = right.split('.')[1];
+
+    collection.keep(attribute, indexes);
+  });
+
+  return r;
+};

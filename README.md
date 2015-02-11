@@ -433,6 +433,113 @@ var unregister = my_collection.on('change', onChange);
 my_collection.add({id: 2, name: 'Alan'});
 ```
 
+## Joins
+
+Ok, this is becoming more complex now. The assumption is made that the
+collections you deal with are related to each others. If they are not then
+this is not for you, otherwise stay with me.
+
+Join allows you to work and query multiple collection in one shot. Once you
+define their relations, you may leverage the flexibility of `where` accross
+all the collections and the join will take care of trimming the related
+collection for you.
+
+Ok, so there are my collections
+
+```js
+
+var john = {
+  id: 1,
+  first_name:'john',
+  last_name:'redford',
+  xid: 'x1',
+  age: 22,
+  job_id: 1 //engineer
+};
+
+var fred = {
+  id: 2,
+  first_name:'fred',
+  last_name: 'doe',
+  xid: 'x2',
+  age: 16,
+  job_id: 2 //technician
+};
+
+var tim = {
+  id: 3,
+  first_name:'tim',
+  last_name: 'doe',
+  xid: 'x3',
+  age: 55,
+  job_id: 1 //engineer
+};
+
+var jobs = [
+  {id: 1, title: 'engineer'},
+  {id: 2, title: 'technician'}
+];
+
+// many to many relation user to addresses
+var address_join = [
+  {id: 1, user_id: john.id, address_id: 1},
+  {id: 2, user_id: john.id, address_id: 2},
+  {id: 3, user_id: fred.id, address_id: 2},
+  {id: 4, user_id: tim.id, address_id: 4}
+];
+
+var addresses = [
+  {id: 1, street: '123 rose ave', city: 'New York', zipcode: '10005'},
+  {id: 2, street: '321 blue street', city: 'New York', zipcode: '1006'},
+  {id: 3, street: '456 red blvd', city: 'Los Angeles', zipcode: '90046'},
+  {id: 4, street: '65 black rd', city: 'Los Angeles', zipcode: '90046'},
+];
+```
+
+First lets decide my query. This is the part that will probably evolve with
+your user input. I want all the users in Los Angeles. Since you'll
+be going through multiple collection at a time, it's necessary that you
+indicate the collection name you're filtering on:
+
+```js
+var where = {
+  'addresses.city': 'Los Angeles'
+};
+```
+
+Ok, now my relation, If you know some database, you'll see the relations:
+
+* `jobs` *one to many* `users`
+* `users` *many to many* `addresses` (through `address_join`)
+
+When defining the relations, keep in mind the relation trimming order. Here I'm
+going to search by address first, so that will be my starting point.
+`address --[filters]--> users --[filters]--> jobs`
+
+```js
+var relations = [
+  ['addresses.id', 'address_join.address_id'],
+  ['address_join.user_id','users.id'],
+  ['users.job_id','jobs.id'],
+];
+```
+
+Join will allow you to truncate all your collection at once according to a
+where close.
+
+```js
+var tables = {
+  'users': new Collection([tim, fred, john]),
+  'addresses': new Collection(addresses),
+  'address_join': new Collection(address_join),
+  'jobs': new Collection(jobs)
+};
+
+// Filter is applied on all the collection,
+// Now, filtered_tables_tables.users only contains users living in "Los Angeles"
+var filtered_tables = Collection.join(tables, relations, where);
+```
+
 ## Testing
 
 Test are run using QUnit library. First download this repository

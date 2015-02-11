@@ -12,12 +12,14 @@ The only requirement for your models is to have a unique primary key.
 
 
 * [Collection(models, primary_key)](#Collection)
+  * [.join(collections, relations, where)](#Collection.join)
   * [~size()](#Collection..size)
   * [~isEmpty()](#Collection..isEmpty)
   * [~empty(silent)](#Collection..empty)
   * [~each()](#Collection..each)
   * [~filter(func)](#Collection..filter) ⇒ <code>collection</code>
-  * [~remove()](#Collection..remove) ⇒ <code>collection</code>
+  * [~keep(attribute, value, silent)](#Collection..keep) ⇒ <code>collection</code>
+  * [~remove(attribute, value, silent, not)](#Collection..remove) ⇒ <code>collection</code>
   * [~not(select)](#Collection..not) ⇒ <code>collection</code>
   * [~where(select)](#Collection..where) ⇒ <code>collection</code>
   * [~contains(str)](#Collection..contains) ⇒ <code>function</code>
@@ -25,7 +27,7 @@ The only requirement for your models is to have a unique primary key.
   * [~max(num)](#Collection..max) ⇒ <code>function</code>
   * [~min(num)](#Collection..min) ⇒ <code>function</code>
   * [~within(min, max)](#Collection..within) ⇒ <code>function</code>
-  * [~select()](#Collection..select) ⇒ <code>array</code> \| <code>array</code>
+  * [~select(names, names, names)](#Collection..select) ⇒ <code>array</code>
   * [~reverse(silent)](#Collection..reverse)
   * [~sort(attribute, callback, silent)](#Collection..sort)
   * [~page(page_size, page)](#Collection..page) ⇒ <code>object</code>
@@ -35,6 +37,20 @@ The only requirement for your models is to have a unique primary key.
   * [~off(event_name, func)](#Collection..off)
   * [~fire(event_name, data)](#Collection..fire)
   * [~uuid()](#Collection..uuid)
+
+<a name="Collection.join"></a>
+### Collection.join(collections, relations, where)
+Join and trim Collections according to relations and where clause
+passed.
+Relation should be read as only keep the models in the second collection
+connected to the first.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| collections | <code>object</code> | Collections to be filtered through |
+| relations | <code>object</code> | Relation between the tables |
+| where | <code>object</code> | Filtering clause |
 
 <a name="Collection..size"></a>
 ### Collection~size()
@@ -105,8 +121,22 @@ function callback(model, models, position){
 }
 var models = collection.filter(callback);
 ```
+<a name="Collection..keep"></a>
+### Collection~keep(attribute, value, silent) ⇒ <code>collection</code>
+The opposite of remove, the collection will remove any object
+not matching the query and only keep the one matching the query.
+
+**Returns**: <code>collection</code> - the current collection for chaining  
+**Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;remove&#x27;</code>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| attribute | <code>string</code> | model's attribute to match against |
+| value | <code>string</code> | Value expected |
+| silent | <code>boolean</code> | Do not trigger event if true |
+
 <a name="Collection..remove"></a>
-### Collection~remove() ⇒ <code>collection</code>
+### Collection~remove(attribute, value, silent, not) ⇒ <code>collection</code>
 Remove all the objects with a matching attribute.
 If only one argument is passed the argument will
 be used to match against every object primary key.
@@ -120,6 +150,14 @@ receive the model's attribute value as an argument.
 
 **Returns**: <code>collection</code> - the current collection for chaining  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;remove&#x27;</code>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| attribute | <code>string</code> | model's attribute to match against |
+| value | <code>string</code> | Value expected |
+| silent | <code>boolean</code> | Do not trigger event if true |
+| not | <code>boolean</code> | Does the opposite, keeps items matching the query |
+
 **Example**  
 ```js
 // remove the object with a primary key of 1
@@ -238,13 +276,19 @@ Where filter within two values.
 var teens = people.within('age', collection.within(14,18));
 ```
 <a name="Collection..select"></a>
-### Collection~select() ⇒ <code>array</code> \| <code>array</code>
+### Collection~select(names, names, names) ⇒ <code>array</code>
 Return only the selected attribute on the collection.
 To remap attributes, you can pass an object where the key is the
 attribute you want to read, the value will be the mapped name.
 
-**Returns**: <code>array</code> - a flat array of attribute if a string was requested<code>array</code> - an array of object if an array of string was requested  
-**params**: {string, array, object} names - Attribute or list of attributes  
+**Returns**: <code>array</code> - a flat array of attribute if a string was requested  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| names | <code>string</code> | request a flat list of attribute value (a pluck). |
+| names | <code>array</code> | request a list of object containings those attributes. |
+| names | <code>object</code> | request a mapped list of object containings those attributes. |
+
 **Example**  
 ```js
 // select the id only
@@ -306,6 +350,7 @@ Returns a JSON object with keys to help you paginate your listing:
 ```js
 {
   page: 2,
+  pages: 2,
   has_previous: true
   has_next: false
   from: 20

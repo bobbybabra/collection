@@ -1,9 +1,58 @@
-var john = {id: 1, first_name:'john', last_name:'redford', xid: 'x1', age: 22};
-var fred = {id: 2, first_name:'fred', last_name: 'doe', xid: 'x2', age: 16};
-var tim = {id: 3, first_name:'tim', last_name: 'doe', xid: 'x3', age: 55};
+var engineer = {
+  id: 1,
+  title: 'engineer'
+};
+
+var technician = {
+  id: 2,
+  title: 'technician'
+};
+
+var jobs = [engineer, technician];
+
+var john = {
+  id: 1,
+  first_name:'john',
+  last_name:'redford',
+  xid: 'x1',
+  age: 22,
+  job_id: engineer.id
+};
+
+var fred = {
+  id: 2,
+  first_name:'fred',
+  last_name: 'doe',
+  xid: 'x2',
+  age: 16,
+  job_id: technician.id
+};
+
+var tim = {
+  id: 3,
+  first_name:'tim',
+  last_name: 'doe',
+  xid: 'x3',
+  age: 55,
+  job_id: engineer.id
+};
+
+// many to many relation user to addresses
+var address_join = [
+  {id: 1, user_id: john.id, address_id: 1},
+  {id: 2, user_id: john.id, address_id: 2},
+  {id: 3, user_id: fred.id, address_id: 2},
+  {id: 4, user_id: tim.id, address_id: 4}
+];
+
+var addresses = [
+  {id: 1, street: '123 rose ave', city: 'New York', zipcode: '10005'},
+  {id: 2, street: '321 blue street', city: 'New York', zipcode: '1006'},
+  {id: 3, street: '456 red blvd', city: 'Los Angeles', zipcode: '90046'},
+  {id: 4, street: '65 black rd', city: 'Los Angeles', zipcode: '90046'},
+];
 
 QUnit.module( "Collection constructor" );
-
 QUnit.test("Initialize models to empty array", function( assert ) {
     var collection = new Collection();
 
@@ -46,6 +95,21 @@ QUnit.test("Should overwrite a conflicting primary key", function( assert ) {
 
     assert.equal(collection.models[1], ted,
       "Replacing object should take place of replaced object.");
+});
+
+QUnit.module("Collection keep");
+QUnit.test("Should keep a model", function( assert ) {
+    var collection = new Collection([john, fred, tim]);
+
+    collection.keep('last_name', 'doe');
+    assert.equal(collection.models.length, 2,
+      "The collection should keep all models matching the criteria.");
+    assert.deepEqual(collection.models, [fred, tim],
+      "The collection should have kept non matching model.");
+
+    collection.keep(fred.id);
+    assert.equal(collection.models.length, 1,
+      "The collection should keep objects matching the primary key.");
 });
 
 QUnit.module("Collection remove");
@@ -522,6 +586,40 @@ QUnit.test("off()", function( assert ){
     assert.equal(changed, false,
       "The collection should not fire the attached listener once detached");
 
+});
+
+QUnit.module("Relations");
+QUnit.test("Should filter related collections", function( assert ){
+  var tables = {
+    'users': new Collection([tim, fred, john]),
+    'addresses': new Collection(addresses),
+    'address_join': new Collection(address_join),
+    'jobs': new Collection(jobs)
+  };
+
+  var relations = [
+    ['addresses.id', 'address_join.address_id'],
+    ['address_join.user_id','users.id'],
+    ['users.job_id','jobs.id'],
+  ];
+
+  var where = {
+    'addresses.city': 'Los Angeles'
+  };
+
+  var joined_tables = Collection.join(tables, relations, where);
+
+  assert.equal(joined_tables.addresses.models.length, 2,
+    "Should keep only the models matching the where");
+
+  assert.equal(joined_tables.address_join.models.length, 1,
+    "Should keep only the related models matching the where (join collection)");
+
+  assert.deepEqual(joined_tables.users.models, [tim],
+    "Should keep only the related models matching the where (users)");
+
+  assert.deepEqual(joined_tables.jobs.models, [engineer],
+    "Should keep only the related models matching the where (jobs)");
 });
 
 QUnit.module("Chainability");
