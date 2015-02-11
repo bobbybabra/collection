@@ -134,6 +134,10 @@ my_collection.add([{id: 1, name: 'new first'}]);
 my_collection.get(1).name;
 ```
 
+### Collection.keep
+
+`Collection.keep()` accepts the same argument as `remove` but will keep
+the matching element, removing the non matching ones.
 
 ### Collection.remove
 
