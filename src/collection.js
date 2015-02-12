@@ -50,11 +50,16 @@ function Collection(_models, primary_key) {
   }
 
   function getPKValue(model){
+    // If the the PK is a single PK
+    if(primary_key.length === 1){
+      return model[primary_key[0]];
+    }
+
     var pk_values = []
 
-    for(var i = 0; i < primary_key.length; i++)
-      pk_values.push(model[primary_key[i]]);
-
+    primary_key.forEach(function(pk){
+      pk_values.push(model[pk]);
+    });
     return makeIndexStr(pk_values)
   }
 
@@ -63,7 +68,10 @@ function Collection(_models, primary_key) {
    * methods, it generates the value stored in the indexed.
    */
   function makeIndexStr(values){
-    return [].concat(values).join(delimiter);
+    if(Array.isArray(values) && values.length > 1){
+      return values.join(delimiter);
+    }
+    return values
   }
 
   /**
@@ -225,7 +233,26 @@ function Collection(_models, primary_key) {
     // Otherwise the argument is considered a filter on the
     // whole models
     if(typeof value === 'undefined' && typeof attribute != 'function'){
-      value = makeIndexStr(attribute);
+      // if the key is a composed key (more than one attribute)
+      // then a single level array is a direct 1 to 1 match
+      // a 2 level array is a value in array of value match
+      // In that case we will generate their representation
+      // as a primary key to allow later === matching.
+      if(primary_key.length > 1){
+        if(array.isArray(attribute[0])){
+          value = [];
+          attribute.forEach(function(v){
+            value.push(makeIndexStr(v));
+          });
+        }
+        else{
+          value = makeIndexStr(attribute);
+        }
+      }
+      // otherwise the value doesn't need any conversion
+      else{
+        value = attribute;
+      }
       attribute = primary_key;
     }
 
@@ -236,9 +263,23 @@ function Collection(_models, primary_key) {
     }
 
     function _match(model){
+      // So you pass the primary key as the attribute you want to
+      // filter on
       if(attribute === primary_key){
-        return getPKValue(model) === value;
+        // if you pass an array and primary key.length is 1
+        // we consider it a simple value in array match
+        if(Array.isArray(value)){
+          // if it's a single primary key, no need to convert it
+          if(primary_key.length === 1){
+            return value.indexOf(model[attribute]) > -1;
+          }
+          // but composed primary key need to be converted to be matched
+          else{
+            return value.indexOf(getPKValue(model)) > -1;
+          }
+        }
       }
+
       // If a single callback got passed, consider passing it as a
       // global filter against the entire model.
       if(typeof value === 'undefined'){
@@ -651,15 +692,16 @@ function Collection(_models, primary_key) {
     // return to prevent events
     if(_models.length === 0) return this;
 
-    for(var model, i = 0; i < _models.length; i++){
+    for(var pk, model, i = 0; i < _models.length; i++){
       model = _models[i];
+      pk = getPKValue(model);
       // first remove the model if its in the collection
       // but lets do it silently, the main action is still add
-      remove(getPKValue(model), undefined, true);
+      if(pk in index) remove(pk, undefined, true);
 
       // then add it to the collection
       models.push(model);
-      index[getPKValue(model)] = model;
+      index[pk] = model;
     }
 
     // only trigger events if not silenced
@@ -730,6 +772,7 @@ function Collection(_models, primary_key) {
   }
 
   return {
+    'primary_key': primary_key,
     'uuid': uuid,
     'isEmpty': isEmpty,
     'empty': empty,
@@ -772,7 +815,9 @@ Collection.join = function(collections, relations, where){
 
   // Clone the collections, we're supposed to stay immutable
   for(collection in collections){
-    r[collection] = new Collection(collections[collection].models);
+    r[collection] = new Collection(
+      collections[collection].models, collections[collection].primary_key
+    );
   }
 
   // first group together the where clauses

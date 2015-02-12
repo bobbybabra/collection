@@ -39,10 +39,10 @@ var tim = {
 
 // many to many relation user to addresses
 var address_join = [
-  {id: 1, user_id: john.id, address_id: 1},
-  {id: 2, user_id: john.id, address_id: 2},
-  {id: 3, user_id: fred.id, address_id: 2},
-  {id: 4, user_id: tim.id, address_id: 4}
+  {user_id: john.id, address_id: 1},
+  {user_id: john.id, address_id: 2},
+  {user_id: fred.id, address_id: 2},
+  {user_id: tim.id, address_id: 4}
 ];
 
 var addresses = [
@@ -588,12 +588,24 @@ QUnit.test("off()", function( assert ){
 
 });
 
+QUnit.module("Composed primary keys");
+QUnit.test("Should index through the PK and allow get", function( assert ){
+  var number = {type: 'value', name:'number'},
+      string = {type: 'value', name:'string'};
+
+  var collection = new Collection([number, string], ['type','name']);
+  assert.deepEqual(collection.get(['value','string']), string,
+    "Should index composed primary key");
+  assert.deepEqual(collection.get(['value','number']), number,
+    "Should index composed primary key");
+});
+
 QUnit.module("Relations");
 QUnit.test("Should filter related collections", function( assert ){
   var tables = {
     'users': new Collection([tim, fred, john]),
     'addresses': new Collection(addresses),
-    'address_join': new Collection(address_join),
+    'address_join': new Collection(address_join,['user_id','address_id']),
     'jobs': new Collection(jobs)
   };
 
@@ -649,6 +661,21 @@ QUnit.test("where and not should be chainable and immutable", function( assert )
 });
 
 QUnit.module("Performance");
+QUnit.test("Init", function( assert ){
+  var models = [];
+  for(var i = 0; i < 5000; i++){
+    models.push({id: i, value: Math.random()});
+  }
+
+  var start = new Date().getTime();
+  var collection = new Collection(models);
+
+  var elapsed = new Date().getTime() - start;
+
+  assert.ok(elapsed < 5,
+    "Should instanciate a 5000 models collection in less than 5ms (took "+ elapsed +"ms)");
+
+});
 QUnit.test("Sorting", function( assert ){
   var collection = new Collection();
   for(var i = 0; i < 1000; i++){
