@@ -594,10 +594,50 @@ QUnit.test("Should index through the PK and allow get", function( assert ){
       string = {type: 'value', name:'string'};
 
   var collection = new Collection([number, string], ['type','name']);
+
   assert.deepEqual(collection.get(['value','string']), string,
     "Should index composed primary key");
+
   assert.deepEqual(collection.get(['value','number']), number,
     "Should index composed primary key");
+});
+
+QUnit.test("Should index through the PK and allow remove", function( assert ){
+  var number = {type: 'value', name:'number'},
+      thing = {type: 'thing', name:'number'},
+      string = {type: 'value', name:'string'};
+
+  var collection = new Collection([number, string, thing], ['type','name']);
+
+  collection.remove(['value','number']);
+  assert.deepEqual(collection.models, [string, thing],
+    "Should allow deletion using composed key");
+
+  collection.remove('name', 'string');
+  assert.deepEqual(collection.models, [{type: 'thing', name:'number'}],
+    "Should allow deletion through name/value pair");
+
+  collection.add(string);
+  function is_thing(model){ return model.type === 'thing' }
+  collection.remove(is_thing);
+  assert.deepEqual(collection.models, [string],
+    "Should allow deletion through callback");
+
+});
+
+QUnit.test("Should index through the PK and allow where", function( assert ){
+  var number = {type: 'value', name: 'number'},
+      thing = {type: 'thing', name: 'number'},
+      string = {type: 'value', name: 'string'};
+
+  var collection = new Collection([number, string, thing], ['type','name']);
+
+  assert.deepEqual(collection.where({type: 'value'}).models, [number, string],
+    "Should allow where using attribute:value pair");
+
+  assert.deepEqual(collection.where({name: collection.contains('num')}).models,
+    [number, thing], "Should allow where using callback eval function");
+
 });
 
 QUnit.module("Relations");

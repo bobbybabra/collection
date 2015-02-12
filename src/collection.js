@@ -239,7 +239,7 @@ function Collection(_models, primary_key) {
       // In that case we will generate their representation
       // as a primary key to allow later === matching.
       if(primary_key.length > 1){
-        if(array.isArray(attribute[0])){
+        if(Array.isArray(attribute[0])){
           value = [];
           attribute.forEach(function(v){
             value.push(makeIndexStr(v));
