@@ -606,7 +606,7 @@ QUnit.test("Add existing composed PK should overwrite", function( assert ){
   collection.add(updated_string)
 
   assert.equal(collection.size(), 2,
-    "Overwrite shouldn't not increase the collection's size");
+    "Overwrite shouldn't increase the collection's size");
 
   assert.deepEqual(collection.models, [number, updated_string],
     "Overwrite should not replace existing model");

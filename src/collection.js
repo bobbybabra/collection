@@ -722,8 +722,7 @@ function Collection(_models, primary_key) {
       model = _models[i];
       pk = getPKValue(model);
       // first remove the model if its in the collection
-      // but lets do it silently, the main action is still add
-      if(pk in index) remove(primary_key, pk, true);
+      if(pk in index) remove(primary_key, pk);
 
       // then add it to the collection
       models.push(model);
