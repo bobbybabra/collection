@@ -43,24 +43,26 @@ function Collection(_models, primary_key) {
   var delimiter = String.fromCharCode(31);
 
 
-  primary_key = [].concat(primary_key || 'id');
+  primary_key = primary_key || 'id';
+
+  var is_pk_composed = Array.isArray(primary_key);
 
   if(_models) {
     add(_models);
   }
 
   function getPKValue(model){
-    // If the the PK is a single PK
-    if(primary_key.length === 1){
-      return model[primary_key[0]];
+    if(is_pk_composed){
+      var pk_values = []
+
+      primary_key.forEach(function(pk){
+        pk_values.push(model[pk]);
+      });
+
+      return makeIndexStr(pk_values);
     }
 
-    var pk_values = []
-
-    primary_key.forEach(function(pk){
-      pk_values.push(model[pk]);
-    });
-    return makeIndexStr(pk_values)
+    return model[primary_key];
   }
 
   /**
@@ -68,7 +70,7 @@ function Collection(_models, primary_key) {
    * methods, it generates the value stored in the indexed.
    */
   function makeIndexStr(values){
-    if(Array.isArray(values) && values.length > 1){
+    if(is_pk_composed){
       return values.join(delimiter);
     }
     return values
@@ -175,7 +177,7 @@ function Collection(_models, primary_key) {
         r.push(model);
       }
     });
-    return new Collection(r);
+    return new Collection(r, primary_key);
   }
 
   /**
@@ -190,6 +192,26 @@ function Collection(_models, primary_key) {
    */
   function keep(attribute, value, silent) {
     return remove(attribute, value, silent, true);
+  }
+
+  /**
+   * Equal function compairing arrays and values only
+   */
+  function isEqual(a, b){
+    if(Array.isArray(a) && Array.isArray(b)){
+      if(a.length != b.length){
+        return false;
+      }
+
+      for(var i = a.length - 1; i >= 0; i--){
+        if(a[i] !== b[i]){
+          return false;
+        }
+      }
+
+      return true;
+    }
+    return a === b;
   }
 
 
@@ -235,10 +257,10 @@ function Collection(_models, primary_key) {
     if(typeof value === 'undefined' && typeof attribute != 'function'){
       // if the key is a composed key (more than one attribute)
       // then a single level array is a direct 1 to 1 match
-      // a 2 level array is a value in array of value match
+      // a 2 level array represent a serie of pk to be matched.
       // In that case we will generate their representation
       // as a primary key to allow later === matching.
-      if(primary_key.length > 1){
+      if(is_pk_composed){
         if(Array.isArray(attribute[0])){
           value = [];
           attribute.forEach(function(v){
@@ -249,16 +271,20 @@ function Collection(_models, primary_key) {
           value = makeIndexStr(attribute);
         }
       }
+
       // otherwise the value doesn't need any conversion
       else{
         value = attribute;
       }
+
+      // once the value got set, we can now set the attribute as
+      // primary_key
       attribute = primary_key;
     }
 
-    // If we pass not, we want the opposite match to be removed,
-    // aka keep the model when the match is valid.
     function match(model){
+      // If we pass the `not` argument, we want the opposite match to be removed,
+      // aka keep the model when the match is valid.
       return not ? !_match(model) : _match(model);
     }
 
@@ -266,18 +292,18 @@ function Collection(_models, primary_key) {
       // So you pass the primary key as the attribute you want to
       // filter on
       if(attribute === primary_key){
-        // if you pass an array and primary key.length is 1
-        // we consider it a simple value in array match
+
         if(Array.isArray(value)){
-          // if it's a single primary key, no need to convert it
-          if(primary_key.length === 1){
-            return value.indexOf(model[attribute]) > -1;
-          }
-          // but composed primary key need to be converted to be matched
-          else{
+          // composed primary keys need to be converted to be matched
+          if(is_pk_composed){
             return value.indexOf(getPKValue(model)) > -1;
           }
+          return value.indexOf(model[attribute]) > -1;
         }
+        if(is_pk_composed){
+          return getPKValue(model) === value
+        }
+        return model[attribute] === value;
       }
 
       // If a single callback got passed, consider passing it as a
@@ -350,9 +376,9 @@ function Collection(_models, primary_key) {
    * ```
    */
   function where(select, not) {
-    var match, r = [];
+    var match, r;
 
-    each(function (model) {
+    r = each(function (model) {
       // match is our marker and reset to true for every model
       // We expect more often a mismatch than a match, so
       // we look for a mismatch and break a soon as one is
@@ -389,10 +415,10 @@ function Collection(_models, primary_key) {
       }
 
       // add the model if was a match
-      if((!match && not) || (match && !not)) r.push(model);
+      if((!match && not) || (match && !not)) return model;
     });
 
-    return new Collection(r);
+    return new Collection(r, primary_key);
   }
 
   /**
