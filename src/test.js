@@ -589,9 +589,32 @@ QUnit.test("off()", function( assert ){
 });
 
 QUnit.module("Composed primary keys");
+QUnit.test("Add existing composed PK should overwrite", function( assert ){
+  var number = {type: 'value', name: 'number', value:'x'},
+      string = {type: 'value', name: 'string', value:'y'};
+
+  var collection = new Collection([], ['type','name']);
+
+  collection.add(number)
+  collection.add([string]);
+
+  assert.deepEqual(collection.models, [number, string],
+    "Add should append models to collection");
+
+  var updated_string = {type: 'value', name: 'string', value:'z'}
+
+  collection.add(updated_string)
+
+  assert.equal(collection.size(), 2,
+    "Overwrite shouldn't not increase the collection's size");
+
+  assert.deepEqual(collection.models, [number, updated_string],
+    "Overwrite should not replace existing model");
+});
+
 QUnit.test("Should index through the PK and allow get", function( assert ){
-  var number = {type: 'value', name:'number'},
-      string = {type: 'value', name:'string'};
+  var number = {type: 'value', name: 'number'},
+      string = {type: 'value', name: 'string'};
 
   var collection = new Collection([number, string], ['type','name']);
 
@@ -603,9 +626,9 @@ QUnit.test("Should index through the PK and allow get", function( assert ){
 });
 
 QUnit.test("Should index through the PK and allow remove", function( assert ){
-  var number = {type: 'value', name:'number'},
-      thing = {type: 'thing', name:'number'},
-      string = {type: 'value', name:'string'};
+  var number = {type: 'value', name: 'number'},
+      thing = {type: 'thing', name: 'number'},
+      string = {type: 'value', name: 'string'};
 
   var collection = new Collection([number, string, thing], ['type','name']);
 

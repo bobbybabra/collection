@@ -723,7 +723,7 @@ function Collection(_models, primary_key) {
       pk = getPKValue(model);
       // first remove the model if its in the collection
       // but lets do it silently, the main action is still add
-      if(pk in index) remove(pk, undefined, true);
+      if(pk in index) remove(primary_key, pk, true);
 
       // then add it to the collection
       models.push(model);
