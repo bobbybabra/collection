@@ -735,13 +735,13 @@ QUnit.test("Init", function( assert ){
 
   var elapsed = new Date().getTime() - start;
 
-  assert.ok(elapsed < 5,
-    "Should instanciate a 5000 models collection in less than 5ms (took "+ elapsed +"ms)");
+  assert.ok(elapsed < 10,
+    "Should instanciate a 5000 models collection in less than 10ms (took "+ elapsed +"ms)");
 
 });
 QUnit.test("Sorting", function( assert ){
   var collection = new Collection();
-  for(var i = 0; i < 1000; i++){
+  for(var i = 0; i < 5000; i++){
     collection.add({id: i, value: Math.random()});
   }
 
@@ -751,13 +751,13 @@ QUnit.test("Sorting", function( assert ){
 
   var elapsed = new Date().getTime() - start;
 
-  assert.ok(elapsed < 50,
-    "Should sort a 1000 items in less than 50ms (took "+ elapsed +"ms)");
+  assert.ok(elapsed < 100,
+    "Should sort a 5000 items in less than 100ms (took "+ elapsed +"ms)");
 });
 
 QUnit.test("Where", function( assert ){
   var collection = new Collection();
-  for(var i = 0; i < 1000; i++){
+  for(var i = 0; i < 5000; i++){
     collection.add({id: i, value: i * i});
   }
 
@@ -768,5 +768,5 @@ QUnit.test("Where", function( assert ){
   var elapsed = new Date().getTime() - start;
 
   assert.ok(elapsed < 10,
-    "Should where over a 1000 items in less than 10ms (took "+ elapsed +"ms)");
+    "Should where over a 5000 items in less than 10ms (took "+ elapsed +"ms)");
 });
