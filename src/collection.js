@@ -943,6 +943,7 @@ Collection.join = function(collections, relations, where){
  * It is also possible to proxy another proxy.
  * @param {Collection} collection - Collection to be proxied
  * @example
+ * ```js
  * var people = new Collection([tim, fred, john]);
  * var people_selection = new CollectionProxy(people);
  * var people_selection_highlight = new CollectionProxy(people_selection);

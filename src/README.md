@@ -510,6 +510,7 @@ It is also possible to proxy another proxy.
 | collection | <code>[Collection](#Collection)</code> | Collection to be proxied |
 
 **Example**  
+```js
 var people = new Collection([tim, fred, john]);
 var people_selection = new CollectionProxy(people);
 var people_selection_highlight = new CollectionProxy(people_selection);
