@@ -13,12 +13,14 @@ The only requirement for your models is to have a unique primary key.
 
 * [Collection(models, primary_key)](#Collection)
   * [.join(collections, relations, where)](#Collection.join)
+  * [~makeIndexStr()](#Collection..makeIndexStr)
   * [~size()](#Collection..size)
   * [~isEmpty()](#Collection..isEmpty)
   * [~empty(silent)](#Collection..empty)
   * [~each()](#Collection..each)
   * [~filter(func)](#Collection..filter) ⇒ <code>collection</code>
   * [~keep(attribute, value, silent)](#Collection..keep) ⇒ <code>collection</code>
+  * [~isEqual()](#Collection..isEqual)
   * [~remove(attribute, value, silent, not)](#Collection..remove) ⇒ <code>collection</code>
   * [~not(select)](#Collection..not) ⇒ <code>collection</code>
   * [~where(select)](#Collection..where) ⇒ <code>collection</code>
@@ -51,6 +53,11 @@ connected to the first.
 | collections | <code>object</code> | Collections to be filtered through |
 | relations | <code>object</code> | Relation between the tables |
 | where | <code>object</code> | Filtering clause |
+
+<a name="Collection..makeIndexStr"></a>
+### Collection~makeIndexStr()
+makeIndexStr will be use also used within the index for get and remove
+methods, it generates the value stored in the indexed.
 
 <a name="Collection..size"></a>
 ### Collection~size()
@@ -134,6 +141,10 @@ not matching the query and only keep the one matching the query.
 | attribute | <code>string</code> | model's attribute to match against |
 | value | <code>string</code> | Value expected |
 | silent | <code>boolean</code> | Do not trigger event if true |
+
+<a name="Collection..isEqual"></a>
+### Collection~isEqual()
+Equal function compairing arrays and values only
 
 <a name="Collection..remove"></a>
 ### Collection~remove(attribute, value, silent, not) ⇒ <code>collection</code>
