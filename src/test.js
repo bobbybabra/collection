@@ -770,3 +770,112 @@ QUnit.test("Where", function( assert ){
   assert.ok(elapsed < 10,
     "Should where over a 5000 items in less than 10ms (took "+ elapsed +"ms)");
 });
+
+QUnit.module("Collection Proxy");
+QUnit.test("Should allow proxy creation from collection", function( assert ){
+  var people = new Collection([tim, fred, john]);
+  var people_selection = new CollectionProxy(people);
+  assert.equal(people_selection.size(), 0,
+    "Default proxy should be empty");
+});
+
+QUnit.test("Should allow proxy of proxy", function( assert ){
+  var people = new Collection([tim, fred, john]);
+  var people_selection = new CollectionProxy(people);
+  var people_sub_selection = new CollectionProxy(people_selection);
+  assert.equal(people_selection.size(), 0,
+    "Default proxy should be empty");
+});
+
+QUnit.test("Can't add a model to a proxy that does not exist in the parent", function( assert ){
+  var people = new Collection([tim, fred, john]);
+
+  var people_selection = new CollectionProxy(people);
+  people_selection.add([fred, tim])
+  assert.deepEqual(people_selection.models, [fred, tim],
+    "Should contain added model");
+
+  var people_sub_selection = new CollectionProxy(people_selection);
+  people_sub_selection.add([john])
+  assert.deepEqual(people_sub_selection.models, [],
+    "Should not contain invalid model");
+});
+
+QUnit.test("Should update itself when the parent changes", function( assert ){
+  var people = new Collection([tim, fred, john]);
+  var people_selection = new CollectionProxy(people);
+
+  people_selection.add([fred, tim]);
+  assert.deepEqual(people_selection.models, [fred, tim],
+    "Proxy should contain added model");
+
+  var people_sub_selection = new CollectionProxy(people_selection);
+  people_sub_selection.add([fred])
+  assert.deepEqual(people_sub_selection.models, [fred],
+    "Proxy of proxy should contain added model");
+
+  var age_holder = fred.age;
+  fred.age = 15;
+  assert.deepEqual(people_sub_selection.models, [fred],
+    "Should keep model value (models are references not copies)");
+
+  people_selection.remove([fred.id]);
+  assert.deepEqual(people_selection.models, [tim],
+    "Proxy should allow model remove");
+
+  assert.deepEqual(people_sub_selection.models, [],
+    "Proxy of proxy should update itself after parent proxy model removal");
+
+  fred.age = age_holder;
+});
+
+QUnit.module("Collection View");
+QUnit.test("Should update itself according to its where", function( assert ){
+  var people = new Collection([tim, fred]);
+  var engineers = new CollectionView(people, {job_id: engineer.id});
+
+  assert.deepEqual(engineers.models, [tim],
+    "View should contain its where clause content on initialization");
+
+  people.add(john);
+  assert.deepEqual(engineers.models, [tim, john],
+    "View should update on parent add");
+
+  people.remove(tim.id);
+  assert.deepEqual(engineers.models, [john],
+    "View should update on parent remove");
+});
+
+QUnit.test("View should run altering methods on parent", function( assert ){
+  var people = new Collection([tim, fred]);
+  var engineers = new CollectionView(people, {job_id: engineer.id});
+
+  assert.deepEqual(engineers.models, [tim],
+    "View should contain its where clause content on initialization");
+
+  engineers.add(john);
+  assert.deepEqual(people.models, [tim, fred, john],
+    "View add should add on the parent");
+  assert.deepEqual(engineers.models, [tim, john],
+    "View add should add on itself (indirectly)");
+
+  engineers.sort('first_name');
+  assert.deepEqual(engineers.models, [john, tim],
+    "Sorting should alter the view only");
+  assert.deepEqual(people.models, [tim, fred, john],
+    "Sorting shouldn't alter the parent collection");
+
+  engineers.remove(tim.id);
+  assert.deepEqual(people.models, [fred, john],
+    "View should remove on the parent");
+
+  engineers.keep(fred.id);
+  assert.deepEqual(people.models, [fred],
+    "View should keep on the parent");
+
+  engineers.empty();
+  assert.deepEqual(people.models, [],
+    "Emptying the view should empty the parent");
+  assert.deepEqual(engineers.models, [],
+    "Emptying the parent should then empty the view");
+});

@@ -465,6 +465,59 @@ var unregister = my_collection.on('change', onChange);
 my_collection.add({id: 2, name: 'Alan'});
 ```
 
+## Views
+
+Not unlike database views, you can build a view from a collection's where
+clause. When the parent collection changes (remove or add are triggered),
+the view listens to those changes and update itself accordingly. Your view will
+always reflect the where clause applied on it initially.
+
+Note that altering a view, besides sorting, will actually alter it's parent
+collection. When you `add`, `remove`, `keep` or `empty` on a view, those will
+be executed on the collection being viewed.
+
+```js
+var people = new Collection([tim, fred, john]);
+var engineers = new CollectionView(people, {job_id: engineer.id});
+// engineers.models is [tim, fred]
+// adding steve (an engineer) to people, will be reflected to the view
+people.add(steve);
+// engineers now contains [tim, fred, steve]
+```
+
+Views can also be chained, aka. a source of a view can be another view...
+
+## Proxies
+
+Proxies are subsets of collection. Unlike views, their content can be altered
+and they are initialized empty. Proxies are limited to what their parent
+collection contains. When its parent loses some record, a proxy will stay
+consistent by removing model it contains that aren't part of its parent anymore.
+Proxies are useful to make a sub selection of a collection.
+
+Proxy can be chained, a use case could be displaying a sub selection
+that can be highlighted on click. You would then need a proxy for the
+selection and a proxy of this selection to store which one is highlighted.
+Since proxy auto-truncate themselves, if the selection were to be reduced, the
+highlighted sub-proxy would also truncate itself accordingly.
+
+```js
+var people = new Collection([tim, fred, john]);
+var people_selection = new CollectionProxy(people);
+var people_selection_highlight = new CollectionProxy(people_selection);
+// since proxy start empty, you have to fill them
+people_selection.add([tim, fred]);
+// highlight being a proxy of a proxy, it can only contain what
+// it's parent contains (here tim or fred)
+people_selection_highlight([tim]);
+
+people.remove(tim.id);
+people_selection.size() == 1;
+// true as removing from people, removes from the selection
+people_selection_highlight.size() == 0;
+// true as removing from people, also removes from the proxy of the selection
+```
+
 ## Joins
 
 Ok, this is becoming more complex now. The assumption is made that the

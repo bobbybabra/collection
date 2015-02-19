@@ -51,6 +51,9 @@ function Collection(_models, primary_key) {
     add(_models);
   }
 
+  /**
+   * Returns the primary key value of a model
+   */
   function getPKValue(model){
     if(is_pk_composed){
       var pk_values = []
@@ -119,7 +122,7 @@ function Collection(_models, primary_key) {
 
     var removed_models = models;
 
-    models = [];
+    models.length = 0;
 
     // only trigger events if not silenced
     if(!silent){
@@ -797,6 +800,7 @@ function Collection(_models, primary_key) {
   }
 
   return {
+    '_getPKValue': getPKValue,
     'primary_key': primary_key,
     'uuid': uuid,
     'isEmpty': isEmpty,
@@ -884,3 +888,98 @@ Collection.join = function(collections, relations, where){
 
   return r;
 };
+
+
+/**
+ * CollectionView allows you to have collection depending on a where
+ * applied to a parent collection.
+ * When the content of a main collection changes, its subset is updated
+ * to reflect the where applied to itself.
+ * You can
+ * @param {Collection} collection - Collection source to the view
+ * @param {object} where - Where clause to be applied on the viewed
+ * collection
+ * @example
+ * ```js
+ * var people = new Collection([tim, fred, john]);
+ * var engineers = new CollectionView(people, {job_id: engineer.id});
+ * // engineers.models is [tim, fred]
+ * // adding steve (an engineer) to people, will be reflected to the view
+ * people.add(steve);
+ * engineers.models is [tim, fred, steve]
+ * ```
+ */
+ function CollectionView(collection, where){
+   var view = collection.where(where);
+
+   collection.on('add', function(models){
+     var added = new Collection(models, collection.primary_key).where(where);
+     view._add(added.models);
+   });
+
+   collection.on('remove', function(models){
+     var removed = new Collection(models, collection.primary_key);
+     view._remove(removed.select(collection.primary_key))
+   });
+
+   // store those to update the collection on change
+   view._add = view.add;
+   view._remove = view.remove;
+
+   // map mutative method to the parent
+   view.add = collection.add;
+   view.empty = collection.empty;
+   view.keep = collection.keep;
+   view.remove = collection.remove;
+
+   return view;
+ };
+
+/**
+ * CollectionProxy allows you to have collection depending on the content
+ * of a parent. It could be use to store a subset of a main collection.
+ * When the content of a main collection changes, its subset will truncat
+ * itself to match the parent.
+ * It is also possible to proxy another proxy.
+ * @param {Collection} collection - Collection to be proxied
+ * @example
+ * var people = new Collection([tim, fred, john]);
+ * var people_selection = new CollectionProxy(people);
+ * var people_selection_highlight = new CollectionProxy(people_selection);
+ * people_selection.add([tim, fred]);
+ * people_selection_highlight([tim]);
+ * people.remove(tim.id);
+ * people_selection.size() == 1;
+ * // true as removing from people, removes from the selection
+ * people_selection_highlight.size() == 0;
+ * // true as removing from people, removes from the proxy of the proxy
+ * ```
+ */
+function CollectionProxy(collection){
+  var proxy = new Collection([], collection.primary_key);
+
+  proxy.proxied = collection;
+
+  proxy._add = proxy.add;
+
+  proxy.add = function(models){
+    var valid_models = [];
+
+    models = [].concat(models);
+
+    for(var i = 0; i < models.length; i++){
+      if(proxy.proxied.get(proxy._getPKValue(models[i]))){
+        valid_models.push(models[i]);
+      }
+    }
+
+    return proxy._add(valid_models);
+  }
+
+  collection.on('remove', function(models){
+    var removed = new Collection(models, collection.primary_key);
+    proxy.remove(removed.select(collection.primary_key))
+  });
+
+  return proxy;
+}
