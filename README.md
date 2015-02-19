@@ -4,7 +4,7 @@ Handles collection (à la backbone) for your store and other things. It's not op
 
 [Read the API!](src/README.md)
 
-3.5kb, no dependencies, to do cool things like:
+4.5kb, no dependencies, to do cool things like:
 
 ```javascript
 function is_odd(value) {
