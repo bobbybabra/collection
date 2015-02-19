@@ -38,10 +38,42 @@ function Collection(_models, primary_key) {
   var index = {};
   var events = {};
 
+  // Official ascii information separator
+  // see http://en.wikipedia.org/wiki/Delimiter#ASCII_delimited_text
+  var delimiter = String.fromCharCode(31);
+
+
   primary_key = primary_key || 'id';
+
+  var is_pk_composed = Array.isArray(primary_key);
 
   if(_models) {
     add(_models);
+  }
+
+  function getPKValue(model){
+    if(is_pk_composed){
+      var pk_values = []
+
+      primary_key.forEach(function(pk){
+        pk_values.push(model[pk]);
+      });
+
+      return makeIndexStr(pk_values);
+    }
+
+    return model[primary_key];
+  }
+
+  /**
+   * makeIndexStr will be use also used within the index for get and remove
+   * methods, it generates the value stored in the indexed.
+   */
+  function makeIndexStr(values){
+    if(is_pk_composed){
+      return values.join(delimiter);
+    }
+    return values
   }
 
   /**
@@ -145,7 +177,7 @@ function Collection(_models, primary_key) {
         r.push(model);
       }
     });
-    return new Collection(r);
+    return new Collection(r, primary_key);
   }
 
   /**
@@ -160,6 +192,26 @@ function Collection(_models, primary_key) {
    */
   function keep(attribute, value, silent) {
     return remove(attribute, value, silent, true);
+  }
+
+  /**
+   * Equal function compairing arrays and values only
+   */
+  function isEqual(a, b){
+    if(Array.isArray(a) && Array.isArray(b)){
+      if(a.length != b.length){
+        return false;
+      }
+
+      for(var i = a.length - 1; i >= 0; i--){
+        if(a[i] !== b[i]){
+          return false;
+        }
+      }
+
+      return true;
+    }
+    return a === b;
   }
 
 
@@ -196,25 +248,64 @@ function Collection(_models, primary_key) {
    * ```
    */
   function remove(attribute, value, silent, not) {
-    var model_deleted = [];
+    var model, model_deleted = [];
 
     // if a single argument is passsed and is not a function
     // we infer that the filtering occurs on the primary key.
     // Otherwise the argument is considered a filter on the
     // whole models
-
     if(typeof value === 'undefined' && typeof attribute != 'function'){
-      value = attribute;
+      // if the key is a composed key (more than one attribute)
+      // then a single level array is a direct 1 to 1 match
+      // a 2 level array represent a serie of pk to be matched.
+      // In that case we will generate their representation
+      // as a primary key to allow later === matching.
+      if(is_pk_composed){
+        if(Array.isArray(attribute[0])){
+          value = [];
+          attribute.forEach(function(v){
+            value.push(makeIndexStr(v));
+          });
+        }
+        else{
+          value = makeIndexStr(attribute);
+        }
+      }
+
+      // otherwise the value doesn't need any conversion
+      else{
+        value = attribute;
+      }
+
+      // once the value got set, we can now set the attribute as
+      // primary_key
       attribute = primary_key;
     }
 
-    // If we pass not, we want the opposite match to be removed,
-    // aka keep the model when the match is valid.
     function match(model){
+      // If we pass the `not` argument, we want the opposite match to be removed,
+      // aka keep the model when the match is valid.
       return not ? !_match(model) : _match(model);
     }
 
     function _match(model){
+      // So you pass the primary key as the attribute you want to
+      // filter on
+      if(attribute === primary_key){
+
+        if(Array.isArray(value)){
+          // composed primary keys need to be converted to be matched
+          if(is_pk_composed){
+            return value.indexOf(getPKValue(model)) > -1;
+          }
+          return value.indexOf(model[attribute]) > -1;
+        }
+        if(is_pk_composed){
+          return getPKValue(model) === value
+        }
+        return model[attribute] === value;
+      }
+
       // If a single callback got passed, consider passing it as a
       // global filter against the entire model.
       if(typeof value === 'undefined'){
@@ -240,9 +331,10 @@ function Collection(_models, primary_key) {
     // Going through the list upside down as we might pop
     // item during the loop.
     for (var i = models.length - 1; i >= 0; i--) {
-      if (match(models[i])) {
-        model_deleted.push(index[models[i][primary_key]]);
-        delete index[models[i][primary_key]];
+      model = models[i];
+      if (match(model)) {
+        model_deleted.push(index[getPKValue(model)]);
+        delete index[getPKValue(model)];
         models.splice(i, 1);
       }
     }
@@ -284,9 +376,9 @@ function Collection(_models, primary_key) {
    * ```
    */
   function where(select, not) {
-    var match, r = [];
+    var match, r;
 
-    each(function (model) {
+    r = each(function (model) {
       // match is our marker and reset to true for every model
       // We expect more often a mismatch than a match, so
       // we look for a mismatch and break a soon as one is
@@ -323,10 +415,10 @@ function Collection(_models, primary_key) {
       }
 
       // add the model if was a match
-      if((!match && not) || (match && !not)) r.push(model);
+      if((!match && not) || (match && !not)) return model;
     });
 
-    return new Collection(r);
+    return new Collection(r, primary_key);
   }
 
   /**
@@ -597,7 +689,7 @@ function Collection(_models, primary_key) {
     // if get(id) gets called we consider that
     // the argument passed is the primary key
     if(arguments.length === 1 || attribute === primary_key){
-      return index[attribute];
+      return index[makeIndexStr(attribute)];
     }
     var r = null;
     each(function (model) {
@@ -626,14 +718,15 @@ function Collection(_models, primary_key) {
     // return to prevent events
     if(_models.length === 0) return this;
 
-    for(var model, i = 0; i < _models.length; i++){
+    for(var pk, model, i = 0; i < _models.length; i++){
       model = _models[i];
+      pk = getPKValue(model);
       // first remove the model if its in the collection
-      // but lets do it silently, the main action is still add
-      remove(primary_key, model[primary_key], true);
+      if(pk in index) remove(primary_key, pk);
+
       // then add it to the collection
       models.push(model);
-      index[model[primary_key]] = model;
+      index[pk] = model;
     }
 
     // only trigger events if not silenced
@@ -704,6 +797,7 @@ function Collection(_models, primary_key) {
   }
 
   return {
+    'primary_key': primary_key,
     'uuid': uuid,
     'isEmpty': isEmpty,
     'empty': empty,
@@ -746,7 +840,9 @@ Collection.join = function(collections, relations, where){
 
   // Clone the collections, we're supposed to stay immutable
   for(collection in collections){
-    r[collection] = new Collection(collections[collection].models);
+    r[collection] = new Collection(
+      collections[collection].models, collections[collection].primary_key
+    );
   }
 
   // first group together the where clauses

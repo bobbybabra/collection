@@ -115,6 +115,34 @@ var models = [
 var my_collection = new Collection(models, 'ext_id');
 ```
 
+#### Composed primary keys
+
+In some cases, you may have composed primary keys, meaning the combination
+of two attributes defines the uniqueness of your object. In those cases, when
+searching through your collection using a composed PK, you'll need to provide
+an array of values.
+
+```javascript
+var address_join = [
+ {address_id: 1, user_id: 1, position:2},
+ {address_id: 2, user_id: 1, position:3},
+ {address_id: 1, user_id: 2, position:5}
+];
+var addresses = new Collection(address_join, ['address_id', 'user_id']);
+
+// returns the first record (primary key is explicit)
+addresses.get(addresses.primary_key, [1,1]);
+
+// returns the second record (primary key is implicity)
+addresses.get([2,1]);
+
+// Replace the 2nd record
+addresses.add({address_id: 2, user_id: 1, position:1});
+
+// Removes the first 2 records (an array of PKs)
+addresses.remove([[2,1],[1,1]]);
+```
+
 ### Collection.add
 
 `Collection.add()` accepts an array or a single element to add to the

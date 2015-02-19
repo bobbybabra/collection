@@ -39,10 +39,10 @@ var tim = {
 
 // many to many relation user to addresses
 var address_join = [
-  {id: 1, user_id: john.id, address_id: 1},
-  {id: 2, user_id: john.id, address_id: 2},
-  {id: 3, user_id: fred.id, address_id: 2},
-  {id: 4, user_id: tim.id, address_id: 4}
+  {user_id: john.id, address_id: 1},
+  {user_id: john.id, address_id: 2},
+  {user_id: fred.id, address_id: 2},
+  {user_id: tim.id, address_id: 4}
 ];
 
 var addresses = [
@@ -588,12 +588,87 @@ QUnit.test("off()", function( assert ){
 
 });
 
+QUnit.module("Composed primary keys");
+QUnit.test("Add existing composed PK should overwrite", function( assert ){
+  var number = {type: 'value', name: 'number', value:'x'},
+      string = {type: 'value', name: 'string', value:'y'};
+
+  var collection = new Collection([], ['type','name']);
+
+  collection.add(number)
+  collection.add([string]);
+
+  assert.deepEqual(collection.models, [number, string],
+    "Add should append models to collection");
+
+  var updated_string = {type: 'value', name: 'string', value:'z'}
+
+  collection.add(updated_string)
+
+  assert.equal(collection.size(), 2,
+    "Overwrite shouldn't increase the collection's size");
+
+  assert.deepEqual(collection.models, [number, updated_string],
+    "Overwrite should not replace existing model");
+});
+
+QUnit.test("Should index through the PK and allow get", function( assert ){
+  var number = {type: 'value', name: 'number'},
+      string = {type: 'value', name: 'string'};
+
+  var collection = new Collection([number, string], ['type','name']);
+
+  assert.deepEqual(collection.get(['value','string']), string,
+    "Should index composed primary key");
+
+  assert.deepEqual(collection.get(['value','number']), number,
+    "Should index composed primary key");
+});
+
+QUnit.test("Should index through the PK and allow remove", function( assert ){
+  var number = {type: 'value', name: 'number'},
+      thing = {type: 'thing', name: 'number'},
+      string = {type: 'value', name: 'string'};
+
+  var collection = new Collection([number, string, thing], ['type','name']);
+
+  collection.remove(['value','number']);
+  assert.deepEqual(collection.models, [string, thing],
+    "Should allow deletion using composed key");
+
+  collection.remove('name', 'string');
+  assert.deepEqual(collection.models, [{type: 'thing', name:'number'}],
+    "Should allow deletion through name/value pair");
+
+  collection.add(string);
+  function is_thing(model){ return model.type === 'thing' }
+  collection.remove(is_thing);
+  assert.deepEqual(collection.models, [string],
+    "Should allow deletion through callback");
+
+});
+
+QUnit.test("Should index through the PK and allow where", function( assert ){
+  var number = {type: 'value', name: 'number'},
+      thing = {type: 'thing', name: 'number'},
+      string = {type: 'value', name: 'string'};
+
+  var collection = new Collection([number, string, thing], ['type','name']);
+
+  assert.deepEqual(collection.where({type: 'value'}).models, [number, string],
+    "Should allow where using attribute:value pair");
+
+  assert.deepEqual(collection.where({name: collection.contains('num')}).models,
+    [number, thing], "Should allow where using callback eval function");
+
+});
+
 QUnit.module("Relations");
 QUnit.test("Should filter related collections", function( assert ){
   var tables = {
     'users': new Collection([tim, fred, john]),
     'addresses': new Collection(addresses),
-    'address_join': new Collection(address_join),
+    'address_join': new Collection(address_join,['user_id','address_id']),
     'jobs': new Collection(jobs)
   };
 
@@ -649,9 +724,24 @@ QUnit.test("where and not should be chainable and immutable", function( assert )
 });
 
 QUnit.module("Performance");
+QUnit.test("Init", function( assert ){
+  var models = [];
+  for(var i = 0; i < 5000; i++){
+    models.push({id: i, value: Math.random()});
+  }
+
+  var start = new Date().getTime();
+  var collection = new Collection(models);
+
+  var elapsed = new Date().getTime() - start;
+
+  assert.ok(elapsed < 10,
+    "Should instanciate a 5000 models collection in less than 10ms (took "+ elapsed +"ms)");
+
+});
 QUnit.test("Sorting", function( assert ){
   var collection = new Collection();
-  for(var i = 0; i < 1000; i++){
+  for(var i = 0; i < 5000; i++){
     collection.add({id: i, value: Math.random()});
   }
 
@@ -661,13 +751,13 @@ QUnit.test("Sorting", function( assert ){
 
   var elapsed = new Date().getTime() - start;
 
-  assert.ok(elapsed < 50,
-    "Should sort a 1000 items in less than 50ms (took "+ elapsed +"ms)");
+  assert.ok(elapsed < 100,
+    "Should sort a 5000 items in less than 100ms (took "+ elapsed +"ms)");
 });
 
 QUnit.test("Where", function( assert ){
   var collection = new Collection();
-  for(var i = 0; i < 1000; i++){
+  for(var i = 0; i < 5000; i++){
     collection.add({id: i, value: i * i});
   }
 
@@ -678,5 +768,5 @@ QUnit.test("Where", function( assert ){
   var elapsed = new Date().getTime() - start;
 
   assert.ok(elapsed < 10,
-    "Should where over a 1000 items in less than 10ms (took "+ elapsed +"ms)");
+    "Should where over a 5000 items in less than 10ms (took "+ elapsed +"ms)");
 });
