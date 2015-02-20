@@ -52,21 +52,30 @@ function Collection(_models, primary_key) {
   }
 
   /**
-   * Returns the primary key value of a model
+   * Returns the primary key value of a model as a single string
    */
-  function getPKValue(model){
+  function getPKString(model){
     if(is_pk_composed){
-      var pk_values = []
-
-      primary_key.forEach(function(pk){
-        pk_values.push(model[pk]);
-      });
-
-      return makeIndexStr(pk_values);
+      return makeIndexStr(getPKValues(model));
     }
-
     return model[primary_key];
   }
+
+  /**
+   * Returns the primary keys values in an array
+   */
+   function getPKValues(model){
+      if(is_pk_composed){
+        var pk_values = []
+        primary_key.forEach(function(pk){
+          pk_values.push(model[pk]);
+        });
+
+        return pk_values;
+      }
+      return model[primary_key];
+    }
+
 
   /**
    * makeIndexStr will be use also used within the index for get and remove
@@ -299,12 +308,12 @@ function Collection(_models, primary_key) {
         if(Array.isArray(value)){
           // composed primary keys need to be converted to be matched
           if(is_pk_composed){
-            return value.indexOf(getPKValue(model)) > -1;
+            return value.indexOf(getPKString(model)) > -1;
           }
           return value.indexOf(model[attribute]) > -1;
         }
         if(is_pk_composed){
-          return getPKValue(model) === value
+          return getPKString(model) === value
         }
         return model[attribute] === value;
       }
@@ -336,8 +345,8 @@ function Collection(_models, primary_key) {
     for (var i = models.length - 1; i >= 0; i--) {
       model = models[i];
       if (match(model)) {
-        model_deleted.push(index[getPKValue(model)]);
-        delete index[getPKValue(model)];
+        model_deleted.push(index[getPKString(model)]);
+        delete index[getPKString(model)];
         models.splice(i, 1);
       }
     }
@@ -530,8 +539,15 @@ function Collection(_models, primary_key) {
   function select(names) {
     var result = [];
 
+    // if the request is asking for the primary key
+    if(names === primary_key && is_pk_composed){
+      each(function(model){
+        result.push(getPKValues(model));
+      });
+    }
+
     // if the names is only an attribute name
-    if (typeof names === 'string'){
+    else if (typeof names === 'string'){
       each(function(model){
         result.push(model[names]);
       });
@@ -723,7 +739,7 @@ function Collection(_models, primary_key) {
 
     for(var pk, model, i = 0; i < _models.length; i++){
       model = _models[i];
-      pk = getPKValue(model);
+      pk = getPKString(model);
       // first remove the model if its in the collection
       if(pk in index) remove(primary_key, pk);
 
@@ -800,7 +816,8 @@ function Collection(_models, primary_key) {
   }
 
   return {
-    '_getPKValue': getPKValue,
+    'getPKString': getPKString,
+    'getPKValues': getPKValues,
     'primary_key': primary_key,
     'uuid': uuid,
     'isEmpty': isEmpty,
@@ -969,7 +986,7 @@ function CollectionProxy(collection){
     models = [].concat(models);
 
     for(var i = 0; i < models.length; i++){
-      if(proxy.proxied.get(proxy._getPKValue(models[i]))){
+      if(proxy.proxied.get(proxy.getPKValues(models[i]))){
         valid_models.push(models[i]);
       }
     }
