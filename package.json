@@ -1,6 +1,6 @@
 {
   "name": "simple-collection",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Manage collection of JSON objects.",
   "main": "Gruntfile.js",
   "dependencies": {},

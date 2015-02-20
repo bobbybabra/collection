@@ -1,3 +1,24 @@
+## Globals
+<dl>
+<dt><a href="#Collection">Collection(models, primary_key)</a></dt>
+<dd><p>Container for a collection of javascript models (JSON).
+The only requirement for your models is to have a unique primary key.</p>
+</dd>
+<dt><a href="#CollectionView">CollectionView(collection, where)</a></dt>
+<dd><p>CollectionView allows you to have collection depending on a where
+applied to a parent collection.
+When the content of a main collection changes, its subset is updated
+to reflect the where applied to itself.
+You can</p>
+</dd>
+<dt><a href="#CollectionProxy">CollectionProxy(collection)</a></dt>
+<dd><p>CollectionProxy allows you to have collection depending on the content
+of a parent. It could be use to store a subset of a main collection.
+When the content of a main collection changes, its subset will truncat
+itself to match the parent.
+It is also possible to proxy another proxy.</p>
+</dd>
+</dl>
 <a name="Collection"></a>
 ## Collection(models, primary_key)
 Container for a collection of javascript models (JSON).
@@ -13,6 +34,7 @@ The only requirement for your models is to have a unique primary key.
 
 * [Collection(models, primary_key)](#Collection)
   * [.join(collections, relations, where)](#Collection.join)
+  * [~getPKValue()](#Collection..getPKValue)
   * [~makeIndexStr()](#Collection..makeIndexStr)
   * [~size()](#Collection..size)
   * [~isEmpty()](#Collection..isEmpty)
@@ -53,6 +75,10 @@ connected to the first.
 | collections | <code>object</code> | Collections to be filtered through |
 | relations | <code>object</code> | Relation between the tables |
 | where | <code>object</code> | Filtering clause |
+
+<a name="Collection..getPKValue"></a>
+### Collection~getPKValue()
+Returns the primary key value of a model
 
 <a name="Collection..makeIndexStr"></a>
 ### Collection~makeIndexStr()
@@ -447,3 +473,52 @@ Fire an event
 ### Collection~uuid()
 utility method that returns a valid uuid
 
+<a name="CollectionView"></a>
+## CollectionView(collection, where)
+CollectionView allows you to have collection depending on a where
+applied to a parent collection.
+When the content of a main collection changes, its subset is updated
+to reflect the where applied to itself.
+You can
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| collection | <code>[Collection](#Collection)</code> | Collection source to the view |
+| where | <code>object</code> | Where clause to be applied on the viewed collection |
+
+**Example**  
+```js
+var people = new Collection([tim, fred, john]);
+var engineers = new CollectionView(people, {job_id: engineer.id});
+// engineers.models is [tim, fred]
+// adding steve (an engineer) to people, will be reflected to the view
+people.add(steve);
+engineers.models is [tim, fred, steve]
+```
+<a name="CollectionProxy"></a>
+## CollectionProxy(collection)
+CollectionProxy allows you to have collection depending on the content
+of a parent. It could be use to store a subset of a main collection.
+When the content of a main collection changes, its subset will truncat
+itself to match the parent.
+It is also possible to proxy another proxy.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| collection | <code>[Collection](#Collection)</code> | Collection to be proxied |
+
+**Example**  
+```js
+var people = new Collection([tim, fred, john]);
+var people_selection = new CollectionProxy(people);
+var people_selection_highlight = new CollectionProxy(people_selection);
+people_selection.add([tim, fred]);
+people_selection_highlight([tim]);
+people.remove(tim.id);
+people_selection.size() == 1;
+// true as removing from people, removes from the selection
+people_selection_highlight.size() == 0;
+// true as removing from people, removes from the proxy of the proxy
+```
