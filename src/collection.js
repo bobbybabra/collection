@@ -65,8 +65,9 @@ function Collection(_models, primary_key) {
 
   /**
    * Returns the primary keys values as an array of values
-   * @params {object} model Model from which to extract the PK values
-   * @returns {array,value} value of the PK, array of values if composed primary key.
+   * @params {object} model - Model from which to extract the PK values
+   * @returns {array} an array of values if composed primary key.
+   * @returns {value} value of the PK if not composed PK.
    */
    function getPKValues(model){
       if(is_pk_composed){
@@ -87,7 +88,8 @@ function Collection(_models, primary_key) {
    * of strings passed to it separated by a 0x31 char code delimiter.
    * This method is used to build the strings primary key value when added to
    * the collection and retrieved through `collection.get(primary_key_value)`
-   * @params {array, string} values
+   * @params {array} values - an array of values used to build the PK
+   * @params {string} values - Value used to build the PK
    * @returns {string} representation of a model primary key
    * @example
    * ```js
@@ -398,7 +400,8 @@ function Collection(_models, primary_key) {
    * traverse a model according to a composed key where
    * key and sub keys are separated by a dot.
    * @param {object} model Model to query
-   * @param {string,array} keys Composed key
+   * @param {String} attribute name (can be nested using dot notation)
+   * @param {array} nested key value as an array
    * @returns value or undefined if attribute could not be resolved
    * @example
    * ```js
