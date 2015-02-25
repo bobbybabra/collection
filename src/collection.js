@@ -183,7 +183,7 @@ function Collection(_models, primary_key) {
    * ```
    */
   function filter(func) {
-    var r = [], position = 0;
+    var r = [];
     each(function (model, position) {
       if(func(model, models, position)){
         r.push(model);
@@ -310,12 +310,12 @@ function Collection(_models, primary_key) {
           if(is_pk_composed){
             return value.indexOf(getPKString(model)) > -1;
           }
-          return value.indexOf(model[attribute]) > -1;
+          return value.indexOf(traverse(model, attribute)) > -1;
         }
         if(is_pk_composed){
           return getPKString(model) === value
         }
-        return model[attribute] === value;
+        return traverse(model, attribute) === value;
       }
 
       // If a single callback got passed, consider passing it as a
@@ -327,17 +327,17 @@ function Collection(_models, primary_key) {
       // If the filter is an array, check if the attribute
       // is contained within that filter
       if(Array.isArray(value)){
-        return value.indexOf(model[attribute]) > -1;
+        return value.indexOf(traverse(model, attribute)) > -1;
       }
 
       // If the filter is a function, use it's return value when
       // pass the value of the attribute
       if(typeof value === 'function'){
-        return value(model[attribute]);
+        return value(traverse(model, attribute));
       }
 
       // otherwise consider it a simple comparaison
-      return model[attribute] === value;
+      return traverse(model, attribute) === value;
     }
 
     // Going through the list upside down as we might pop
@@ -375,6 +375,48 @@ function Collection(_models, primary_key) {
   }
 
   /**
+   * traverse a model according to a composed key where
+   * key and sub keys are separated by a dot.
+   * @example
+   * ```js
+   * var model = {
+   *   a: 1,
+   *   b: {
+   *     x: 1,
+   *     y: 2
+   *   }
+   * };
+   * traverse(model, 'b.x')
+   * // returns 1
+   * traverse(model, ['b', 'x'])
+   * // returns 1
+   * ```
+   */
+  function traverse(model, keys){
+    var key;
+
+    if(typeof keys === 'string'){
+      // in case we can resolve the requested key directly
+      // on the modeltraverse(model, key)
+      if(keys in model) {
+        return model[keys];
+      }
+
+      keys = keys.split('.');
+    }
+
+    while(key = keys.shift()){
+      if(key in model){
+        model = model[key];
+      }else{
+        return;
+      }
+    }
+
+    return model;
+  }
+
+  /**
    * return a new collection of matching models
    * @param {object} select - JSON object of predicates.
    * @returns {collection} the current collection for chaining
@@ -401,7 +443,7 @@ function Collection(_models, primary_key) {
         // If the predicat is a function we'll run it
         // against the current attribute value.
         if (typeof select[key] === 'function') {
-          if (!select[key](model[key])){
+          if (!select[key](traverse(model, key))){
             match = false;
             break;
           }
@@ -410,7 +452,7 @@ function Collection(_models, primary_key) {
         // If the selection is an array of value,
         // we'll try to match this value against the array
         else if (Array.isArray(select[key])) {
-          if(select[key].indexOf(model[key]) === -1){
+          if(select[key].indexOf(traverse(model, key)) === -1){
             match = false;
             break;
           }
@@ -419,7 +461,7 @@ function Collection(_models, primary_key) {
         // otherwise we expect a straight comparaison between
         // value and model's attribute
         else {
-          if (select[key] !== model[key]){
+          if (select[key] !== traverse(model, key)){
             match = false;
             break;
           }
@@ -549,7 +591,7 @@ function Collection(_models, primary_key) {
     // if the names is only an attribute name
     else if (typeof names === 'string'){
       each(function(model){
-        result.push(model[names]);
+        result.push(traverse(model, names));
       });
     }
 
@@ -558,7 +600,7 @@ function Collection(_models, primary_key) {
       each(function(model){
         var values = {};
         for(var i = 0; i < names.length; i++){
-          values[names[i]] = model[names[i]];
+          values[names[i]] = traverse(model, names[i]);
         }
         result.push(values);
       });
@@ -572,7 +614,7 @@ function Collection(_models, primary_key) {
           // If the selection a method to construct a value from the model
           if(typeof names[key] === 'function') values[key] = names[key](model);
           // otherwise apply simple attribute mapping
-          else values[key] = model[names[key]];
+          else values[key] = traverse(model,names[key]);
         }
         result.push(values);
       });
@@ -632,12 +674,12 @@ function Collection(_models, primary_key) {
 
     if (callback) {
       models.sort(function (a, b) {
-        return callback(a[attribute], b[attribute]);
+        return callback(traverse(a, attribute), traverse(b, attribute));
       });
     } else {
       models.sort(function (a, b) {
-        var v_a = a[attribute];
-        var v_b = b[attribute];
+        var v_a = traverse(a, attribute);
+        var v_b = traverse(b, attribute);
         if (v_a === v_b) return 0;
         if (v_b === [v_b, v_a].sort()[0]) return 1;
         return -1;
@@ -868,11 +910,23 @@ Collection.join = function(collections, relations, where){
 
   // first group together the where clauses
   var wheres = {}
-  for(var collection_attribute in where){
-    collection = collection_attribute.split('.')[0];
-    attribute = collection_attribute.split('.')[1];
-    clause = where[collection_attribute];
-    if(!(collection in wheres)) wheres[collection] = {};
+  for(var coll_attr in where){
+    // the where target are provided prefixed with the collection's name
+    // followed by a dat + the attribute name
+    // Lets first extract the collection's name
+    collection = coll_attr.split('.')[0];
+    // then the attribute name, making sure that we capture
+    // nested value, so 'collection.attr.nested_attr' works.
+    attribute = coll_attr.substring(coll_attr.indexOf('.')+1);
+    clause = where[coll_attr];
+
+    // Initialize the wheres container for the collection if
+    // haven't been done already
+    if(!(collection in wheres)){
+      wheres[collection] = {};
+    }
+    // Build the where query as we go per collection
+    // wheres[collection_1] == {attr_1: clause, attr_2: clause...}
     wheres[collection][attribute] = clause;
   }
 
@@ -883,7 +937,7 @@ Collection.join = function(collections, relations, where){
 
   // Trim the collections according to their relation
   // The triming implies only keeping record in the right collection
-  // that have a relation matching in the left table
+  // that have a relation matching in the left collection
   relations.forEach(function(relation, index){
     right = relation[1];
     left = relation[0];

@@ -15,7 +15,10 @@ var john = {
   first_name:'john',
   last_name:'redford',
   xid: 'x1',
-  age: 22,
+  demo:{
+    age: 22,
+    gender: 'male'
+  },
   job_id: engineer.id
 };
 
@@ -24,7 +27,10 @@ var fred = {
   first_name:'fred',
   last_name: 'doe',
   xid: 'x2',
-  age: 16,
+  demo:{
+    age: 16,
+    gender: 'male'
+  },
   job_id: technician.id
 };
 
@@ -33,7 +39,10 @@ var tim = {
   first_name:'tim',
   last_name: 'doe',
   xid: 'x3',
-  age: 55,
+  demo:{
+    age: 55,
+    gender: 'female'
+  },
   job_id: engineer.id
 };
 
@@ -45,11 +54,14 @@ var address_join = [
   {user_id: tim.id, address_id: 4}
 ];
 
+var NY = {name: 'New York', code: 'NY'};
+var LA = {name: 'Los Angeles', code: 'LA'};
+
 var addresses = [
-  {id: 1, street: '123 rose ave', city: 'New York', zipcode: '10005'},
-  {id: 2, street: '321 blue street', city: 'New York', zipcode: '1006'},
-  {id: 3, street: '456 red blvd', city: 'Los Angeles', zipcode: '90046'},
-  {id: 4, street: '65 black rd', city: 'Los Angeles', zipcode: '90046'}
+  {id: 1, street: '123 rose ave', city: NY, zipcode: '10005'},
+  {id: 2, street: '321 blue street', city: NY, zipcode: '1006'},
+  {id: 3, street: '456 red blvd', city: LA, zipcode: '90046'},
+  {id: 4, street: '65 black rd', city: LA, zipcode: '90046'}
 ];
 
 QUnit.module( "Collection constructor" );
@@ -130,7 +142,7 @@ QUnit.test("Should remove a model", function( assert ) {
 QUnit.test("Should remove a list of model through a callback", function( assert ) {
     var collection = new Collection([john, fred, tim]);
 
-    collection.remove('age', collection.within(22, 16));
+    collection.remove('demo.age', collection.within(22, 16));
     assert.equal(collection.models.length, 1,
       "The collection should remove all models matching the attribute callback.");
     assert.deepEqual(collection.models[0], tim,
@@ -213,7 +225,18 @@ QUnit.test("Should return only the selected attributes", function( assert ) {
       {id: 3, name: tim.first_name + ' ' + tim.last_name}
     ], "Select should return an array of mapped generated properties");
 
+    var values = new Collection([
+      {id: 1, values: {x: 1, y: 2}},
+      {id: 2, values: {x: 10, y: 20}},
+    ]);
 
+    var x_values = values.select('values.x');
+    assert.deepEqual(x_values, [1,10],
+      "Should select to nested sub values");
+
+    var x_values_and_ids = values.select({id: 'id', x: 'values.x'});
+    assert.deepEqual(x_values_and_ids, [{id:1,x:1}, {id:2, x:10}],
+      "Should map to nested sub values");
 
 });
 
@@ -238,6 +261,44 @@ QUnit.test("Should return a collection matching the clause", function( assert ) 
     assert.deepEqual(tim_john.models, [john, tim],
       "Where should accept an array of matching attributes");
 });
+
+QUnit.test("Should filter sub-values", function( assert ) {
+  var vertex_a = {
+    name: 'line_1',
+    value: {
+      x :10,
+      y: 5,
+      color:{
+        r: 232,
+        g: 44,
+        b: 20
+      }
+    }
+  };
+
+  var vertex_b = {
+    name: 'line_2',
+    value: {
+      x :2,
+      y: 20,
+      color:{
+        r: 12,
+        g: 44,
+        b: 240
+      }
+    }
+  };
+
+  var lines = new Collection([vertex_a, vertex_b]);
+  var short_x = lines.where({'value.x': lines.max(5)});
+  assert.deepEqual(short_x.models, [vertex_b],
+    "Where should filter according to a traversing key");
+
+  var redish = lines.where({'value.color.r': lines.within(200,255)});
+  assert.deepEqual(redish.models, [vertex_a],
+    "Where should filter according to a deep traversing key");
+});
+
 
 QUnit.module("Collection page");
 QUnit.test("Should paginate accross records", function( assert ) {
@@ -375,6 +436,9 @@ QUnit.test("sort()", function( assert ){
   assert.deepEqual(collection.sort('id').models, [john, fred, tim],
     "Should sort the collection according to an integer attribute");
 
+  assert.deepEqual(collection.sort('demo.age').models, [fred, john, tim],
+    "Should sort the collection according to an integer attribute");
+
   function desc_compare(a, b){ return b - a; }
   assert.deepEqual(collection.sort('id', desc_compare).models, [tim, fred, john],
     "Should sort the collection according to an callback function");
@@ -418,7 +482,7 @@ QUnit.test("fuzzy()", function( assert ){
 QUnit.test("min()", function( assert ){
   var collection = new Collection([tim, fred, john]);
 
-  var result = collection.where({age: collection.min(22)});
+  var result = collection.where({'demo.age': collection.min(22)});
   assert.deepEqual(result.models, [tim, john],
     "Should return result above or equal the constraint");
 });
@@ -426,7 +490,7 @@ QUnit.test("min()", function( assert ){
 QUnit.test("max()", function( assert ){
   var collection = new Collection([tim, fred, john]);
 
-  var result = collection.where({age: collection.max(22)});
+  var result = collection.where({'demo.age': collection.max(22)});
   assert.deepEqual(result.models, [fred, john],
     "Should return result under or equal the constraint");
 });
@@ -434,7 +498,7 @@ QUnit.test("max()", function( assert ){
 QUnit.test("within()", function( assert ){
   var collection = new Collection([tim, fred, john]);
 
-  var result = collection.where({age: collection.within(16, 25)});
+  var result = collection.where({'demo.age': collection.within(16, 25)});
   assert.deepEqual(result.models, [fred, john],
     "Should return result within (included) the constraint");
 });
@@ -683,7 +747,7 @@ QUnit.test("Should filter related collections", function( assert ){
   ];
 
   var where = {
-    'addresses.city': 'Los Angeles'
+    'addresses.city.name': 'Los Angeles'
   };
 
   var joined_tables = Collection.join(tables, relations, where);
@@ -691,7 +755,7 @@ QUnit.test("Should filter related collections", function( assert ){
   assert.equal(joined_tables.addresses.models.length, 2,
     "Should keep only the models matching the where");
 
-  assert.deepEqual(joined_tables.addresses.select('city'),
+  assert.deepEqual(joined_tables.addresses.select('city.name'),
     ['Los Angeles','Los Angeles'], "Objects kept should match the query");
 
   assert.equal(joined_tables.address_join.models.length, 1,
@@ -820,8 +884,8 @@ QUnit.test("Should update itself when the parent changes", function( assert ){
   assert.deepEqual(people_sub_selection.models, [fred],
     "Proxy of proxy should contain added model");
 
-  var age_holder = fred.age;
-  fred.age = 15;
+  var age_holder = fred.demo.age;
+  fred.demo.age = 15;
   assert.deepEqual(people_sub_selection.models, [fred],
     "Should keep model value (models are references not copies)");
 
@@ -832,7 +896,7 @@ QUnit.test("Should update itself when the parent changes", function( assert ){
   assert.deepEqual(people_sub_selection.models, [],
     "Proxy of proxy should update itself after parent proxy model removal");
 
-  fred.age = age_holder;
+  fred.demo.age = age_holder;
 });
 
 QUnit.module("Collection View");

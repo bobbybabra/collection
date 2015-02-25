@@ -34,7 +34,8 @@ The only requirement for your models is to have a unique primary key.
 
 * [Collection(models, primary_key)](#Collection)
   * [.join(collections, relations, where)](#Collection.join)
-  * [~getPKValue()](#Collection..getPKValue)
+  * [~getPKString()](#Collection..getPKString)
+  * [~getPKValues()](#Collection..getPKValues)
   * [~makeIndexStr()](#Collection..makeIndexStr)
   * [~size()](#Collection..size)
   * [~isEmpty()](#Collection..isEmpty)
@@ -45,6 +46,7 @@ The only requirement for your models is to have a unique primary key.
   * [~isEqual()](#Collection..isEqual)
   * [~remove(attribute, value, silent, not)](#Collection..remove) ⇒ <code>collection</code>
   * [~not(select)](#Collection..not) ⇒ <code>collection</code>
+  * [~traverse()](#Collection..traverse)
   * [~where(select)](#Collection..where) ⇒ <code>collection</code>
   * [~contains(str)](#Collection..contains) ⇒ <code>function</code>
   * [~fuzzy(str)](#Collection..fuzzy) ⇒ <code>function</code>
@@ -76,9 +78,13 @@ connected to the first.
 | relations | <code>object</code> | Relation between the tables |
 | where | <code>object</code> | Filtering clause |
 
-<a name="Collection..getPKValue"></a>
-### Collection~getPKValue()
-Returns the primary key value of a model
+<a name="Collection..getPKString"></a>
+### Collection~getPKString()
+Returns the primary key value of a model as a single string
+
+<a name="Collection..getPKValues"></a>
+### Collection~getPKValues()
+Returns the primary keys values in an array
 
 <a name="Collection..makeIndexStr"></a>
 ### Collection~makeIndexStr()
@@ -222,6 +228,25 @@ return a new collection of non matching models (see collection.where)
 ```js
 // select name not starting with "rob"
 collection.not({name: Collection.contains('^rob')});
+```
+<a name="Collection..traverse"></a>
+### Collection~traverse()
+traverse a model according to a composed key where
+key and sub keys are separated by a dot.
+
+**Example**  
+```js
+var model = {
+  a: 1,
+  b: {
+    x: 1,
+    y: 2
+  }
+};
+traverse(model, 'b.x')
+// returns 1
+traverse(model, ['b', 'x'])
+// returns 1
 ```
 <a name="Collection..where"></a>
 ### Collection~where(select) ⇒ <code>collection</code>
