@@ -910,11 +910,23 @@ Collection.join = function(collections, relations, where){
 
   // first group together the where clauses
   var wheres = {}
-  for(var collection_attribute in where){
-    collection = collection_attribute.split('.')[0];
-    attribute = collection_attribute.split('.')[1];
-    clause = where[collection_attribute];
-    if(!(collection in wheres)) wheres[collection] = {};
+  for(var coll_attr in where){
+    // the where target are provided prefixed with the collection's name
+    // followed by a dat + the attribute name
+    // Lets first extract the collection's name
+    collection = coll_attr.split('.')[0];
+    // then the attribute name, making sure that we capture
+    // nested value, so 'collection.attr.nested_attr' works.
+    attribute = coll_attr.substring(coll_attr.indexOf('.')+1);
+    clause = where[coll_attr];
+
+    // Initialize the wheres container for the collection if
+    // haven't been done already
+    if(!(collection in wheres)){
+      wheres[collection] = {};
+    }
+    // Build the where query as we go per collection
+    // wheres[collection_1] == {attr_1: clause, attr_2: clause...}
     wheres[collection][attribute] = clause;
   }
 
@@ -925,7 +937,7 @@ Collection.join = function(collections, relations, where){
 
   // Trim the collections according to their relation
   // The triming implies only keeping record in the right collection
-  // that have a relation matching in the left table
+  // that have a relation matching in the left collection
   relations.forEach(function(relation, index){
     right = relation[1];
     left = relation[0];

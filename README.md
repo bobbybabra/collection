@@ -67,7 +67,7 @@ var men = people.where({'desc.gender': 'm'})
 var can_drink = people.where({'desc.age': people.min(21)});
 
 // Construct a new attribute "name" composed of first and last name
-// and extract the age value down one level
+// and extract the age value down one leve
 function join_name(model){
   return model.first_name + ' ' + model.last_name;
 }
@@ -387,9 +387,19 @@ function combineName(model){
 my_collection.select({ext_id: 'id', name: combineName});
 // returns  [{ext_id: 1, name: 'Joe Doe'}, {ext_id: 2, name: 'Joe Regan'},...]
 ```
+Select also accepts nested values to be picked:
+```javascript
+models = [
+  { id: 1, name: "Tim Doe", demo: {gender: 'm', age: 16 }},
+  { id: 2, name: "Fred Redford", demo: {gender: 'm', age: 80 }}
+];
+var people = new Collection(models);
+
+var people_ages = people.select({name: 'name', age: 'demo.age'});
+// returns [{name: "Tim Doe", age: 16},{name: "Fred Redford", age: 80}]
+```
 
 *Note*: Now you can get fancy and do stuff like an intersection of collection
-
 
 ```javascript
 var joe_doe = {id: 1, first_name: 'Joe', last_name: 'Doe'};
@@ -404,9 +414,13 @@ var professors = new Collection([joe_doe, tedd_ford])
 var professor_engineers = professors.where({'id': engineers.select('id')});
 // returns new Collection([joe_doe])
 
-// A Union
+// A union
 var professor_and_engineers = new Collection(professors.models).add(engineers.models);
 // returns new Collection([joe_doe, joe_regan, tedd_ford])
+
+// A difference (professor who are not engineers)
+var professor_engineers = professors.not({'id': engineers.select('id')});
+// returns new Collection([tedd_ford])
 ```
 
 ### Collection.filter
@@ -637,7 +651,7 @@ Join will allow you to truncate all your collection at once according to a
 where close.
 
 ```js
-var tables = {
+var collections = {
   'users': new Collection([tim, fred, john]),
   'addresses': new Collection(addresses),
   'address_join': new Collection(address_join),
@@ -645,8 +659,8 @@ var tables = {
 };
 
 // Filter is applied on all the collection,
-// Now, filtered_tables_tables.users only contains users living in "Los Angeles"
-var filtered_tables = Collection.join(tables, relations, where);
+// Now, filtered_collections.users only contains users living in "Los Angeles"
+var filtered_collections = Collection.join(collections, relations, where);
 ```
 
 ## Testing
