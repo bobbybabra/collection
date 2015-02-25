@@ -52,7 +52,9 @@ function Collection(_models, primary_key) {
   }
 
   /**
-   * Returns the primary key value of a model as a single string
+   * Returns the primary key value of a model as a string
+   * @params {object} model Model from which to extract the PK
+   * @returns {string} value of the PK
    */
   function getPKString(model){
     if(is_pk_composed){
@@ -62,7 +64,9 @@ function Collection(_models, primary_key) {
   }
 
   /**
-   * Returns the primary keys values in an array
+   * Returns the primary keys values as an array of values
+   * @params {object} model Model from which to extract the PK values
+   * @returns {array,value} value of the PK, array of values if composed primary key.
    */
    function getPKValues(model){
       if(is_pk_composed){
@@ -78,8 +82,18 @@ function Collection(_models, primary_key) {
 
 
   /**
-   * makeIndexStr will be use also used within the index for get and remove
-   * methods, it generates the value stored in the indexed.
+   * makeIndexStr returns the pass value if the collection primary key is not
+   * composed. Otherwise, it will return a single string, composed of the array
+   * of strings passed to it separated by a 0x31 char code delimiter.
+   * This method is used to build the strings primary key value when added to
+   * the collection and retrieved through `collection.get(primary_key_value)`
+   * @params {array, string} values
+   * @returns {string} representation of a model primary key
+   * @example
+   * ```js
+   * makeIndexStr([1, 'doe', 'john']);
+   * // returns '1doejohn', the undisplayed delimiter between those be a 0x31 char.
+   * ```
    */
   function makeIndexStr(values){
     if(is_pk_composed){
@@ -90,6 +104,7 @@ function Collection(_models, primary_key) {
 
   /**
    * Returns the count of models contained in the collection
+   * @returns {number} the collection model count
    * @example
    * ```js
    * collection.models
@@ -104,6 +119,7 @@ function Collection(_models, primary_key) {
 
   /**
    * Returns true if the collection doesn't contain any model
+   * @returns {boolean} `true` if collection is empty, otherwise `false`
    * @example
    * ```js
    * collection.models
@@ -119,6 +135,8 @@ function Collection(_models, primary_key) {
   /**
    * Empty the collection
    * @param {boolean} silent - Default to false, prevent events
+   * @returns {Collection} Returns the same collection instance but emptied for
+   * additional chaining
    * from being triggered when true.
    * @fires 'change'
    * @fires 'remove'
@@ -145,6 +163,8 @@ function Collection(_models, primary_key) {
   /**
    * Returns an array with the returned values of the callback
    * iteration stops if the callback returns `false`.
+   * @param {function} callback Function to be called on every model
+   * @returns {array} an array of matching models according to the callback
    * @example
    * ```js
    * function callback(model, position){
@@ -377,6 +397,9 @@ function Collection(_models, primary_key) {
   /**
    * traverse a model according to a composed key where
    * key and sub keys are separated by a dot.
+   * @param {object} model Model to query
+   * @param {string,array} keys Composed key
+   * @returns value or undefined if attribute could not be resolved
    * @example
    * ```js
    * var model = {
