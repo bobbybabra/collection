@@ -1,10 +1,10 @@
 # Collection [![Build Status](https://travis-ci.org/debrice/collection.svg?branch=master)](https://travis-ci.org/debrice/collection)
 
-Handles collection (à la backbone) for your store and other things. It's not opiniated, not doing AJAX, not doing views, not doing routing etc... Just does one thing, manage collections of your objects and is good at it.
+Handles collection for your stores and other things. It's not opiniated, not doing AJAX, not doing views, not doing routing etc... Just does one thing, manage collections of your objects and is good at it.
 
 [Read the API!](src/README.md)
 
-4.5kb, no dependencies, to do cool things like:
+4.7kb, no dependencies, to do cool things like:
 
 ```javascript
 function is_odd(value) {
@@ -83,31 +83,31 @@ var people = new Collection(
 
 Collection constructor takes 2 optional arguments. The first argument is
 expected to be an array of object, the second defines the primary key for
-every object contained by the collection.
+every object contained within the collection.
 
 By default the `Collection` will be emtpy and the primary key will be
 set to `id`.
 
-Every model needs to have an ID. A convenience `Collection.uuid()` method
+Every model needs to have a primary key. A convenience `Collection.uuid()` method
 is provided for you to generate random unique IDs. By default the collection
-will index by the 'id' key. To change this behavior, simply pass the primary key
-to the constructor:
+will be indexed by the 'id' key. To change this behavior pass the
+primary key to the constructor:
 
 ```javascript
 var models = [
- {ext_id: 1, value: 'one'},
- {ext_id: 2, value: 'two'},
- {ext_id: 3, value: 'three'}
+ {alt_id: 1, value: 'one'},
+ {alt_id: 2, value: 'two'},
+ {alt_id: 3, value: 'three'}
 ];
-var my_collection = new Collection(models, 'ext_id');
+var my_collection = new Collection(models, 'alt_id');
 ```
 
 #### Composed primary keys
 
-In some cases, you may have composed primary keys, meaning the combination
-of two attributes defines the uniqueness of your object. In those cases, when
-searching through your collection using a composed PK, you'll need to provide
-an array of values.
+In some cases, you may have composed primary keys, meaning the combine values
+of two or more attributes defines the uniqueness of your object. In those
+cases, when searching through your collection using a composed PK, you'll
+need to provide an array of values.
 
 ```javascript
 var address_join = [
@@ -120,13 +120,15 @@ var addresses = new Collection(address_join, ['address_id', 'user_id']);
 // returns the first record (primary key is explicit)
 addresses.get(addresses.primary_key, [1,1]);
 
-// returns the second record (primary key is implicity)
+// returns the second record (primary key is implicit)
 addresses.get([2,1]);
 
-// Replace the 2nd record
+// Replace the 2nd record by adding a model with matching primary keys
 addresses.add({address_id: 2, user_id: 1, position:1});
 
-// Removes the first 2 records (an array of PKs)
+// Removes the first 2 records (an array of PK values)
+// here too, the primary key selection is implicit when only one argument
+// is passed (an array of array)
 addresses.remove([[2,1],[1,1]]);
 ```
 
@@ -191,8 +193,8 @@ my_collection.remove(has_odd_id);
 // returns the reduced Collection([{id: 2, name: 'Joe'}])
 ```
 
-Finally, when removing using an attribute, you can use where helper
-to do so
+Finally, when removing using an attribute, you can use any where helper
+to do so (`min`, `max`, `within`, `fuzzy` and `contains`)
 
 ```javascript
 var my_collection = new Collection([
@@ -208,12 +210,11 @@ my_collection.remove('age', Collection.within(18,22));
 ### Collection.get
 
 Same as remove, `Collection.get()` accepts a primary key or an
-attribute and value to match.
+attribute and value combination to be matched against.
 
-A single element is always returned. If a primary key is passed
-the corresponding object will be returned,
-in the the case of an attribute name and value you'll receive
-the first matching object.
+When using get, a single element is always returned. If a primary key is
+passed the corresponding object will be returned, in the the case of an
+attribute name and value you'll receive the first matching object.
 
 ```javascript
 var my_collection = new Collection();
@@ -229,7 +230,6 @@ or the attribute and the value to match across the collection.
 my_collection.get('name', 'second');
 // returns {id: 2, name: 'second'}
 ```
-
 
 ### Collection.where
 
@@ -252,7 +252,7 @@ my_collection.where({id: is_odd, name: 'Joe'});
 // returns new Collection([{id: 1, name: 'Joe'}])
 ```
 
-Additionally to selecting keys, you may also selected deep attribute
+Additionally to selecting keys, you may also select deep attributes
 within the model by using a dot notation to describe the traversing
 
 ```js
@@ -283,8 +283,12 @@ var vertex_b = {
 };
 
 var lines = new Collection([vertex_a, vertex_b]);
+
+// select all the models where model.value.x <= 5
 var short_x = lines.where({'value.x': lines.max(5)})
 // will return a new Collection([vertex_b])
+
+// select all the models where model.color.r is within 200 and 255 included
 var redish = lines.where({'value.color.r': lines.within(200,255)})
 // will return a new Collection([vertex_a])
 ```
@@ -293,7 +297,10 @@ The value returned by `Collection.where()` is always a Collection instance.
 
 ### Collection.not
 
-This will return you the opposite of `where`
+This will return you the opposite of `where`, a new collection where the model
+do not match the select passed. `not` accepts the same parameters as `where`
+with the same syntax.
+
 ```javascript
 function is_odd(value) {
   return value % 2
@@ -314,8 +321,8 @@ my_collection.not({id: is_odd});
 
 Where comes with some helpers to make your life easier.
 
-* `collection.min(value)`: Only keep value equal or above the value
-* `collection.max(value)`: Only keep value equal or under the value
+* `collection.min(value)`: Only keep values equal or above the value
+* `collection.max(value)`: Only keep values equal or under the value
 * `collection.within(value, value)`: Only keep value within the values (inclusive)
 * `collection.contains(str)`: Accept a string or regexp to match string against
 * `collection.fuzzy(str)`: Fuzzy match strings "to ea" will match "Today I eat"
@@ -343,7 +350,10 @@ var collection = new Collection([model, model,...]);
 
 // display the first page of 50 elements
 page = collection.page(50, 1);
-console.log(page);
+```
+Here, the `page` object could look like:
+
+```
 {
   page: 1,
   has_previous: false,
@@ -357,7 +367,8 @@ console.log(page);
 ### Collection.select
 
 Select will return the attributes you pick, not unlike pluck but with a twist.
-If you provide a string, `Collection.select()` will return you an array of value
+If you provide a string, `Collection.select()` will return you an array of
+values
 
 ```javascript
 var my_collection = new Collection([
@@ -370,7 +381,7 @@ my_collection.select('id');
 // returns [1,2,3]
 ```
 
-But if you pass it an array of keys, you'll receive a array of JSON object
+... but if you pass it an array of keys, you'll receive an array of JSON object
 composed only of those keys
 
 ```javascript
@@ -387,7 +398,9 @@ function combineName(model){
 my_collection.select({ext_id: 'id', name: combineName});
 // returns  [{ext_id: 1, name: 'Joe Doe'}, {ext_id: 2, name: 'Joe Regan'},...]
 ```
+
 Select also accepts nested values to be picked:
+
 ```javascript
 models = [
   { id: 1, name: "Tim Doe", demo: {gender: 'm', age: 16 }},
@@ -410,15 +423,15 @@ var engineers = new Collection([joe_doe, joe_regan]);
 
 var professors = new Collection([joe_doe, tedd_ford])
 
-// An intersections
+// An intersections, professor who also are engineer
 var professor_engineers = professors.where({'id': engineers.select('id')});
 // returns new Collection([joe_doe])
 
-// A union
+// A union, professors and engineers
 var professor_and_engineers = new Collection(professors.models).add(engineers.models);
 // returns new Collection([joe_doe, joe_regan, tedd_ford])
 
-// A difference (professor who are not engineers)
+// A difference, professor who are not engineers
 var professor_engineers = professors.not({'id': engineers.select('id')});
 // returns new Collection([tedd_ford])
 ```
@@ -426,8 +439,8 @@ var professor_engineers = professors.not({'id': engineers.select('id')});
 ### Collection.filter
 
 An alternative to `Collection.where` is to use a filter. `Collection.filter`
-simply accepts a callback. The callback will be called with every object
-contained in the collection. If the callback returns false, the object will
+simply takes a callback which will be called and passed every model contained
+in the collection. If the callback returns falsy, the object will
 be filtered out from the returned Collection, else it will be kept.
 
 ```javascript
@@ -445,22 +458,30 @@ my_collection.filter(has_odd_id);
 // returns new Collection([{id: 1, name: 'Joe'}, {id: 3, name: 'Tedd'}])
 ```
 
-The value returned by `Collection.filter()` is always a Collection instance.
+The value returned by `Collection.filter()` is always a new Collection instance.
 
 ### Collection.sort
 
-All to sort the collection according to a given attribute. You may also pass
+To sort the collection according to a given attribute. You may also pass
 one of your sorting method as second arguments
 
 ```javascript
-var my_collection = new Collection([
-  {id: 1, name: 'Joe'},
-  {id: 2, name: 'Alan'},
-  {id: 3, name: 'Fred'}
-]);
+var joe = {id: 1, name: 'Joe', demo{age:33}},
+    alan = {id: 2, name: 'Alan', demo{age:19}},
+    fred = {id: 3, name: 'Fred', demo{age:22}};
+
+var my_collection = new Collection([joe, alan, fred])
 
 my_collection.sort('name');
-// returns new Collection([{id: 2, name: 'Alan'}, {id: 3, name: 'Fred'}, {id: 1, name: 'Joe'}])
+// returns new Collection([alan, fred, joe]);
+```
+
+You can also sort a collection using deeply nested attribute by using the
+dot notation:
+
+```
+my_collection.sort('demo.age');
+// returns new Collection([alan, fred, joe]);
 ```
 
 ### Other quickies
@@ -483,8 +504,8 @@ events are:
 * `add`: A model got added to your collection
 * `remove`: A model got removed to your collection
 
-When calling on, a de-register method is returned to simplify deregistering
-process.
+When calling `on`, a de-register method is returned to simplify the
+de-registering process.
 
 ```javascript
 var my_collection = new Collection([{id: 1, name: 'Joe'}]);
@@ -523,14 +544,18 @@ people.add(steve);
 // engineers now contains [tim, fred, steve]
 ```
 
-Views can also be chained, aka. a source of a view can be another view...
+Views can also be chained, aka. a source of a view can be another view and
+so on...
 
 ## Proxies
 
-Proxies are subsets of collection. Unlike views, their content can be altered
-and they are initialized empty. Proxies are limited to what their parent
-collection contains. When its parent loses some record, a proxy will stay
-consistent by removing model it contains that aren't part of its parent anymore.
+Proxies are subsets of collection. Unlike views, their content can be directly
+altered and they are initialized empty. Proxies content are limited to what
+their parent collection contains. When its parent loses some record, a proxy
+will stay consistent by removing model it contains that aren't part of its
+parent anymore. Another contraint of a proxy is that you cannot add a model
+to a proxy if the collection being proxied doesn't contain it.
+
 Proxies are useful to make a sub selection of a collection.
 
 Proxy can be chained, a use case could be displaying a sub selection
@@ -619,8 +644,7 @@ var addresses = [
 ];
 ```
 
-First lets decide my query. This is the part that will probably evolve with
-your user input. I want all the users in Los Angeles. Since you'll
+First lets define my query. I want all the users in Los Angeles. Since you'll
 be going through multiple collection at a time, it's necessary that you
 indicate the collection name you're filtering on:
 
@@ -630,7 +654,7 @@ var where = {
 };
 ```
 
-Ok, now my relation, If you know some database, you'll see the relations:
+Ok, now my relation, If you know some database, you'll see the relations as:
 
 * `jobs` *one to many* `users`
 * `users` *many to many* `addresses` (through `address_join`)
@@ -659,8 +683,8 @@ var collections = {
 };
 
 // Filter is applied on all the collection,
-// Now, filtered_collections.users only contains users living in "Los Angeles"
 var filtered_collections = Collection.join(collections, relations, where);
+// Now, filtered_collections.users only contains users living in "Los Angeles"
 ```
 
 ## Testing
@@ -669,13 +693,6 @@ Test are run using QUnit library. First download this repository
 
 ```
 $ git clone git@github.com:debrice/collection.git
-```
-
-then inside the repository install the QUnit library using bower
-
-```
-$ cd collection
-$ bower install --dev
 ```
 
 Then simply open the `test.html` file with the web-browser you want to run the

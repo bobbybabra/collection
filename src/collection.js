@@ -310,12 +310,12 @@ function Collection(_models, primary_key) {
           if(is_pk_composed){
             return value.indexOf(getPKString(model)) > -1;
           }
-          return value.indexOf(model[attribute]) > -1;
+          return value.indexOf(traverse(model, attribute)) > -1;
         }
         if(is_pk_composed){
           return getPKString(model) === value
         }
-        return model[attribute] === value;
+        return traverse(model, attribute) === value;
       }
 
       // If a single callback got passed, consider passing it as a
@@ -327,17 +327,17 @@ function Collection(_models, primary_key) {
       // If the filter is an array, check if the attribute
       // is contained within that filter
       if(Array.isArray(value)){
-        return value.indexOf(model[attribute]) > -1;
+        return value.indexOf(traverse(model, attribute)) > -1;
       }
 
       // If the filter is a function, use it's return value when
       // pass the value of the attribute
       if(typeof value === 'function'){
-        return value(model[attribute]);
+        return value(traverse(model, attribute));
       }
 
       // otherwise consider it a simple comparaison
-      return model[attribute] === value;
+      return traverse(model, attribute) === value;
     }
 
     // Going through the list upside down as we might pop
@@ -674,12 +674,12 @@ function Collection(_models, primary_key) {
 
     if (callback) {
       models.sort(function (a, b) {
-        return callback(a[attribute], b[attribute]);
+        return callback(traverse(a, attribute), traverse(b, attribute));
       });
     } else {
       models.sort(function (a, b) {
-        var v_a = a[attribute];
-        var v_b = b[attribute];
+        var v_a = traverse(a, attribute);
+        var v_b = traverse(b, attribute);
         if (v_a === v_b) return 0;
         if (v_b === [v_b, v_a].sort()[0]) return 1;
         return -1;
