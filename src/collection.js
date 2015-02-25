@@ -399,10 +399,10 @@ function Collection(_models, primary_key) {
   /**
    * traverse a model according to a composed key where
    * key and sub keys are separated by a dot.
-   * @param {object} model Model to query
-   * @param {String} attribute name (can be nested using dot notation)
+   * @param {object} keys - model Model to query
+   * @param {String} keys - attribute name (can be nested using dot notation)
    * @param {array} nested key value as an array
-   * @returns value or undefined if attribute could not be resolved
+   * @returns {value} value or undefined if attribute could not be resolved
    * @example
    * ```js
    * var model = {

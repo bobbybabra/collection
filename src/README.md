@@ -46,7 +46,7 @@ The only requirement for your models is to have a unique primary key.
   * [~isEqual()](#Collection..isEqual)
   * [~remove(attribute, value, silent, not)](#Collection..remove) ⇒ <code>collection</code>
   * [~not(select)](#Collection..not) ⇒ <code>collection</code>
-  * [~traverse(model, attribute, nested)](#Collection..traverse)  
+  * [~traverse(keys, keys, nested)](#Collection..traverse) ⇒ <code>value</code>
   * [~where(select)](#Collection..where) ⇒ <code>collection</code>
   * [~contains(str)](#Collection..contains) ⇒ <code>function</code>
   * [~fuzzy(str)](#Collection..fuzzy) ⇒ <code>function</code>
@@ -256,16 +256,16 @@ return a new collection of non matching models (see collection.where)
 collection.not({name: Collection.contains('^rob')});
 ```
 <a name="Collection..traverse"></a>
-### Collection~traverse(model, attribute, nested)  
+### Collection~traverse(keys, keys, nested) ⇒ <code>value</code>
 traverse a model according to a composed key where
 key and sub keys are separated by a dot.
 
-**Returns**: value or undefined if attribute could not be resolved  
+**Returns**: <code>value</code> - value or undefined if attribute could not be resolved  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| model | <code>object</code> | Model to query |
-| attribute | <code>String</code> | name (can be nested using dot notation) |
+| keys | <code>object</code> | model Model to query |
+| keys | <code>String</code> | attribute name (can be nested using dot notation) |
 | nested | <code>array</code> | key value as an array |
 
 **Example**  
