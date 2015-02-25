@@ -183,7 +183,7 @@ function Collection(_models, primary_key) {
    * ```
    */
   function filter(func) {
-    var r = [], position = 0;
+    var r = [];
     each(function (model, position) {
       if(func(model, models, position)){
         r.push(model);
@@ -375,6 +375,48 @@ function Collection(_models, primary_key) {
   }
 
   /**
+   * traverse a model according to a composed key where
+   * key and sub keys are separated by a dot.
+   * @example
+   * ```js
+   * var model = {
+   *   a: 1,
+   *   b: {
+   *     x: 1,
+   *     y: 2
+   *   }
+   * };
+   * traverse(model, 'b.x')
+   * // returns 1
+   * traverse(model, ['b', 'x'])
+   * // returns 1
+   * ```
+   */
+  function traverse(model, keys){
+    var key;
+
+    if(typeof keys === 'string'){
+      // in case we can resolve the requested key directly
+      // on the modeltraverse(model, key)
+      if(keys in model) {
+        return model[keys];
+      }
+
+      keys = keys.split('.');
+    }
+
+    while(key = keys.shift()){
+      if(key in model){
+        model = model[key];
+      }else{
+        return;
+      }
+    }
+
+    return model;
+  }
+
+  /**
    * return a new collection of matching models
    * @param {object} select - JSON object of predicates.
    * @returns {collection} the current collection for chaining
@@ -401,7 +443,7 @@ function Collection(_models, primary_key) {
         // If the predicat is a function we'll run it
         // against the current attribute value.
         if (typeof select[key] === 'function') {
-          if (!select[key](model[key])){
+          if (!select[key](traverse(model, key))){
             match = false;
             break;
           }
@@ -410,7 +452,7 @@ function Collection(_models, primary_key) {
         // If the selection is an array of value,
         // we'll try to match this value against the array
         else if (Array.isArray(select[key])) {
-          if(select[key].indexOf(model[key]) === -1){
+          if(select[key].indexOf(traverse(model, key)) === -1){
             match = false;
             break;
           }
@@ -419,7 +461,7 @@ function Collection(_models, primary_key) {
         // otherwise we expect a straight comparaison between
         // value and model's attribute
         else {
-          if (select[key] !== model[key]){
+          if (select[key] !== traverse(model, key)){
             match = false;
             break;
           }
@@ -549,7 +591,7 @@ function Collection(_models, primary_key) {
     // if the names is only an attribute name
     else if (typeof names === 'string'){
       each(function(model){
-        result.push(model[names]);
+        result.push(traverse(model, names));
       });
     }
 
@@ -558,7 +600,7 @@ function Collection(_models, primary_key) {
       each(function(model){
         var values = {};
         for(var i = 0; i < names.length; i++){
-          values[names[i]] = model[names[i]];
+          values[names[i]] = traverse(model, names[i]);
         }
         result.push(values);
       });
@@ -572,7 +614,7 @@ function Collection(_models, primary_key) {
           // If the selection a method to construct a value from the model
           if(typeof names[key] === 'function') values[key] = names[key](model);
           // otherwise apply simple attribute mapping
-          else values[key] = model[names[key]];
+          else values[key] = traverse(model,names[key]);
         }
         result.push(values);
       });

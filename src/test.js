@@ -213,7 +213,18 @@ QUnit.test("Should return only the selected attributes", function( assert ) {
       {id: 3, name: tim.first_name + ' ' + tim.last_name}
     ], "Select should return an array of mapped generated properties");
 
+    var values = new Collection([
+      {id: 1, values: {x: 1, y: 2}},
+      {id: 2, values: {x: 10, y: 20}},
+    ]);
 
+    var x_values = values.select('values.x');
+    assert.deepEqual(x_values, [1,10],
+      "Should select to nested sub values");
+
+    var x_values_and_ids = values.select({id: 'id', x: 'values.x'});
+    assert.deepEqual(x_values_and_ids, [{id:1,x:1}, {id:2, x:10}],
+      "Should map to nested sub values");
 
 });
 
@@ -238,6 +249,44 @@ QUnit.test("Should return a collection matching the clause", function( assert ) 
     assert.deepEqual(tim_john.models, [john, tim],
       "Where should accept an array of matching attributes");
 });
+
+QUnit.test("Should filter sub-values", function( assert ) {
+  var vertex_a = {
+    name: 'line_1',
+    value: {
+      x :10,
+      y: 5,
+      color:{
+        r: 232,
+        g: 44,
+        b: 20
+      }
+    }
+  };
+
+  var vertex_b = {
+    name: 'line_2',
+    value: {
+      x :2,
+      y: 20,
+      color:{
+        r: 12,
+        g: 44,
+        b: 240
+      }
+    }
+  };
+
+  var lines = new Collection([vertex_a, vertex_b]);
+  var short_x = lines.where({'value.x': lines.max(5)});
+  assert.deepEqual(short_x.models, [vertex_b],
+    "Where should filter according to a traversing key");
+
+  var redish = lines.where({'value.color.r': lines.within(200,255)});
+  assert.deepEqual(redish.models, [vertex_a],
+    "Where should filter according to a deep traversing key");
+});
+
 
 QUnit.module("Collection page");
 QUnit.test("Should paginate accross records", function( assert ) {

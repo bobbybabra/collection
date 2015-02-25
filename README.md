@@ -48,46 +48,33 @@ Include collection.js (or collection.min.js) in your index.html.
 ## Quick Usage
 
 ```javascript
-var test_1 = {
-    id: 1,
-    title: "test 1"
-};
+var models = [
+  { id: 1, first_name: "Tim", last_name: "Doe", desc: {gender: 'm', age: 16 }},
+  { id: 2, first_name: "Fred", last_name: "Redford", desc: {gender: 'm', age: 80 }},
+  { id: 3, first_name: "John", last_name: "Doe",desc: {gender: 'm', age: 25 }},
+  { id: 4, first_name: "Jane", last_name: "Doe",desc: {gender: 'f', age: 50 }}
+];
 
-var test_2 = {
-    id: 2,
-    title: "test 2"
-};
+var people = new Collection(models);
 
-var test_3 = {
-    id: 3,
-    title: "test 3"
-};
+// Returns a collection containing only people named Doe
+var does = people.where({last_name: 'Doe'});
 
-var tests = new Collection([test_1, test_2, test_3]);
+// Returns the men
+var men = people.where({'desc.gender': 'm'})
 
-console.log('--each--');
-tests.each(function (model) {
-    console.log(model);
-});
+// Returns a collection containing only people in age of drinking
+var can_drink = people.where({'desc.age': people.min(21)});
 
-console.log('--reverse--');
-tests.reverse().each(function (model) {
-    console.log(model);
-});
+// Construct a new attribute "name" composed of first and last name
+// and extract the age value down one level
+function join_name(model){
+  return model.first_name + ' ' + model.last_name;
+}
 
-console.log('--where--');
-tests.where({id: [1,3,2], 'title': ['test 2', 'test 1']}).each(function (model) {
-    console.log(model);
-});
-
-console.log('--remove--');
-tests.remove('id', 3).each(function (model) {
-    console.log(model);
-});
-
-console.log('--get--');
-var model = tests.get('title', 'test 2')
-console.log(model);
+var people = new Collection(
+  people.select({'name': join_name, id: 'id', age: 'desc.age'});
+);
 ```
 
 ## How to
@@ -263,6 +250,43 @@ var my_collection = new Collection([
 // filters id with a callable and name with a value
 my_collection.where({id: is_odd, name: 'Joe'});
 // returns new Collection([{id: 1, name: 'Joe'}])
+```
+
+Additionally to selecting keys, you may also selected deep attribute
+within the model by using a dot notation to describe the traversing
+
+```js
+var vertex_a = {
+  name: 'line_1',
+  value: {
+    x :10,
+    y: 5,
+    color: {
+      r: 232,
+      g: 44,
+      b: 20
+    }
+  }
+};
+
+var vertex_b = {
+  name: 'line_2',
+  value: {
+    x :2,
+    y: 20,
+    color: {
+      r: 12,
+      g: 44,
+      b: 240
+    }
+  }
+};
+
+var lines = new Collection([vertex_a, vertex_b]);
+var short_x = lines.where({'value.x': lines.max(5)})
+// will return a new Collection([vertex_b])
+var redish = lines.where({'value.color.r': lines.within(200,255)})
+// will return a new Collection([vertex_a])
 ```
 
 The value returned by `Collection.where()` is always a Collection instance.
