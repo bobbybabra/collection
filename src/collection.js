@@ -464,9 +464,9 @@ function Collection(_models, primary_key) {
   }
   /**
    * Return the model if it matches the selection
-   * @param {object} model The model the filter against
-   * @param {object} select The selection constraint hash array
-   * @param {boolean} not Indicate that the selection is a NOT (inversed)
+   * @param {object} model - The model the filter against
+   * @param {object} select - The selection constraint hash array
+   * @param {boolean} not - Indicate that the selection is a NOT (inversed)
    * @returns {object} return model or undefined if not a match
    */
   function modelWhereMatch(model, select, not){
@@ -534,6 +534,10 @@ function Collection(_models, primary_key) {
 
   /**
    * Returns a generator scrolling through the collection
+   * @param {object} select - The selection predicates
+   * @param {boolean} not - Indicate that the selection is a NOT (inversed)
+   * @return {generator} `generator.next()` to retrieve the next model mathing
+   * the select predicates.
    * @example
    * ```js
    * generator = collection.generator({name: 'john'})
