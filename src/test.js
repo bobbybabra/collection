@@ -175,6 +175,26 @@ QUnit.test("Should remove a list of model using array of values", function( asse
       "The collection should keep matching model.");
 });
 
+QUnit.test("Should remove a model using a model", function( assert ) {
+    var collection = new Collection([john, fred, tim]);
+
+    collection.remove(fred);
+    assert.equal(collection.models.length, 2,
+      "The collection should remove a models matching the passed model.");
+    assert.deepEqual(collection.models, [john,tim],
+      "The collection should keep matching model.");
+});
+
+QUnit.test("Should remove a list of model using array of model", function( assert ) {
+    var collection = new Collection([john, fred, tim]);
+
+    collection.remove([john, fred]);
+    assert.equal(collection.models.length, 1,
+      "The collection should remove a models matching the passed models.");
+    assert.deepEqual(collection.models, [tim],
+      "The collection should keep matching model.");
+});
+
 QUnit.module("Collection get");
 QUnit.test("Should return matching model", function( assert ) {
     var collection = new Collection([john, fred, tim]);
