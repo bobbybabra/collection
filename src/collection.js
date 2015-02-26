@@ -53,7 +53,7 @@ function Collection(_models, primary_key) {
 
   /**
    * Returns the primary key value of a model as a string
-   * @params {object} model Model from which to extract the PK
+   * @param {object} model Model from which to extract the PK
    * @returns {string} value of the PK
    */
   function getPKString(model){
@@ -65,7 +65,7 @@ function Collection(_models, primary_key) {
 
   /**
    * Returns the primary keys values as an array of values
-   * @params {object} model - Model from which to extract the PK values
+   * @param {object} model - Model from which to extract the PK values
    * @returns {array} an array of values if composed primary key.
    * @returns {value} value of the PK if not composed PK.
    */
@@ -88,8 +88,8 @@ function Collection(_models, primary_key) {
    * of strings passed to it separated by a 0x31 char code delimiter.
    * This method is used to build the strings primary key value when added to
    * the collection and retrieved through `collection.get(primary_key_value)`
-   * @params {array} values - an array of values used to build the PK
-   * @params {string} values - Value used to build the PK
+   * @param {array} values - an array of values used to build the PK
+   * @param {string} values - Value used to build the PK
    * @returns {string} representation of a model primary key
    * @example
    * ```js
@@ -248,7 +248,6 @@ function Collection(_models, primary_key) {
     return a === b;
   }
 
-
   /**
    * Remove all the objects with a matching attribute.
    * If only one argument is passed the argument will
@@ -282,26 +281,44 @@ function Collection(_models, primary_key) {
    * ```
    */
   function remove(attribute, value, silent, not) {
-    var model, model_deleted = [];
+    var model, model_deleted = [], models_to_remove;
 
     // if a single argument is passsed and is not a function
     // we infer that the filtering occurs on the primary key.
     // Otherwise the argument is considered a filter on the
     // whole models
     if(typeof value === 'undefined' && typeof attribute != 'function'){
+      // If we passed a model or an array of model, we'll extract their PKs
+      // values and rebuild a attribute format aka an array of PKs or
+      // an array of arrays of PKs in case of a composed primary key
+      if(
+        (!Array.isArray(attribute) && typeof attribute === 'object') ||
+        (!Array.isArray(attribute[0]) && typeof attribute[0] === 'object')
+      ){
+        models_to_remove = [].concat(attribute);
+        attribute = [];
+        models_to_remove.forEach(function(model){
+          attribute.push(getPKValues(model));
+        });
+      }
+
       // if the key is a composed key (more than one attribute)
       // then a single level array is a direct 1 to 1 match
       // a 2 level array represent a serie of pk to be matched.
       // In that case we will generate their representation
       // as a primary key to allow later === matching.
       if(is_pk_composed){
+        // If we passed an array of array of PK
+        // [[1,2], [2,2], [3,1]...]
         if(Array.isArray(attribute[0])){
           value = [];
           attribute.forEach(function(v){
             value.push(makeIndexStr(v));
           });
         }
-        else{
+        // We pass a single composed PK
+        // [1,2]
+        else {
           value = makeIndexStr(attribute);
         }
       }

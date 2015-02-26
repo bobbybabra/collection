@@ -181,7 +181,7 @@ QUnit.test("Should remove a model using a model", function( assert ) {
     collection.remove(fred);
     assert.equal(collection.models.length, 2,
       "The collection should remove a models matching the passed model.");
-    assert.deepEqual(collection.models[0], [john,tim],
+    assert.deepEqual(collection.models, [john,tim],
       "The collection should keep matching model.");
 });
 
@@ -191,7 +191,7 @@ QUnit.test("Should remove a list of model using array of model", function( asser
     collection.remove([john, fred]);
     assert.equal(collection.models.length, 1,
       "The collection should remove a models matching the passed models.");
-    assert.deepEqual(collection.models[0], tim,
+    assert.deepEqual(collection.models, [tim],
       "The collection should keep matching model.");
 });
 
