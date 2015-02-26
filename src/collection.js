@@ -194,7 +194,7 @@ function Collection(_models, primary_key) {
    * receives 3 arguments: the current model, the collection's models,
    * and the position within the current iteration.
    * @param {function} func - filtering function
-   * @returns {collection} Returns a new filtered collection
+   * @returns {Collection} Returns a new filtered collection
    * @example
    * ```js
    * // return models with an odd id
@@ -222,7 +222,7 @@ function Collection(_models, primary_key) {
    * @param {boolean} silent - Do not trigger event if true
    * @fires 'change'
    * @fires 'remove'
-   * @returns {collection} the current collection for chaining
+   * @returns {Collection} the current collection for chaining
    */
   function keep(attribute, value, silent) {
     return remove(attribute, value, silent, true);
@@ -265,7 +265,7 @@ function Collection(_models, primary_key) {
    * @param {boolean} not - Does the opposite, keeps items matching the query
    * @fires 'change'
    * @fires 'remove'
-   * @returns {collection} the current collection for chaining
+   * @returns {Collection} the current collection for chaining
    * @example
    * ```js
    * // remove the object with a primary key of 1
@@ -278,6 +278,10 @@ function Collection(_models, primary_key) {
    * collection.remove('first_name', ['john', 'steve']);
    * // remove all the object with an age within 21 and 35
    * collection.remove('age', collection.within(21, 35));
+   * // remove the model passsed
+   * collection.remove(john);
+   * // remove the models passsed
+   * collection.remove([tim, fred]);
    * ```
    */
   function remove(attribute, value, silent, not) {
@@ -462,7 +466,7 @@ function Collection(_models, primary_key) {
   /**
    * return a new collection of matching models
    * @param {object} select - JSON object of predicates.
-   * @returns {collection} the current collection for chaining
+   * @returns {Collection} the current collection for chaining
    * @example
    * ```js
    * // select name starting with "rob" and with in [1,2,3]
@@ -671,6 +675,7 @@ function Collection(_models, primary_key) {
    * @fires 'change'
    * @fires 'sort'
    * @param {boolean} silent - Mute the events when true
+   * @returns {Collection} the current collection reversed
    * @example
    * ```js
    * collection.models
@@ -702,6 +707,7 @@ function Collection(_models, primary_key) {
    * @param {string} attribute - Property to sort against
    * @param {function} callback - Optional method to do the sorting yourself
    * @param {boolean} silent - Mute the events when true
+   * @returns {Collection} the current collection sorted
    * @fires 'change'
    * @fires 'sort'
    * @example
@@ -813,7 +819,7 @@ function Collection(_models, primary_key) {
    * @param {boolean} silent - Add model silently (no event triggered)
    * @fires 'change'
    * @fires 'add'
-   * @returns the current collection for chaining
+   * @returns {Collection} the current collection for chaining
    */
   function add(_models, silent){
     // makes an array if not one aleardy
@@ -894,6 +900,7 @@ function Collection(_models, primary_key) {
 
   /**
    * utility method that returns a valid uuid
+   * @returns {string} a valid UUID string
    */
   function uuid(){
     var uuid_format = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
@@ -939,6 +946,7 @@ function Collection(_models, primary_key) {
  * @param {object} collections - Collections to be filtered through
  * @param {object} relations - Relation between the tables
  * @param {object} where - Filtering clause
+ * @returns {object} an associative array of filtered Collections
  */
 Collection.join = function(collections, relations, where){
   var indexes, relation, collection, attribute, left, right, clause;

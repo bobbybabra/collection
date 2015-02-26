@@ -33,44 +33,45 @@ The only requirement for your models is to have a unique primary key.
 
 
 * [Collection(models, primary_key)](#Collection)
-  * [.join(collections, relations, where)](#Collection.join)
-  * [~getPKString()](#Collection..getPKString) ⇒ <code>string</code>
-  * [~getPKValues()](#Collection..getPKValues) ⇒ <code>array</code> \| <code>value</code>
-  * [~makeIndexStr()](#Collection..makeIndexStr) ⇒ <code>string</code>
+  * [.join(collections, relations, where)](#Collection.join) ⇒ <code>object</code>
+  * [~getPKString(model)](#Collection..getPKString) ⇒ <code>string</code>
+  * [~getPKValues(model)](#Collection..getPKValues) ⇒ <code>array</code> \| <code>value</code>
+  * [~makeIndexStr(values, values)](#Collection..makeIndexStr) ⇒ <code>string</code>
   * [~size()](#Collection..size) ⇒ <code>number</code>
   * [~isEmpty()](#Collection..isEmpty) ⇒ <code>boolean</code>
   * [~empty(silent)](#Collection..empty) ⇒ <code>[Collection](#Collection)</code>
   * [~each(callback)](#Collection..each) ⇒ <code>array</code>
-  * [~filter(func)](#Collection..filter) ⇒ <code>collection</code>
-  * [~keep(attribute, value, silent)](#Collection..keep) ⇒ <code>collection</code>
+  * [~filter(func)](#Collection..filter) ⇒ <code>[Collection](#Collection)</code>
+  * [~keep(attribute, value, silent)](#Collection..keep) ⇒ <code>[Collection](#Collection)</code>
   * [~isEqual()](#Collection..isEqual)
-  * [~remove(attribute, value, silent, not)](#Collection..remove) ⇒ <code>collection</code>
+  * [~remove(attribute, value, silent, not)](#Collection..remove) ⇒ <code>[Collection](#Collection)</code>
   * [~not(select)](#Collection..not) ⇒ <code>collection</code>
   * [~traverse(keys, keys, nested)](#Collection..traverse) ⇒ <code>value</code>
-  * [~where(select)](#Collection..where) ⇒ <code>collection</code>
+  * [~where(select)](#Collection..where) ⇒ <code>[Collection](#Collection)</code>
   * [~contains(str)](#Collection..contains) ⇒ <code>function</code>
   * [~fuzzy(str)](#Collection..fuzzy) ⇒ <code>function</code>
   * [~max(num)](#Collection..max) ⇒ <code>function</code>
   * [~min(num)](#Collection..min) ⇒ <code>function</code>
   * [~within(min, max)](#Collection..within) ⇒ <code>function</code>
   * [~select(names, names, names)](#Collection..select) ⇒ <code>array</code>
-  * [~reverse(silent)](#Collection..reverse)
-  * [~sort(attribute, callback, silent)](#Collection..sort)
+  * [~reverse(silent)](#Collection..reverse) ⇒ <code>[Collection](#Collection)</code>
+  * [~sort(attribute, callback, silent)](#Collection..sort) ⇒ <code>[Collection](#Collection)</code>
   * [~page(page_size, page)](#Collection..page) ⇒ <code>object</code>
   * [~get(attribute, value)](#Collection..get) ⇒ <code>object</code>
-  * [~add(models, silent)](#Collection..add)  
+  * [~add(models, silent)](#Collection..add) ⇒ <code>[Collection](#Collection)</code>
   * [~on(event_name, func)](#Collection..on) ⇒ <code>function</code>
   * [~off(event_name, func)](#Collection..off)
   * [~fire(event_name, data)](#Collection..fire)
-  * [~uuid()](#Collection..uuid)
+  * [~uuid()](#Collection..uuid) ⇒ <code>string</code>
 
 <a name="Collection.join"></a>
-### Collection.join(collections, relations, where)
+### Collection.join(collections, relations, where) ⇒ <code>object</code>
 Join and trim Collections according to relations and where clause
 passed.
 Relation should be read as only keep the models in the second collection
 connected to the first.
 
+**Returns**: <code>object</code> - an associative array of filtered Collections  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -79,19 +80,27 @@ connected to the first.
 | where | <code>object</code> | Filtering clause |
 
 <a name="Collection..getPKString"></a>
-### Collection~getPKString() ⇒ <code>string</code>
+### Collection~getPKString(model) ⇒ <code>string</code>
 Returns the primary key value of a model as a string
 
 **Returns**: <code>string</code> - value of the PK  
-**params**: {object} model Model from which to extract the PK  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| model | <code>object</code> | Model from which to extract the PK |
+
 <a name="Collection..getPKValues"></a>
-### Collection~getPKValues() ⇒ <code>array</code> \| <code>value</code>
+### Collection~getPKValues(model) ⇒ <code>array</code> \| <code>value</code>
 Returns the primary keys values as an array of values
 
 **Returns**: <code>array</code> - an array of values if composed primary key.<code>value</code> - value of the PK if not composed PK.  
-**params**: {object} model - Model from which to extract the PK values  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| model | <code>object</code> | Model from which to extract the PK values |
+
 <a name="Collection..makeIndexStr"></a>
-### Collection~makeIndexStr() ⇒ <code>string</code>
+### Collection~makeIndexStr(values, values) ⇒ <code>string</code>
 makeIndexStr returns the pass value if the collection primary key is not
 composed. Otherwise, it will return a single string, composed of the array
 of strings passed to it separated by a 0x31 char code delimiter.
@@ -99,8 +108,12 @@ This method is used to build the strings primary key value when added to
 the collection and retrieved through `collection.get(primary_key_value)`
 
 **Returns**: <code>string</code> - representation of a model primary key  
-**params**: {array} values - an array of values used to build the PK  
-**params**: {string} values - Value used to build the PK  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| values | <code>array</code> | an array of values used to build the PK |
+| values | <code>string</code> | Value used to build the PK |
+
 **Example**  
 ```js
 makeIndexStr([1, 'doe', 'john']);
@@ -166,13 +179,13 @@ function callback(model, position){
 var first_three = collection.each(callback);
 ```
 <a name="Collection..filter"></a>
-### Collection~filter(func) ⇒ <code>collection</code>
+### Collection~filter(func) ⇒ <code>[Collection](#Collection)</code>
 Returns model for which the argument function returns true.
 filter accepts a function to filter it's content. The function
 receives 3 arguments: the current model, the collection's models,
 and the position within the current iteration.
 
-**Returns**: <code>collection</code> - Returns a new filtered collection  
+**Returns**: <code>[Collection](#Collection)</code> - Returns a new filtered collection  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -187,11 +200,11 @@ function callback(model, models, position){
 var models = collection.filter(callback);
 ```
 <a name="Collection..keep"></a>
-### Collection~keep(attribute, value, silent) ⇒ <code>collection</code>
+### Collection~keep(attribute, value, silent) ⇒ <code>[Collection](#Collection)</code>
 The opposite of remove, the collection will remove any object
 not matching the query and only keep the one matching the query.
 
-**Returns**: <code>collection</code> - the current collection for chaining  
+**Returns**: <code>[Collection](#Collection)</code> - the current collection for chaining  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;remove&#x27;</code>  
 
 | Param | Type | Description |
@@ -205,7 +218,7 @@ not matching the query and only keep the one matching the query.
 Equal function compairing arrays and values only
 
 <a name="Collection..remove"></a>
-### Collection~remove(attribute, value, silent, not) ⇒ <code>collection</code>
+### Collection~remove(attribute, value, silent, not) ⇒ <code>[Collection](#Collection)</code>
 Remove all the objects with a matching attribute.
 If only one argument is passed the argument will
 be used to match against every object primary key.
@@ -217,7 +230,7 @@ A function can also be used in conjunction with an
 attribute name. In this case, the function will
 receive the model's attribute value as an argument.
 
-**Returns**: <code>collection</code> - the current collection for chaining  
+**Returns**: <code>[Collection](#Collection)</code> - the current collection for chaining  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;remove&#x27;</code>  
 
 | Param | Type | Description |
@@ -239,6 +252,10 @@ collection.remove([1,3,5]);
 collection.remove('first_name', ['john', 'steve']);
 // remove all the object with an age within 21 and 35
 collection.remove('age', collection.within(21, 35));
+// remove the model passsed
+collection.remove(john);
+// remove the models passsed
+collection.remove([tim, fred]);
 ```
 <a name="Collection..not"></a>
 ### Collection~not(select) ⇒ <code>collection</code>
@@ -283,10 +300,10 @@ traverse(model, ['b', 'x'])
 // returns 1
 ```
 <a name="Collection..where"></a>
-### Collection~where(select) ⇒ <code>collection</code>
+### Collection~where(select) ⇒ <code>[Collection](#Collection)</code>
 return a new collection of matching models
 
-**Returns**: <code>collection</code> - the current collection for chaining  
+**Returns**: <code>[Collection](#Collection)</code> - the current collection for chaining  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -400,9 +417,10 @@ collection.select({id:'id', name: 'first_name'});
 // returns [{id: 1, first_name: 'Joe'}, {id: 2, first_name: 'Fred'}...]
 ```
 <a name="Collection..reverse"></a>
-### Collection~reverse(silent)
+### Collection~reverse(silent) ⇒ <code>[Collection](#Collection)</code>
 Reverse the order of the current collection
 
+**Returns**: <code>[Collection](#Collection)</code> - the current collection reversed  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;sort&#x27;</code>  
 
 | Param | Type | Description |
@@ -419,11 +437,12 @@ collection.models
 // [b, a]
 ```
 <a name="Collection..sort"></a>
-### Collection~sort(attribute, callback, silent)
+### Collection~sort(attribute, callback, silent) ⇒ <code>[Collection](#Collection)</code>
 Returns a sorted the collection sorted according to a given
 attribute. if a callback is passed, the return value of this
 callback will be used for sorting
 
+**Returns**: <code>[Collection](#Collection)</code> - the current collection sorted  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;sort&#x27;</code>  
 
 | Param | Type | Description |
@@ -483,12 +502,12 @@ var model = collection.get(1);
 var user = collection.get('email', 'john.doe@gmail.com')
 ```
 <a name="Collection..add"></a>
-### Collection~add(models, silent)  
+### Collection~add(models, silent) ⇒ <code>[Collection](#Collection)</code>
 Add a models or an array of models to the collection.
 Adding will replace existing model with the same
 primary key value.
 
-**Returns**: the current collection for chaining  
+**Returns**: <code>[Collection](#Collection)</code> - the current collection for chaining  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;add&#x27;</code>  
 
 | Param | Type | Description |
@@ -529,9 +548,10 @@ Fire an event
 | data | <code>object</code> | Data to be passed to the listener. |
 
 <a name="Collection..uuid"></a>
-### Collection~uuid()
+### Collection~uuid() ⇒ <code>string</code>
 utility method that returns a valid uuid
 
+**Returns**: <code>string</code> - a valid UUID string  
 <a name="CollectionView"></a>
 ## CollectionView(collection, where)
 CollectionView allows you to have collection depending on a where

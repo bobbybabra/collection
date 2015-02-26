@@ -158,7 +158,7 @@ the matching element, removing the non matching ones.
 
 ### Collection.remove
 
-`Collection.remove()` takes either the primary key to be removed
+`Collection.remove()` takes either the primary key to be removed,
 
 ```javascript
 var my_collection = new Collection();
@@ -168,12 +168,18 @@ my_collection.add({id: 1, name: 'first'}, {id: 2, name: 'second'}]);
 my_collection.remove(1);
 ```
 
-...the attribute and the value to be removed
+...the attribute and the value to be removed,
 
 ```javascript
-
 // remove object with name equal to 'second'
 my_collection.remove('name', 'second');
+```
+...the model (or models) be removed,
+
+```javascript
+// remove models from the collection
+my_collection.remove(fred);
+my_collection.remove([tom, john]);
 ```
 
 or a callback, not unlike filter.
