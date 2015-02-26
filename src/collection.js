@@ -462,6 +462,52 @@ function Collection(_models, primary_key) {
 
     return model;
   }
+  /**
+   * Return the model if it matches the selection
+   * @param {object} model The model the filter against
+   * @param {object} select The selection constraint hash array
+   * @param {boolean} not Indicate that the selection is a NOT (inversed)
+   * @returns {object} return model or undefined if not a match
+   */
+  function modelWhereMatch(model, select, not){
+    // match is our marker and reset to true for every model
+    // We expect more often a mismatch than a match, so
+    // we look for a mismatch and break a soon as one is
+    // detected
+    match = true;
+
+    for (var key in select) {
+      // If the predicat is a function we'll run it
+      // against the current attribute value.
+      if (typeof select[key] === 'function') {
+        if (!select[key](traverse(model, key))){
+          match = false;
+          break;
+        }
+      }
+
+      // If the selection is an array of value,
+      // we'll try to match this value against the array
+      else if (Array.isArray(select[key])) {
+        if(select[key].indexOf(traverse(model, key)) === -1){
+          match = false;
+          break;
+        }
+      }
+
+      // otherwise we expect a straight comparaison between
+      // value and model's attribute
+      else {
+        if (select[key] !== traverse(model, key)){
+          match = false;
+          break;
+        }
+      }
+    }
+
+    // add the model if was a match
+    if((!match && not) || (match && !not)) return model;
+  }
 
   /**
    * return a new collection of matching models
@@ -480,47 +526,45 @@ function Collection(_models, primary_key) {
     var match, r;
 
     r = each(function (model) {
-      // match is our marker and reset to true for every model
-      // We expect more often a mismatch than a match, so
-      // we look for a mismatch and break a soon as one is
-      // detected
-      match = true;
-
-      for (var key in select) {
-        // If the predicat is a function we'll run it
-        // against the current attribute value.
-        if (typeof select[key] === 'function') {
-          if (!select[key](traverse(model, key))){
-            match = false;
-            break;
-          }
-        }
-
-        // If the selection is an array of value,
-        // we'll try to match this value against the array
-        else if (Array.isArray(select[key])) {
-          if(select[key].indexOf(traverse(model, key)) === -1){
-            match = false;
-            break;
-          }
-        }
-
-        // otherwise we expect a straight comparaison between
-        // value and model's attribute
-        else {
-          if (select[key] !== traverse(model, key)){
-            match = false;
-            break;
-          }
-        }
-      }
-
-      // add the model if was a match
-      if((!match && not) || (match && !not)) return model;
+      return modelWhereMatch(model, select, not);
     });
 
     return new Collection(r, primary_key);
   }
+
+  /**
+   * Returns a generator scrolling through the collection
+   * @example
+   * ```js
+   * generator = collection.generator({name: 'john'})
+   * var model;
+   * var counter = 0;
+   * while(model = generator.next() && counter < 20){
+   *   counter++;
+   *   model.name;
+   * }
+   * generator.reset() // set the cursor back to the begining of the collection
+   * ```
+   */
+  function generator(select, not){
+    var cursor = 0;
+    return {
+      reset: function(){
+        cursor = 0;
+      },
+      next: function(){
+        for(;cursor < models.length; cursor++){
+          if(modelWhereMatch(models[cursors], select, not){
+            return models[cursors];
+          }
+        }
+      }
+    }
+
+  }
+
+  collection = collection.where({name: 'john'});
+
 
   /**
    * Where filter to string match value.
