@@ -558,7 +558,7 @@ function Collection(_models, primary_key) {
       },
       next: function(){
         for(;cursor < models.length; cursor++){
-          if(modelWhereMatch(models[cursors], select, not){
+          if(modelWhereMatch(models[cursors], select, not)){
             return models[cursors];
           }
         }
@@ -566,9 +566,6 @@ function Collection(_models, primary_key) {
     }
 
   }
-
-  collection = collection.where({name: 'john'});
-
 
   /**
    * Where filter to string match value.
