@@ -537,14 +537,17 @@ function Collection(_models, primary_key) {
   /**
    * Similar to where but returns a generator.
    * gWhere allow a more gentle filtering of the collection as it
-   * only returns result one by one
+   * only returns results one by one
    * @param {object} select - Similar to where
    * @returns {generator}
    * @example
    * ```js
-   * var does = collection.gNot({last_name: 'doe'});
+   * var people = new Collection([john, fred, tim]);
+   * var does = people.gNot({last_name: 'doe'});
    * the_does.next();
    * // returns the first matching person which last name is not "doe"
+   * the_does.next();
+   * // returns the second matching person which last name is not "doe"
    * // ...
    * the_does.next();
    * // returns undefined now, as there is no more matching record to be find
@@ -556,13 +559,14 @@ function Collection(_models, primary_key) {
 
   /**
    * Similar to where but returns a generator.
-   * gWhere allow a more gentle filtering of the collection as it
-   * only returns result one by one
+   * gNot allow a more gentle filtering of the collection as it
+   * only returns results one by one
    * @param {object} select - Similar to where
    * @returns {generator} a generator
    * @example
    * ```js
-   * var does = collection.gWhere({last_name: 'doe'});
+   * var people = new Collection([john, fred, tim]);
+   * var does = people.gWhere({last_name: 'doe'});
    * the_does.next();
    * // returns the first matching person which last name is "doe"
    * // ...

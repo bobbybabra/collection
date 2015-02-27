@@ -337,7 +337,7 @@ collection.where({
 ### Collection~gWhere(select) ⇒ <code>generator</code>
 Similar to where but returns a generator.
 gWhere allow a more gentle filtering of the collection as it
-only returns result one by one
+only returns results one by one
 
 
 | Param | Type | Description |
@@ -346,9 +346,12 @@ only returns result one by one
 
 **Example**  
 ```js
-var does = collection.gNot({last_name: 'doe'});
+var people = new Collection([john, fred, tim]);
+var does = people.gNot({last_name: 'doe'});
 the_does.next();
 // returns the first matching person which last name is not "doe"
+the_does.next();
+// returns the second matching person which last name is not "doe"
 // ...
 the_does.next();
 // returns undefined now, as there is no more matching record to be find
@@ -356,8 +359,8 @@ the_does.next();
 <a name="Collection..gNot"></a>
 ### Collection~gNot(select) ⇒ <code>generator</code>
 Similar to where but returns a generator.
-gWhere allow a more gentle filtering of the collection as it
-only returns result one by one
+gNot allow a more gentle filtering of the collection as it
+only returns results one by one
 
 **Returns**: <code>generator</code> - a generator  
 
@@ -367,7 +370,8 @@ only returns result one by one
 
 **Example**  
 ```js
-var does = collection.gWhere({last_name: 'doe'});
+var people = new Collection([john, fred, tim]);
+var does = people.gWhere({last_name: 'doe'});
 the_does.next();
 // returns the first matching person which last name is "doe"
 // ...
