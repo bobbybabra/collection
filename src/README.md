@@ -350,7 +350,8 @@ var people = new Collection([john, fred, tim]);
 var does = people.gNot({last_name: 'doe'});
 the_does.next();
 // returns the first matching person which last name is not "doe"
-the_does.next();
+if(the_does.hasNext())
+  the_does.next();
 // returns the second matching person which last name is not "doe"
 // ...
 the_does.next();

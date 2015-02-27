@@ -362,8 +362,14 @@ QUnit.test("gWhere should return result on every next() call", function( assert 
   assert.deepEqual(the_does.next(), fred,
     "Should return first matching record (fred)");
 
+  assert.equal(the_does.hasNext(), true,
+    "hasNext should return true when there is more result to yield");
+
   assert.deepEqual(the_does.next(), tim,
     "Should return following matching record (tim)");
+
+  assert.equal(the_does.hasNext(), false,
+    "hasNext should return false when there is no more result to yield");
 
   assert.deepEqual(the_does.next(), undefined,
     "Should return undefined once there is no more result to be found");
@@ -374,8 +380,14 @@ QUnit.test("gNot should return result on every next() call", function( assert ) 
 
   var the_does = collection.gNot({last_name: 'doe'});
 
+  assert.equal(the_does.hasNext(), true,
+    "hasNext should return true when there is more result to yield");
+
   assert.deepEqual(the_does.next(), john,
     "Should return first matching record (fred)");
+
+  assert.equal(the_does.hasNext(), false,
+    "hasNext should return false when there is no more result to yield");
 
   assert.deepEqual(the_does.next(), undefined,
     "Should return undefined once there is no more result to be found");

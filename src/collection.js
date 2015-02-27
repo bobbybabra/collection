@@ -546,7 +546,8 @@ function Collection(_models, primary_key) {
    * var does = people.gNot({last_name: 'doe'});
    * the_does.next();
    * // returns the first matching person which last name is not "doe"
-   * the_does.next();
+   * if(the_does.hasNext())
+   *   the_does.next();
    * // returns the second matching person which last name is not "doe"
    * // ...
    * the_does.next();
@@ -622,15 +623,12 @@ function Collection(_models, primary_key) {
     }
 
     function hasNext() {
-      // store the current cursor position as the search for the next element
-      // will increase it
-      var current_position = cursor;
-
       // if a call to next returns something else than undefined there is
       // more record to explore
       if(next() !== undefined){
-        // restore the cursor position
-        cursor = current_position;
+        // just move the cursor down 1 position, so following call to next will
+        // start at the position of the next match.
+        cursor--;
         return true;
       }
       return false;
