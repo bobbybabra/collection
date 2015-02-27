@@ -611,24 +611,46 @@ function Collection(_models, primary_key) {
     // cursor var is store out of scope so it keeps it's value accross the
     // next() calls
     var cursor = 0, that = this;
-    return {
-      // reset sets back the cursor to the begining of the collection
-      reset: function(){
-        cursor = 0;
-      },
-      next: function(){
-        var result, model;
-        // As long as we haven't reach the end of the collection
-        while(model = models[cursor++]){
-          // Call the callback with the model as first argument
-          // followed by any initial arguments passed to the generator.
-          result = callback.apply(that, [model].concat(args));
-          // only return result if they are different than undefined
-          if(result !== undefined){
-            return result;
-          }
+
+    // reset sets back the cursor to the begining of the collection
+    function reset (){
+      cursor = 0;
+    }
+
+    function hasNext() {
+      // store the current cursor position as the search for the next element
+      // will increase it
+      var current_position = cursor;
+
+      // if a call to next returns something else than undefined there is
+      // more record to explore
+      if(next() !== undefined){
+        // restore the cursor position
+        cursor = current_position;
+        return true;
+      }
+      return false;
+    }
+
+    // find and return the next match call
+    function next (){
+      var result, model;
+      // As long as we haven't reach the end of the collection
+      while(model = models[cursor++]){
+        // Call the callback with the model as first argument
+        // followed by any initial arguments passed to the generator.
+        result = callback.apply(that, [model].concat(args));
+        // only return result if they are different than undefined
+        if(result !== undefined){
+          return result;
         }
       }
+    }
+
+    return {
+      'reset': reset,
+      'next': next,
+      'hasNext': hasNext
     };
   }
 
