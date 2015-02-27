@@ -353,6 +353,34 @@ QUnit.test("Should paginate accross records", function( assert ) {
       "Should indicate if there is no previous page");
 });
 
+QUnit.module("Collection generator");
+QUnit.test("gWhere should return result on every next() call", function( assert ) {
+  var collection = new Collection([john, fred, tim]);
+
+  var the_does = collection.gWhere({last_name: 'doe'});
+
+  assert.deepEqual(the_does.next(), fred,
+    "Should return first matching record (fred)");
+
+  assert.deepEqual(the_does.next(), tim,
+    "Should return following matching record (tim)");
+
+  assert.deepEqual(the_does.next(), undefined,
+    "Should return undefined once there is no more result to be found");
+});
+
+QUnit.test("gNot should return result on every next() call", function( assert ) {
+  var collection = new Collection([john, fred, tim]);
+
+  var the_does = collection.gNot({last_name: 'doe'});
+
+  assert.deepEqual(the_does.next(), john,
+    "Should return first matching record (fred)");
+
+  assert.deepEqual(the_does.next(), undefined,
+    "Should return undefined once there is no more result to be found");
+});
+
 QUnit.module("Collection not");
 QUnit.test("Should return a collection not matching the predicats", function( assert ) {
     var collection = new Collection([john, fred, tim]);

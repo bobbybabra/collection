@@ -462,6 +462,7 @@ function Collection(_models, primary_key) {
 
     return model;
   }
+
   /**
    * Return the model if it matches the selection
    * @param {object} model - The model the filter against
@@ -470,17 +471,19 @@ function Collection(_models, primary_key) {
    * @returns {object} return model or undefined if not a match
    */
   function modelWhereMatch(model, select, not){
-    // match is our marker and reset to true for every model
-    // We expect more often a mismatch than a match, so
+    // match is our marker, it starts as a match unless proven
+    // wrong. We expect more often a mismatch than a match, so
     // we look for a mismatch and break a soon as one is
     // detected
-    match = true;
+    var key, value, match = true;
 
-    for (var key in select) {
+    for (key in select) {
+      value = traverse(model, key);
+
       // If the predicat is a function we'll run it
       // against the current attribute value.
       if (typeof select[key] === 'function') {
-        if (!select[key](traverse(model, key))){
+        if (!select[key](value)){
           match = false;
           break;
         }
@@ -489,7 +492,7 @@ function Collection(_models, primary_key) {
       // If the selection is an array of value,
       // we'll try to match this value against the array
       else if (Array.isArray(select[key])) {
-        if(select[key].indexOf(traverse(model, key)) === -1){
+        if(select[key].indexOf(value) === -1){
           match = false;
           break;
         }
@@ -498,14 +501,15 @@ function Collection(_models, primary_key) {
       // otherwise we expect a straight comparaison between
       // value and model's attribute
       else {
-        if (select[key] !== traverse(model, key)){
+        if (select[key] !== value){
           match = false;
           break;
         }
       }
     }
 
-    // add the model if was a match
+    // add the model if was a match. If not was provided,
+    // we return the model if it's a mismatch.
     if((!match && not) || (match && !not)) return model;
   }
 
@@ -523,9 +527,7 @@ function Collection(_models, primary_key) {
    * ```
    */
   function where(select, not) {
-    var match, r;
-
-    r = each(function (model) {
+    var r = each(function (model) {
       return modelWhereMatch(model, select, not);
     });
 
@@ -533,38 +535,96 @@ function Collection(_models, primary_key) {
   }
 
   /**
-   * Returns a generator scrolling through the collection
-   * @param {object} select - The selection predicates
-   * @param {boolean} not - Indicate that the selection is a NOT (inversed)
+   * Similar to where but returns a generator.
+   * gWhere allow a more gentle filtering of the collection as it
+   * only returns result one by one
+   * @param {object} select - Similar to where
+   * @returns {generator}
+   * @example
+   * ```js
+   * var does = collection.gNot({last_name: 'doe'});
+   * the_does.next();
+   * // returns the first matching person which last name is not "doe"
+   * ...
+   * the_does.next();
+   * // returns undefined now, as there is no more matching record to be find
+   * ```
+   */
+  function gWhere(select){
+    return generator(modelWhereMatch, [select]);
+  }
+
+  /**
+   * Similar to where but returns a generator.
+   * gWhere allow a more gentle filtering of the collection as it
+   * only returns result one by one
+   * @param {object} select - Similar to where
+   * @returns {generator} a generator
+   * @example
+   * ```js
+   * var does = collection.gWhere({last_name: 'doe'});
+   * the_does.next();
+   * // returns the first matching person which last name is "doe"
+   * ...
+   * the_does.next();
+   * // returns undefined now, as there is no more matching record to be find
+   * ```
+   */
+  function gNot(select){
+    return generator(modelWhereMatch, [select, true]);
+  }
+
+  /**
+   * Returns a generator scrolling through the collection one by one.
+   * The generator stops and returns the callbacks returns value when it is
+   * different than undefined.
+   *
+   * The callback should accept the model as its first argument. It will
+   * receive the array of arguments as additional ones.
+   *
+   * Generator is used for gNot and gWhere
+   * @param {function} select - The selection predicates
+   * @param {array} args - optional arguments to be passed to the callback
    * @return {generator} `generator.next()` to retrieve the next model mathing
    * the select predicates.
    * @example
    * ```js
-   * generator = collection.generator({name: 'john'})
-   * var model;
-   * var counter = 0;
+   * function maxAge(model, max){ if(model.demo.age < max) return model; }
+   * var generator = collection.generator(maxAge, [30])
+   * var model, counter = 0;
+   * // display up to the first 20 records of people under 30 years old
    * while(model = generator.next() && counter < 20){
    *   counter++;
-   *   model.name;
+   *   console.log(counter + '. ' + model.name);
    * }
-   * generator.reset() // set the cursor back to the begining of the collection
+   *
+   * // This would set the cursor back to the begining of the collection
+   * generator.reset()
    * ```
    */
-  function generator(select, not){
-    var cursor = 0;
+  function generator(callback, args){
+    // cursor var is store out of scope so it keeps it's value accross the
+    // next() calls
+    var cursor = 0, that = this;
     return {
+      // reset sets back the cursor to the begining of the collection
       reset: function(){
         cursor = 0;
       },
       next: function(){
-        for(;cursor < models.length; cursor++){
-          if(modelWhereMatch(models[cursors], select, not)){
-            return models[cursors];
+        var result, model;
+        // As long as we haven't reach the end of the collection
+        while(model = models[cursor++]){
+          // Call the callback with the model as first argument
+          // followed by any initial arguments passed to the generator.
+          result = callback.apply(that, [model].concat(args));
+          // only return result if they are different than undefined
+          if(result !== undefined){
+            return result;
           }
         }
       }
-    }
-
+    };
   }
 
   /**
@@ -593,8 +653,8 @@ function Collection(_models, primary_key) {
    * ```
    */
   function fuzzy(str){
-    var predicats = str.split(' ');
-    var regexp = new RegExp(predicats.join('[^\\s]*\\s.*'), 'i');
+    var predicates = str.split(' ');
+    var regexp = new RegExp(predicates.join('[^\\s]*\\s.*'), 'i');
     return function(value){
       return regexp.test(value);
     };
@@ -965,6 +1025,9 @@ function Collection(_models, primary_key) {
     'filter': filter,
     'each': each,
     'where': where,
+    'generator': generator,
+    'gWhere': gWhere,
+    'gNot': gNot,
     'keep': keep,
     'page': page,
     'not': not,
