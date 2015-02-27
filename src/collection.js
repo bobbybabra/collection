@@ -545,7 +545,7 @@ function Collection(_models, primary_key) {
    * var does = collection.gNot({last_name: 'doe'});
    * the_does.next();
    * // returns the first matching person which last name is not "doe"
-   * ...
+   * // ...
    * the_does.next();
    * // returns undefined now, as there is no more matching record to be find
    * ```
@@ -565,7 +565,7 @@ function Collection(_models, primary_key) {
    * var does = collection.gWhere({last_name: 'doe'});
    * the_does.next();
    * // returns the first matching person which last name is "doe"
-   * ...
+   * // ...
    * the_does.next();
    * // returns undefined now, as there is no more matching record to be find
    * ```
@@ -577,21 +577,26 @@ function Collection(_models, primary_key) {
   /**
    * Returns a generator scrolling through the collection one by one.
    * The generator stops and returns the callbacks returns value when it is
-   * different than undefined.
+   * different than `undefined`.
    *
    * The callback should accept the model as its first argument. It will
    * receive the array of arguments as additional ones.
    *
-   * Generator is used for gNot and gWhere
-   * @param {function} select - The selection predicates
+   * Generator is used for gNot and gWhere.
+   * @param {function} callback - The selection predicates
    * @param {array} args - optional arguments to be passed to the callback
-   * @return {generator} `generator.next()` to retrieve the next model mathing
-   * the select predicates.
+   * @return {generator} call `next()` of the returned object to retrieve
+   * the next value returned by the callback argument.
    * @example
    * ```js
-   * function maxAge(model, max){ if(model.demo.age < max) return model; }
-   * var generator = collection.generator(maxAge, [30])
+   * function maxAge(model, max){
+   *   if (model.demo.age < max)
+   *     return model;
+   * }
+   *
+   * var generator = collection.generator(maxAge, [30]);
    * var model, counter = 0;
+   *
    * // display up to the first 20 records of people under 30 years old
    * while(model = generator.next() && counter < 20){
    *   counter++;
@@ -599,7 +604,7 @@ function Collection(_models, primary_key) {
    * }
    *
    * // This would set the cursor back to the begining of the collection
-   * generator.reset()
+   * generator.reset();
    * ```
    */
   function generator(callback, args){

@@ -323,6 +323,72 @@ my_collection.not({id: is_odd});
 // returns new Collection([{id: 2, name: 'Joe'}])
 ```
 
+### Collection.gWhere and Collection.gNot
+
+Takes exactly the same argument as `where()` but returns a generator. Generator
+returns value each time their `next()` method is called until they run out of
+return value. Generator is useful for filtering when only a limited amount of
+result is necessary.
+
+For example, if you had to go through 100,000 results and you where paginating
+the result to only 50 items per page, you could call `next()` 50 times each time
+a new page is requested.
+
+```js
+
+function paginatedWhere(collection, select, item_per_page){
+  var page = 1, generator = collection.gWhere(select);
+  // default to 50 item per page unless specified otherwised
+  if (!item_per_page)
+    item_per_page = 50;
+
+  function next(){
+    var data = [];
+    while(model = generator.next() && data.length < item_per_page){
+      data.push model;
+    }
+    return data;
+  }
+
+  return next;
+}
+
+var large_record = new Collection(data);
+
+page = paginatedWhere(large_record, {demo.age: 21}, 20);
+
+page.next(); // returns the first 20 records
+page.next(); // returns the next 20 records
+// ...
+```
+
+### Collection.generator
+
+`gNot` and `gWhere` are both using `generator`, it accepts a callback that will
+receive the models of the collection iteratively. If the callback returns
+anything different than undefined, the generator will yield this value.
+
+```js
+function maxAge(model, max){
+  if (model.demo.age < max)
+    return model;
+}
+
+// passes [30] to the generator constructor so it will be transmitted to the
+// callback.
+var generator = collection.generator(maxAge, [30]);
+var model, counter = 0;
+
+// display up to the first 20 records of people under 30 years old
+while(model = generator.next() && counter < 20){
+  counter++;
+  console.log(counter + '. ' + model.name);
+}
+
+// This would set the cursor back to the begining of the collection
+generator.reset();
+```
+
 ### Where helpers
 
 Where comes with some helpers to make your life easier.
