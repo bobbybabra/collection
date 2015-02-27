@@ -323,6 +323,78 @@ my_collection.not({id: is_odd});
 // returns new Collection([{id: 2, name: 'Joe'}])
 ```
 
+### Collection.gWhere and Collection.gNot
+
+Takes exactly the same argument as `where()` but returns a generator. A generator
+returns a value each time its `next()` method is called until it runs out of
+values to return. Generator are useful for filtering when only a limited
+amount of result is necessary.
+
+For example, if you had to go through 100,000+ models and you where paginating
+the results to only 50 items per page, you could call `next()` 50 times each time
+a new page is requested.
+
+```js
+
+function paginatedWhere(collection, select, item_per_page){
+  var page = 1, generator = collection.gWhere(select);
+
+  // default to 50 item per page unless specified otherwise
+  if (!item_per_page)
+    item_per_page = 50;
+
+  function next(){
+    var data = [];
+
+    while(model = generator.next() && data.length < item_per_page){
+      data.push model;
+    }
+
+    return data;
+  }
+
+  return next;
+}
+
+var large_record = new Collection(data);
+
+page = paginatedWhere(large_record, {demo.age: 21}, 20);
+
+page.next(); // returns the first 20 records
+page.next(); // returns the next 20 records
+// ... and so on until the return value is an array with a length less than 20
+```
+
+### Collection.generator
+
+`gNot` and `gWhere` are both using `generator`, it accepts a callback that will
+receive the models of the collection iteratively. If the callback returns
+anything different than `undefined`, the generator will yield this value.
+
+```js
+function maxAge(model, max){
+  if (model.demo.age < max)
+    return model;
+}
+
+// passes [30] to the generator constructor so it will be transmitted to the
+// callback.
+var under30 = collection.generator(maxAge, [30]);
+var model, counter = 0;
+
+// display up to the first 20 records of people under 30 years old
+while(model = under30.next() && counter < 20){
+  counter++;
+  console.log(counter + '. ' + model.name);
+}
+
+under30.hasNext();
+// returns true if there is more records for which the generator returns a value
+
+// This would set the cursor back to the begining of the collection
+under30.reset();
+```
+
 ### Where helpers
 
 Where comes with some helpers to make your life easier.

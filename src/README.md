@@ -47,7 +47,11 @@ The only requirement for your models is to have a unique primary key.
   * [~remove(attribute, value, silent, not)](#Collection..remove) ⇒ <code>[Collection](#Collection)</code>
   * [~not(select)](#Collection..not) ⇒ <code>collection</code>
   * [~traverse(keys, keys, nested)](#Collection..traverse) ⇒ <code>value</code>
+  * [~modelWhereMatch(model, select, not)](#Collection..modelWhereMatch) ⇒ <code>object</code>
   * [~where(select)](#Collection..where) ⇒ <code>[Collection](#Collection)</code>
+  * [~gWhere(select)](#Collection..gWhere) ⇒ <code>generator</code>
+  * [~gNot(select)](#Collection..gNot) ⇒ <code>generator</code>
+  * [~generator(callback, args)](#Collection..generator) ⇒ <code>generator</code>
   * [~contains(str)](#Collection..contains) ⇒ <code>function</code>
   * [~fuzzy(str)](#Collection..fuzzy) ⇒ <code>function</code>
   * [~max(num)](#Collection..max) ⇒ <code>function</code>
@@ -299,6 +303,18 @@ traverse(model, 'b.x')
 traverse(model, ['b', 'x'])
 // returns 1
 ```
+<a name="Collection..modelWhereMatch"></a>
+### Collection~modelWhereMatch(model, select, not) ⇒ <code>object</code>
+Return the model if it matches the selection
+
+**Returns**: <code>object</code> - return model or undefined if not a match  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| model | <code>object</code> | The model the filter against |
+| select | <code>object</code> | The selection constraint hash array |
+| not | <code>boolean</code> | Indicate that the selection is a NOT (inversed) |
+
 <a name="Collection..where"></a>
 ### Collection~where(select) ⇒ <code>[Collection](#Collection)</code>
 return a new collection of matching models
@@ -316,6 +332,90 @@ collection.where({
     id: [1,2,3],
     name: Collection.contains('rob')
 });
+```
+<a name="Collection..gWhere"></a>
+### Collection~gWhere(select) ⇒ <code>generator</code>
+Similar to where but returns a generator.
+gWhere allow a more gentle filtering of the collection as it
+only returns results one by one
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| select | <code>object</code> | Similar to where |
+
+**Example**  
+```js
+var people = new Collection([john, fred, tim]);
+var does = people.gNot({last_name: 'doe'});
+the_does.next();
+// returns the first matching person which last name is not "doe"
+if(the_does.hasNext())
+  the_does.next();
+// returns the second matching person which last name is not "doe"
+// ...
+the_does.next();
+// returns undefined now, as there is no more matching record to be find
+```
+<a name="Collection..gNot"></a>
+### Collection~gNot(select) ⇒ <code>generator</code>
+Similar to where but returns a generator.
+gNot allow a more gentle filtering of the collection as it
+only returns results one by one
+
+**Returns**: <code>generator</code> - a generator  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| select | <code>object</code> | Similar to where |
+
+**Example**  
+```js
+var people = new Collection([john, fred, tim]);
+var does = people.gWhere({last_name: 'doe'});
+the_does.next();
+// returns the first matching person which last name is "doe"
+// ...
+the_does.next();
+// returns undefined now, as there is no more matching record to be find
+```
+<a name="Collection..generator"></a>
+### Collection~generator(callback, args) ⇒ <code>generator</code>
+Returns a generator scrolling through the collection one by one.
+The generator stops and returns the callbacks returns value when it is
+different than `undefined`.
+
+The callback should accept the model as its first argument. It will
+receive the array of arguments as additional ones.
+
+Generator is used for gNot and gWhere.
+
+**Returns**: <code>generator</code> - call `next()` of the returned object to retrieve
+the next value returned by the callback argument.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| callback | <code>function</code> | The selection predicates |
+| args | <code>array</code> | optional arguments to be passed to the callback |
+
+**Example**  
+```js
+function maxAge(model, max){
+  if (model.demo.age < max)
+    return model;
+}
+
+var generator = collection.generator(maxAge, [30]);
+var model, counter = 0;
+
+// display up to the first 20 records of people under 30 years old
+while(model = generator.next() && counter < 20){
+  counter++;
+  console.log(counter + '. ' + model.name);
+}
+
+// This would set the cursor back to the begining of the collection
+generator.reset();
 ```
 <a name="Collection..contains"></a>
 ### Collection~contains(str) ⇒ <code>function</code>
