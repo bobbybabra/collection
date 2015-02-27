@@ -327,11 +327,11 @@ my_collection.not({id: is_odd});
 
 Takes exactly the same argument as `where()` but returns a generator. A generator
 returns a value each time its `next()` method is called until it runs out of
-values to return.. Generator are useful for filtering when only a limited
+values to return. Generator are useful for filtering when only a limited
 amount of result is necessary.
 
-For example, if you had to go through 100,000 results and you where paginating
-the result to only 50 items per page, you could call `next()` 50 times each time
+For example, if you had to go through 100,000+ models and you where paginating
+the results to only 50 items per page, you could call `next()` 50 times each time
 a new page is requested.
 
 ```js
@@ -369,7 +369,7 @@ page.next(); // returns the next 20 records
 
 `gNot` and `gWhere` are both using `generator`, it accepts a callback that will
 receive the models of the collection iteratively. If the callback returns
-anything different than undefined, the generator will yield this value.
+anything different than `undefined`, the generator will yield this value.
 
 ```js
 function maxAge(model, max){
