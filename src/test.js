@@ -46,6 +46,18 @@ var tim = {
   job_id: engineer.id
 };
 
+var spock = {
+  id: 4,
+  first_name:'leonard',
+  last_name: 'nimoy',
+  xid: 'x3',
+  demo:{
+    age: 83,
+    gender: 'male'
+  },
+  job_id: engineer.id
+};
+
 // many to many relation user to addresses
 var address_join = [
   {user_id: john.id, address_id: 1},
@@ -87,11 +99,17 @@ QUnit.test("Initialize with models", function( assert ) {
 
 QUnit.module("Collection add");
 QUnit.test("Should add a new model", function( assert ) {
-    var collection = new Collection([john, fred]);
+    var collection = new Collection();
     collection.add(tim);
 
-    assert.equal(collection.models[2], tim,
-      "The collection should have newly.");
+    assert.deepEqual(collection.models, [tim],
+      "The collection should contain newly added model.");
+    assert.equal(collection.models.length, 1,
+      "The collection should count a total of 1 models.");
+
+    collection.add([john, fred]);
+    assert.deepEqual(collection.models, [tim, john, fred],
+      "The collection should contain added array of model.");
 
     assert.equal(collection.models.length, 3,
       "The collection should count a total of 3 models.");
@@ -99,14 +117,14 @@ QUnit.test("Should add a new model", function( assert ) {
 
 QUnit.test("Should overwrite a conflicting primary key", function( assert ) {
     var ted = {id: 2, first_name: 'ted', last_name: 'kirk', xid: 'x2'};
-    var collection = new Collection([john, fred]);
+    var collection = new Collection([fred, john]);
     collection.add(ted);
 
     assert.equal(collection.models.length, 2,
       "Models length should not have changed when replace.");
 
-    assert.equal(collection.models[1], ted,
-      "Replacing object should take place of replaced object.");
+    assert.deepEqual(collection.models, [john, ted],
+      "Replacing object should be appended to the collection.");
 });
 
 QUnit.module("Collection keep");
@@ -122,6 +140,118 @@ QUnit.test("Should keep a model", function( assert ) {
     collection.keep(fred.id);
     assert.equal(collection.models.length, 1,
       "The collection should keep objects matching the primary key.");
+});
+
+QUnit.module("Collection pop");
+QUnit.test("Should return the last model", function( assert ) {
+  var collection = new Collection([john, tim]);
+  var model, removed = false;
+
+  collection.on('remove', function(){
+    removed = true;
+  })
+
+  model = collection.pop();
+  assert.deepEqual(model, tim,
+    "Should return the last model of the collection");
+  assert.equal(collection.size(), 1,
+    "Should remove the item from the collection");
+  assert.equal(removed, true,
+    "pop should trigger a remove event");
+
+  removed = false;
+  model = collection.pop();
+  assert.deepEqual(model, john,
+    "Should return the last model of the collection");
+  assert.equal(collection.size(), 0,
+    "Should remove the item from the collection");
+  assert.equal(removed, true,
+    "pop should trigger a remove event");
+
+  removed = false;
+  assert.equal(collection.pop(), undefined,
+    "Should return undefined when the collection is empty");
+  assert.equal(removed, false,
+    "pop on an empty collection should not trigger a remove event");
+});
+
+QUnit.module("Collection insert");
+QUnit.test("Should insert model at the position", function( assert ) {
+  var collection = new Collection([john]);
+  var added = false;
+
+  collection.on('add', function(){
+    added = true;
+  });
+
+  collection.insert(fred);
+  assert.deepEqual(collection.models, [fred, john],
+    "Should insert with no argument should act like an unshift");
+  assert.equal(added, true,
+    "added at position 0 should trigger an add event");
+
+  added = false;
+  collection.insert(tim, 1);
+  assert.deepEqual(collection.models, [fred, tim, john],
+    "Should insert the model at the requested position in the collection");
+  assert.equal(added, true,
+    "added Should trigger an add event");
+
+  collection = collection.reset([fred, john]);
+  added = false;
+  collection.insert([tim, spock], 1);
+  assert.deepEqual(collection.models, [fred, tim, spock, john],
+    "Should insert an array of models at the requested position in the collection");
+  assert.equal(added, true,
+    "added Should trigger an add event");
+
+  collection = collection.reset([fred, john, spock]);
+  added = false;
+  collection.insert([tim, fred, john], 1);
+  assert.deepEqual(collection.models, [tim, fred, john, spock],
+    "Should insert an array of models at the requested position in the collection");
+  assert.equal(added, true,
+    "added Should trigger an add event");
+
+});
+
+QUnit.module("Collection reset");
+QUnit.test("Should reset the collection", function( assert ) {
+  var collection = new Collection([john, tim]);
+  var added = false, removed = false, changed = false;
+
+  collection.on('change', function(){
+    changed = true;
+  });
+
+  collection.on('add', function(){
+    added = true;
+  });
+
+  collection.on('remove', function(){
+    removed = true;
+  });
+
+  collection.reset([tim, spock]);
+  assert.deepEqual(collection.models, [tim, spock],
+    "Should reset the collection with the models passed to it");
+  assert.equal(removed, true,
+    "Reset should trigger remove when collection contained elements");
+  assert.equal(added, true,
+    "Reset should trigger add when collection contained elements");
+  assert.equal(changed, true,
+    "Reset should trigger change when collection contained elements");
+
+  added = removed = changed = false;
+  collection.reset(tim);
+  assert.deepEqual(collection.models, [tim],
+    "Should reset the collection with a model passed to it");
+  assert.equal(removed, true,
+    "Reset should trigger remove when collection contained elements");
+  assert.equal(added, true,
+    "Reset should trigger add when collection contained elements");
+  assert.equal(changed, true,
+    "Reset should trigger change when collection contained elements");
 });
 
 QUnit.module("Collection remove");

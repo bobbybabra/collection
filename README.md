@@ -4,7 +4,7 @@ Handles collection for your stores and other things. It's not opiniated, not doi
 
 [Read the API!](src/README.md)
 
-4.7kb, no dependencies, to do cool things like:
+5.5kb, no dependencies, to do cool things like:
 
 ```javascript
 function is_odd(value) {
@@ -235,6 +235,66 @@ or the attribute and the value to match across the collection.
 ```javascript
 my_collection.get('name', 'second');
 // returns {id: 2, name: 'second'}
+```
+
+### Collection.pop
+
+Returns the last item in the collection and remove it from the collection.
+
+```javascript
+var first = {id: 1, name: 'first'};
+var second = {id: 2, name: 'second'};
+
+var my_collection = new Collection([first, second]);
+
+my_collection.pop();
+// returns second
+
+my_collection.size() === 1
+// true
+
+my_collection.pop();
+// returns first
+
+my_collection.pop() === undefined;
+// true
+```
+
+### Collection.insert
+
+`Collection.insert([models], position)` inserts item at the requested position.
+As add does, it will also replace conflicting primary key.
+
+```javascript
+var my_collection = new Collection({id: 1, name: 'first'});
+my_collection.insert({id: 2, name: 'second'});
+
+// returns 'second' as the call of insert without a position insert at the
+// beginning of the collection (like an unshift)
+my_collection.models[0].name;
+
+// insert with same id will replace existing element
+my_collection.insert([{id: 1, name: 'new first'}]);
+
+// returns 'new first'
+my_collection.get(1).name;
+```
+
+### Collection.reset
+
+Allow you to reset a collection content with a new content. Calling reset with
+no argument is equivalent to a call to `empty()`
+
+```javascript
+var my_collection = new Collection({id: 1, name: 'first'});
+my_collection.reset({id: 2, name: 'second'});
+
+my_collection.size() === 1
+// true
+
+my_collection.get(1) === undefined
+// true
+
 ```
 
 ### Collection.where

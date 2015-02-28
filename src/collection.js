@@ -163,6 +163,43 @@ function Collection(_models, primary_key) {
   }
 
   /**
+   * Reset the collection with the models passed to it
+   * @param {object|array} _models - a model or an array of models
+   * @param {boolean} silent - Default to false, prevent events
+   * @returns {Collection} Returns the same collection instance but with an
+   * updated for content for additional chaining
+   * @fires 'change'
+   * @fires 'remove'
+   * @fires 'add'
+   * @example
+   * ```js
+   * collection.reset([tim, fred]);
+   * ```
+   */
+  function reset(_models, silent) {
+    empty(silent);
+    add(_models);
+    return this;
+  }
+
+  /**
+   * Remove the last object of the collection and returns it.
+   * @param {object} model - Model to be inserted
+   * @param {number} position - Position to insert the model at
+   * if larger than the collection's size object will be added at the end
+   * @returns {model} the last model of the collection or undefined if the
+   * collection is empty
+   */
+  function pop(){
+    if (isEmpty()){
+      return
+    }
+    var model = models[size() - 1];
+    remove(model);
+    return model;
+  }
+
+  /**
    * Returns an array with the returned values of the callback
    * iteration stops if the callback returns `false`.
    * @param {function} callback Function to be called on every model
@@ -946,16 +983,25 @@ function Collection(_models, primary_key) {
   }
 
   /**
-   * Add a models or an array of models to the collection.
-   * Adding will replace existing model with the same
-   * primary key value.
-   * @param {array|object} models - List of models or single model to add
-   * @param {boolean} silent - Add model silently (no event triggered)
+   * Insert a model (or an array of models) at a position within the collection
+   * @param {object} model - Model to be inserted
+   * @param {number} position - Position to insert the model at
+   * if larger than the collection's size object will be added at the end
+   * @returns {Collection} Collection for chainability
    * @fires 'change'
-   * @fires 'add'
-   * @returns {Collection} the current collection for chaining
+   * @fires 'remove'
+   * @fires 'remove' when inserted model replaces an existing one
+   * @example
+   * ```js
+   * var people = new Collection([tim, fred]);
+   * people.insert([ted, john], 1);
+   * // people.models is now [tim, ted, john, fred]
+   * ```
    */
-  function add(_models, silent){
+  function insert(_models, cursor, silent){
+    // by default we'll insert the model at begining (like an insert)
+    cursor = !cursor ? 0 : cursor > size() ? size() : cursor;
+
     // makes an array if not one aleardy
     _models = [].concat(_models);
 
@@ -965,11 +1011,18 @@ function Collection(_models, primary_key) {
     for(var pk, model, i = 0; i < _models.length; i++){
       model = _models[i];
       pk = getPKString(model);
-      // first remove the model if its in the collection
-      if(pk in index) remove(primary_key, pk);
+
+      // replace a model
+      if(pk in index){
+        if (models.indexOf(index[pk]) < cursor){
+          cursor--;
+        }
+        remove(primary_key, pk);
+      }
 
       // then add it to the collection
-      models.push(model);
+      models.splice(cursor++, 0, model);
+
       index[pk] = model;
     }
 
@@ -979,7 +1032,23 @@ function Collection(_models, primary_key) {
       fire('change');
     }
 
-    return this
+    return this;
+  }
+
+  /**
+   * Add a models or an array of models to the collection.
+   * Adding will replace existing model with the same
+   * primary key value.
+   * @param {array|object} models - List of models or single model to add
+   * @param {boolean} silent - Add model silently (no event triggered)
+   * @fires 'change'
+   * @fires 'add'
+   * @fires 'remove' when added model replaces an existing one
+   * @returns {Collection} the current collection for chaining
+   */
+  function add(_models, silent){
+    insert(_models, size(), silent);
+    return this;
   }
 
   /**
@@ -1048,9 +1117,12 @@ function Collection(_models, primary_key) {
     'uuid': uuid,
     'isEmpty': isEmpty,
     'empty': empty,
+    'reset': reset,
     'size': size,
     'models': models,
     'add': add,
+    'insert': insert,
+    'pop': pop,
     'filter': filter,
     'each': each,
     'where': where,
