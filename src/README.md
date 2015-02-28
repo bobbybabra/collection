@@ -40,6 +40,8 @@ The only requirement for your models is to have a unique primary key.
   * [~size()](#Collection..size) ⇒ <code>number</code>
   * [~isEmpty()](#Collection..isEmpty) ⇒ <code>boolean</code>
   * [~empty(silent)](#Collection..empty) ⇒ <code>[Collection](#Collection)</code>
+  * [~reset(_models, silent)](#Collection..reset) ⇒ <code>[Collection](#Collection)</code>
+  * [~pop(model, position)](#Collection..pop) ⇒ <code>model</code>
   * [~each(callback)](#Collection..each) ⇒ <code>array</code>
   * [~filter(func)](#Collection..filter) ⇒ <code>[Collection](#Collection)</code>
   * [~keep(attribute, value, silent)](#Collection..keep) ⇒ <code>[Collection](#Collection)</code>
@@ -62,6 +64,7 @@ The only requirement for your models is to have a unique primary key.
   * [~sort(attribute, callback, silent)](#Collection..sort) ⇒ <code>[Collection](#Collection)</code>
   * [~page(page_size, page)](#Collection..page) ⇒ <code>object</code>
   * [~get(attribute, value)](#Collection..get) ⇒ <code>object</code>
+  * [~insert(model, position)](#Collection..insert) ⇒ <code>[Collection](#Collection)</code>
   * [~add(models, silent)](#Collection..add) ⇒ <code>[Collection](#Collection)</code>
   * [~on(event_name, func)](#Collection..on) ⇒ <code>function</code>
   * [~off(event_name, func)](#Collection..off)
@@ -159,6 +162,35 @@ from being triggered when true.
 | Param | Type | Description |
 | --- | --- | --- |
 | silent | <code>boolean</code> | Default to false, prevent events |
+
+<a name="Collection..reset"></a>
+### Collection~reset(_models, silent) ⇒ <code>[Collection](#Collection)</code>
+Reset the collection with the models passed to it
+
+**Returns**: <code>[Collection](#Collection)</code> - Returns the same collection instance but with an
+updated for content for additional chaining  
+**Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;remove&#x27;</code>, <code>event:&#x27;add&#x27;</code>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| _models | <code>object</code> \| <code>array</code> | a model or an array of models |
+| silent | <code>boolean</code> | Default to false, prevent events |
+
+**Example**  
+```js
+collection.reset([tim, fred]);
+```
+<a name="Collection..pop"></a>
+### Collection~pop(model, position) ⇒ <code>model</code>
+Remove the last object of the collection and returns it.
+
+**Returns**: <code>model</code> - the last model of the collection or undefined if the
+collection is empty  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| model | <code>object</code> | Model to be inserted |
+| position | <code>number</code> | Position to insert the model at if larger than the collection's size object will be added at the end |
 
 <a name="Collection..each"></a>
 ### Collection~each(callback) ⇒ <code>array</code>
@@ -601,6 +633,24 @@ var model = collection.get(1);
 // return model with email "john.doe@gmail.com"
 var user = collection.get('email', 'john.doe@gmail.com')
 ```
+<a name="Collection..insert"></a>
+### Collection~insert(model, position) ⇒ <code>[Collection](#Collection)</code>
+Insert a model (or an array of models) at a position within the collection
+
+**Returns**: <code>[Collection](#Collection)</code> - Collection for chainability  
+**Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;remove&#x27;</code>, <code>event:&#x27;remove&#x27; when inserted model replaces an existing one</code>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| model | <code>object</code> | Model to be inserted |
+| position | <code>number</code> | Position to insert the model at if larger than the collection's size object will be added at the end |
+
+**Example**  
+```js
+var people = new Collection([tim, fred]);
+people.insert([ted, john], 1);
+// people.models is now [tim, ted, john, fred]
+```
 <a name="Collection..add"></a>
 ### Collection~add(models, silent) ⇒ <code>[Collection](#Collection)</code>
 Add a models or an array of models to the collection.
@@ -608,7 +658,7 @@ Adding will replace existing model with the same
 primary key value.
 
 **Returns**: <code>[Collection](#Collection)</code> - the current collection for chaining  
-**Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;add&#x27;</code>  
+**Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;add&#x27;</code>, <code>event:&#x27;remove&#x27; when added model replaces an existing one</code>  
 
 | Param | Type | Description |
 | --- | --- | --- |
