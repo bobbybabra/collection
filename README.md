@@ -1,8 +1,31 @@
 # Collection [![Build Status](https://travis-ci.org/debrice/collection.svg?branch=master)](https://travis-ci.org/debrice/collection)
 
-Handles collection for your stores and other things. It's not opiniated, not doing AJAX, not doing views, not doing routing etc... Just does one thing, manage collections of your objects and is good at it.
+Handles collection for your stores and other things. It's not opinionated, not doing AJAX, nor views, nor routing etc... Just does one thing, manage collections of your objects and is good at it.
 
-[Read the API!](src/README.md)
+[Read the API](src/README.md)
+
+I created that library from years of expectation from a collection. This is
+the tool I've been needing I couldn't find. It might not fit everybody's need
+but if it fits a few others it would already be nice.
+
+The key features are and guideline I followed writing that library are:
+
+* A easy to maintain code base, with a full test-coverage
+* The model you transform as collection are **never** augmented.
+ * an object in a collection keeps its reference.
+ * Modifying an object in a collection modifies it a sub collection.
+* Collection can be related to each other
+ * You may filter a user collection using an address collection (see joins).
+ * You can truncate multiple collection at the same time, keeping only the record that matter.
+* You can generate views and views of views
+ * A view is consistent with its parent content
+ * it keeps itself in sync with its parent according to its query
+* A collection should allow mapping thought
+ * Using select you may quickly extract a new format of your collection.
+ * You can build custom attributes as you go (see `select`)
+* Generator allowing you to pace through your collection
+ * You can filter on only part of a collection
+ * You can build your own generator
 
 2.2kb (gzip, minified), no dependencies, to do cool things like:
 

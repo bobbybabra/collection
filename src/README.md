@@ -1,4 +1,4 @@
-## Globals
+## Functions
 <dl>
 <dt><a href="#Collection">Collection(models, primary_key)</a></dt>
 <dd><p>Container for a collection of javascript models (JSON).
@@ -24,6 +24,7 @@ It is also possible to proxy another proxy.</p>
 Container for a collection of javascript models (JSON).
 The only requirement for your models is to have a unique primary key.
 
+**Kind**: global function  
 **contstructor**:   
 
 | Param | Type | Description |
@@ -33,43 +34,44 @@ The only requirement for your models is to have a unique primary key.
 
 
 * [Collection(models, primary_key)](#Collection)
-  * [.join(collections, relations, where)](#Collection.join) ⇒ <code>object</code>
-  * [~getPKString(model)](#Collection..getPKString) ⇒ <code>string</code>
-  * [~getPKValues(model)](#Collection..getPKValues) ⇒ <code>array</code> \| <code>value</code>
-  * [~makeIndexStr(values, values)](#Collection..makeIndexStr) ⇒ <code>string</code>
-  * [~size()](#Collection..size) ⇒ <code>number</code>
-  * [~isEmpty()](#Collection..isEmpty) ⇒ <code>boolean</code>
-  * [~empty(silent)](#Collection..empty) ⇒ <code>[Collection](#Collection)</code>
-  * [~reset(_models, silent)](#Collection..reset) ⇒ <code>[Collection](#Collection)</code>
-  * [~pop(model, position)](#Collection..pop) ⇒ <code>model</code>
-  * [~each(callback)](#Collection..each) ⇒ <code>array</code>
-  * [~filter(func)](#Collection..filter) ⇒ <code>[Collection](#Collection)</code>
-  * [~keep(attribute, value, silent)](#Collection..keep) ⇒ <code>[Collection](#Collection)</code>
-  * [~isEqual()](#Collection..isEqual)
-  * [~remove(attribute, value, silent, not)](#Collection..remove) ⇒ <code>[Collection](#Collection)</code>
-  * [~not(select)](#Collection..not) ⇒ <code>collection</code>
-  * [~traverse(keys, keys, nested)](#Collection..traverse) ⇒ <code>value</code>
-  * [~modelWhereMatch(model, select, not)](#Collection..modelWhereMatch) ⇒ <code>object</code>
-  * [~where(select)](#Collection..where) ⇒ <code>[Collection](#Collection)</code>
-  * [~gWhere(select)](#Collection..gWhere) ⇒ <code>generator</code>
-  * [~gNot(select)](#Collection..gNot) ⇒ <code>generator</code>
-  * [~generator(callback, args)](#Collection..generator) ⇒ <code>generator</code>
-  * [~contains(str)](#Collection..contains) ⇒ <code>function</code>
-  * [~fuzzy(str)](#Collection..fuzzy) ⇒ <code>function</code>
-  * [~max(num)](#Collection..max) ⇒ <code>function</code>
-  * [~min(num)](#Collection..min) ⇒ <code>function</code>
-  * [~within(min, max)](#Collection..within) ⇒ <code>function</code>
-  * [~select(names, names, names)](#Collection..select) ⇒ <code>array</code>
-  * [~reverse(silent)](#Collection..reverse) ⇒ <code>[Collection](#Collection)</code>
-  * [~sort(attribute, callback, silent)](#Collection..sort) ⇒ <code>[Collection](#Collection)</code>
-  * [~page(page_size, page)](#Collection..page) ⇒ <code>object</code>
-  * [~get(attribute, value)](#Collection..get) ⇒ <code>object</code>
-  * [~insert(model, position)](#Collection..insert) ⇒ <code>[Collection](#Collection)</code>
-  * [~add(models, silent)](#Collection..add) ⇒ <code>[Collection](#Collection)</code>
-  * [~on(event_name, func)](#Collection..on) ⇒ <code>function</code>
-  * [~off(event_name, func)](#Collection..off)
-  * [~fire(event_name, data)](#Collection..fire)
-  * [~uuid()](#Collection..uuid) ⇒ <code>string</code>
+  * _static_
+    * [.join(collections, relations, where)](#Collection.join) ⇒ <code>object</code>
+  * _inner_
+    * [~getPKString(model)](#Collection..getPKString) ⇒ <code>string</code>
+    * [~getPKValues(model)](#Collection..getPKValues) ⇒ <code>array</code> \| <code>value</code>
+    * [~makeIndexStr(values, values)](#Collection..makeIndexStr) ⇒ <code>string</code>
+    * [~size()](#Collection..size) ⇒ <code>number</code>
+    * [~isEmpty()](#Collection..isEmpty) ⇒ <code>boolean</code>
+    * [~empty(silent)](#Collection..empty) ⇒ <code>[Collection](#Collection)</code>
+    * [~reset(_models, silent)](#Collection..reset) ⇒ <code>[Collection](#Collection)</code>
+    * [~pop(model, position)](#Collection..pop) ⇒ <code>model</code>
+    * [~each(callback)](#Collection..each) ⇒ <code>array</code>
+    * [~filter(func)](#Collection..filter) ⇒ <code>[Collection](#Collection)</code>
+    * [~keep(attribute, value, silent)](#Collection..keep) ⇒ <code>[Collection](#Collection)</code>
+    * [~isEqual()](#Collection..isEqual)
+    * [~remove(attribute, value, silent, not)](#Collection..remove) ⇒ <code>[Collection](#Collection)</code>
+    * [~not(select)](#Collection..not) ⇒ <code>collection</code>
+    * [~traverse(keys, keys, nested)](#Collection..traverse) ⇒ <code>value</code>
+    * [~modelWhereMatch(model, select, not)](#Collection..modelWhereMatch) ⇒ <code>object</code>
+    * [~where(select)](#Collection..where) ⇒ <code>[Collection](#Collection)</code>
+    * [~gWhere(select)](#Collection..gWhere) ⇒ <code>generator</code>
+    * [~gNot(select)](#Collection..gNot) ⇒ <code>generator</code>
+    * [~generator(callback, args)](#Collection..generator) ⇒ <code>generator</code>
+    * [~contains(str)](#Collection..contains) ⇒ <code>function</code>
+    * [~fuzzy(str)](#Collection..fuzzy) ⇒ <code>function</code>
+    * [~max(num)](#Collection..max) ⇒ <code>function</code>
+    * [~min(num)](#Collection..min) ⇒ <code>function</code>
+    * [~within(min, max)](#Collection..within) ⇒ <code>function</code>
+    * [~select(names, names, names)](#Collection..select) ⇒ <code>array</code>
+    * [~reverse(silent)](#Collection..reverse) ⇒ <code>[Collection](#Collection)</code>
+    * [~sort(attribute, callback, silent)](#Collection..sort) ⇒ <code>[Collection](#Collection)</code>
+    * [~page(page_size, page)](#Collection..page) ⇒ <code>object</code>
+    * [~get(attribute, value)](#Collection..get) ⇒ <code>object</code>
+    * [~insert(model, position)](#Collection..insert) ⇒ <code>[Collection](#Collection)</code>
+    * [~add(models, silent)](#Collection..add) ⇒ <code>[Collection](#Collection)</code>
+    * [~on(event_name, func)](#Collection..on) ⇒ <code>function</code>
+    * [~off(event_name, func)](#Collection..off)
+    * [~fire(event_name, data)](#Collection..fire)
 
 <a name="Collection.join"></a>
 ### Collection.join(collections, relations, where) ⇒ <code>object</code>
@@ -78,6 +80,7 @@ passed.
 Relation should be read as only keep the models in the second collection
 connected to the first.
 
+**Kind**: static method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>object</code> - an associative array of filtered Collections  
 
 | Param | Type | Description |
@@ -90,6 +93,7 @@ connected to the first.
 ### Collection~getPKString(model) ⇒ <code>string</code>
 Returns the primary key value of a model as a string
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>string</code> - value of the PK  
 
 | Param | Type | Description |
@@ -100,6 +104,7 @@ Returns the primary key value of a model as a string
 ### Collection~getPKValues(model) ⇒ <code>array</code> \| <code>value</code>
 Returns the primary keys values as an array of values
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>array</code> - an array of values if composed primary key.<code>value</code> - value of the PK if not composed PK.  
 
 | Param | Type | Description |
@@ -114,6 +119,7 @@ of strings passed to it separated by a 0x31 char code delimiter.
 This method is used to build the strings primary key value when added to
 the collection and retrieved through `collection.get(primary_key_value)`
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>string</code> - representation of a model primary key  
 
 | Param | Type | Description |
@@ -130,6 +136,7 @@ makeIndexStr([1, 'doe', 'john']);
 ### Collection~size() ⇒ <code>number</code>
 Returns the count of models contained in the collection
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>number</code> - the collection model count  
 **Example**  
 ```js
@@ -142,6 +149,7 @@ collection.size()
 ### Collection~isEmpty() ⇒ <code>boolean</code>
 Returns true if the collection doesn't contain any model
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>boolean</code> - `true` if collection is empty, otherwise `false`  
 **Example**  
 ```js
@@ -154,6 +162,7 @@ collection.isEmpty()
 ### Collection~empty(silent) ⇒ <code>[Collection](#Collection)</code>
 Empty the collection
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>[Collection](#Collection)</code> - Returns the same collection instance but emptied for
 additional chaining
 from being triggered when true.  
@@ -167,6 +176,7 @@ from being triggered when true.
 ### Collection~reset(_models, silent) ⇒ <code>[Collection](#Collection)</code>
 Reset the collection with the models passed to it
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>[Collection](#Collection)</code> - Returns the same collection instance but with an
 updated for content for additional chaining  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;remove&#x27;</code>, <code>event:&#x27;add&#x27;</code>  
@@ -184,6 +194,7 @@ collection.reset([tim, fred]);
 ### Collection~pop(model, position) ⇒ <code>model</code>
 Remove the last object of the collection and returns it.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>model</code> - the last model of the collection or undefined if the
 collection is empty  
 
@@ -197,6 +208,7 @@ collection is empty
 Returns an array with the returned values of the callback
 iteration stops if the callback returns `false`.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>array</code> - an array of matching models according to the callback  
 
 | Param | Type | Description |
@@ -221,6 +233,7 @@ filter accepts a function to filter it's content. The function
 receives 3 arguments: the current model, the collection's models,
 and the position within the current iteration.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>[Collection](#Collection)</code> - Returns a new filtered collection  
 
 | Param | Type | Description |
@@ -240,6 +253,7 @@ var models = collection.filter(callback);
 The opposite of remove, the collection will remove any object
 not matching the query and only keep the one matching the query.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>[Collection](#Collection)</code> - the current collection for chaining  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;remove&#x27;</code>  
 
@@ -253,6 +267,7 @@ not matching the query and only keep the one matching the query.
 ### Collection~isEqual()
 Equal function compairing arrays and values only
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 <a name="Collection..remove"></a>
 ### Collection~remove(attribute, value, silent, not) ⇒ <code>[Collection](#Collection)</code>
 Remove all the objects with a matching attribute.
@@ -266,6 +281,7 @@ A function can also be used in conjunction with an
 attribute name. In this case, the function will
 receive the model's attribute value as an argument.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>[Collection](#Collection)</code> - the current collection for chaining  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;remove&#x27;</code>  
 
@@ -297,6 +313,7 @@ collection.remove([tim, fred]);
 ### Collection~not(select) ⇒ <code>collection</code>
 return a new collection of non matching models (see collection.where)
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>collection</code> - the current collection for chaining  
 
 | Param | Type | Description |
@@ -313,6 +330,7 @@ collection.not({name: Collection.contains('^rob')});
 traverse a model according to a composed key where
 key and sub keys are separated by a dot.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>value</code> - value or undefined if attribute could not be resolved  
 
 | Param | Type | Description |
@@ -339,6 +357,7 @@ traverse(model, ['b', 'x'])
 ### Collection~modelWhereMatch(model, select, not) ⇒ <code>object</code>
 Return the model if it matches the selection
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>object</code> - return model or undefined if not a match  
 
 | Param | Type | Description |
@@ -351,6 +370,7 @@ Return the model if it matches the selection
 ### Collection~where(select) ⇒ <code>[Collection](#Collection)</code>
 return a new collection of matching models
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>[Collection](#Collection)</code> - the current collection for chaining  
 
 | Param | Type | Description |
@@ -371,6 +391,7 @@ Similar to where but returns a generator.
 gWhere allow a more gentle filtering of the collection as it
 only returns results one by one
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -395,6 +416,7 @@ Similar to where but returns a generator.
 gNot allow a more gentle filtering of the collection as it
 only returns results one by one
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>generator</code> - a generator  
 
 | Param | Type | Description |
@@ -422,6 +444,7 @@ receive the array of arguments as additional ones.
 
 Generator is used for gNot and gWhere.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>generator</code> - call `next()` of the returned object to retrieve
 the next value returned by the callback argument.  
 
@@ -453,6 +476,7 @@ generator.reset();
 ### Collection~contains(str) ⇒ <code>function</code>
 Where filter to string match value.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>function</code> - Callable accepting a string.  
 
 | Param | Type | Description |
@@ -467,6 +491,7 @@ var avenues = collection.where('address', collection.contains('avenue'));
 ### Collection~fuzzy(str) ⇒ <code>function</code>
 Where filter to fuzzy match strings.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>function</code> - Callable accepting a string.  
 
 | Param | Type | Description |
@@ -481,6 +506,7 @@ var victor_hugos = books.where('author', collection.fuzzy('vic hug'));
 ### Collection~max(num) ⇒ <code>function</code>
 Where filter up to a maximum value.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>function</code> - Callable accepting a number.  
 
 | Param | Type | Description |
@@ -495,6 +521,7 @@ var non_drinkers = people.where('age', collection.max(20));
 ### Collection~min(num) ⇒ <code>function</code>
 Where filter from a minimum value.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>function</code> - Callable accepting a number.  
 
 | Param | Type | Description |
@@ -509,6 +536,7 @@ var adults = people.where('age', collection.max(21));
 ### Collection~within(min, max) ⇒ <code>function</code>
 Where filter within two values.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>function</code> - Callable accepting a number.  
 
 | Param | Type | Description |
@@ -526,6 +554,7 @@ Return only the selected attribute on the collection.
 To remap attributes, you can pass an object where the key is the
 attribute you want to read, the value will be the mapped name.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>array</code> - a flat array of attribute if a string was requested  
 
 | Param | Type | Description |
@@ -552,6 +581,7 @@ collection.select({id:'id', name: 'first_name'});
 ### Collection~reverse(silent) ⇒ <code>[Collection](#Collection)</code>
 Reverse the order of the current collection
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>[Collection](#Collection)</code> - the current collection reversed  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;sort&#x27;</code>  
 
@@ -574,6 +604,7 @@ Returns a sorted the collection sorted according to a given
 attribute. if a callback is passed, the return value of this
 callback will be used for sorting
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>[Collection](#Collection)</code> - the current collection sorted  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;sort&#x27;</code>  
 
@@ -606,6 +637,7 @@ Returns a JSON object with keys to help you paginate your listing:
 }
 ```
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>object</code> - Page object  
 
 | Param | Type | Description |
@@ -619,6 +651,7 @@ Returns the first model with the matching attribute
 if only on argument is passed, the get is matched
 against the model primary key
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>object</code> - Returns a single model.  
 
 | Param | Type | Description |
@@ -637,6 +670,7 @@ var user = collection.get('email', 'john.doe@gmail.com')
 ### Collection~insert(model, position) ⇒ <code>[Collection](#Collection)</code>
 Insert a model (or an array of models) at a position within the collection
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>[Collection](#Collection)</code> - Collection for chainability  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;remove&#x27;</code>, <code>event:&#x27;remove&#x27; when inserted model replaces an existing one</code>  
 
@@ -657,6 +691,7 @@ Add a models or an array of models to the collection.
 Adding will replace existing model with the same
 primary key value.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>[Collection](#Collection)</code> - the current collection for chaining  
 **Emits**: <code>event:&#x27;change&#x27;</code>, <code>event:&#x27;add&#x27;</code>, <code>event:&#x27;remove&#x27; when added model replaces an existing one</code>  
 
@@ -670,6 +705,7 @@ primary key value.
 Register a callback on an given event
 event can be 'change', 'remove', 'add' or 'sort'.
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 **Returns**: <code>function</code> - Unregister callback  
 
 | Param | Type | Description |
@@ -681,6 +717,7 @@ event can be 'change', 'remove', 'add' or 'sort'.
 ### Collection~off(event_name, func)
 Unregister a callback on an event
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -691,17 +728,13 @@ Unregister a callback on an event
 ### Collection~fire(event_name, data)
 Fire an event
 
+**Kind**: inner method of <code>[Collection](#Collection)</code>  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | event_name | <code>string</code> | Event stack to be fired. |
 | data | <code>object</code> | Data to be passed to the listener. |
 
-<a name="Collection..uuid"></a>
-### Collection~uuid() ⇒ <code>string</code>
-utility method that returns a valid uuid
-
-**Returns**: <code>string</code> - a valid UUID string  
 <a name="CollectionView"></a>
 ## CollectionView(collection, where)
 CollectionView allows you to have collection depending on a where
@@ -710,6 +743,7 @@ When the content of a main collection changes, its subset is updated
 to reflect the where applied to itself.
 You can
 
+**Kind**: global function  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -733,6 +767,7 @@ When the content of a main collection changes, its subset will truncat
 itself to match the parent.
 It is also possible to proxy another proxy.
 
+**Kind**: global function  
 
 | Param | Type | Description |
 | --- | --- | --- |
