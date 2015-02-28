@@ -194,7 +194,7 @@ function Collection(_models, primary_key) {
     if (isEmpty()){
       return
     }
-    model = models[size() - 1];
+    var model = models[size() - 1];
     remove(model);
     return model;
   }
