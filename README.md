@@ -4,7 +4,7 @@ Handles collection for your stores and other things. It's not opiniated, not doi
 
 [Read the API!](src/README.md)
 
-5.5kb, no dependencies, to do cool things like:
+2.2kb (gzip, minified), no dependencies, to do cool things like:
 
 ```javascript
 function is_odd(value) {
@@ -88,8 +88,7 @@ every object contained within the collection.
 By default the `Collection` will be emtpy and the primary key will be
 set to `id`.
 
-Every model needs to have a primary key. A convenience `Collection.uuid()` method
-is provided for you to generate random unique IDs. By default the collection
+Every model needs to have a primary key. By default the collection
 will be indexed by the 'id' key. To change this behavior pass the
 primary key to the constructor:
 
@@ -628,7 +627,6 @@ my_collection.sort('demo.age');
 * `empty()`: Flushes the collection, removes all the object it contains.
 * `size()`: Returns the size of the collection.
 * `each(callback)`: Calls callback(obj) for every object in the collection.
-* `uuid()`: returns a uniq valid UUID4 format.
 * `reverse()`: reverse and returns the collection (not a new collection).
 * `models`: returns the collection's content (an array).
 

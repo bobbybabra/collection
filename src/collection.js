@@ -1095,26 +1095,10 @@ function Collection(_models, primary_key) {
     }
   }
 
-  function _interpolate_uuid(char) {
-    var r = Math.random() * 16 | 0,
-        v = char == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  }
-
-  /**
-   * utility method that returns a valid uuid
-   * @returns {string} a valid UUID string
-   */
-  function uuid(){
-    var uuid_format = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
-    return uuid_format.replace(/[xy]/g, _interpolate_uuid);
-  }
-
   return {
     'getPKString': getPKString,
     'getPKValues': getPKValues,
     'primary_key': primary_key,
-    'uuid': uuid,
     'isEmpty': isEmpty,
     'empty': empty,
     'reset': reset,
